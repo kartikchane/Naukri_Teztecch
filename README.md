@@ -2,6 +2,10 @@
 
 A full-stack job portal platform where job seekers can find opportunities and employers can post jobs.
 
+## 🌐 Live Demo
+- **Frontend**: [Deploy to Vercel](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/naukri-platform)
+- **Deployment Guide**: See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for detailed instructions
+
 ## 🚀 Tech Stack
 
 ### Frontend
