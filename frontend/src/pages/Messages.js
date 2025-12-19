@@ -337,12 +337,6 @@ const Messages = () => {
                       </button>
                     </div>
                   </div>
-                        className="text-white hover:text-purple-200"
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  </div>
 
                   {/* AI Messages */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50 to-blue-50">
