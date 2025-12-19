@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
@@ -18,6 +18,8 @@ import {
 const PostJob = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [checkingCompany, setCheckingCompany] = useState(true);
+  const [userCompany, setUserCompany] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     company: '',
@@ -70,6 +72,30 @@ const PostJob = () => {
 
   const employmentTypes = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance'];
   const workModes = ['On-site', 'Remote', 'Hybrid'];
+
+  useEffect(() => {
+    checkCompanyProfile();
+  }, []);
+
+  const checkCompanyProfile = async () => {
+    try {
+      const { data } = await API.get('/companies/my-company');
+      setUserCompany(data);
+      // Auto-fill company name from profile
+      setFormData(prev => ({
+        ...prev,
+        company: data.name
+      }));
+    } catch (error) {
+      // No company profile found
+      toast.error('You need to create a company profile first');
+      setTimeout(() => {
+        navigate('/create-company');
+      }, 2000);
+    } finally {
+      setCheckingCompany(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -201,7 +227,16 @@ const PostJob = () => {
       setLoading(false);
     }
   };
-
+  if (checkingCompany) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking company profile...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8">
       <div className="container mx-auto px-4 max-w-4xl">

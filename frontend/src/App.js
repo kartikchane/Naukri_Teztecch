@@ -24,6 +24,7 @@ import CompanyDetails from './pages/CompanyDetails';
 import Messages from './pages/Messages';
 import Notifications from './pages/Notifications';
 import PostJob from './pages/PostJob';
+import CreateCompany from './pages/CreateCompany';
 
 // Footer Pages
 import AboutUs from './pages/AboutUs';
@@ -114,6 +115,14 @@ function App() {
                 element={
                   <PrivateRoute requiredRole="employer">
                     <PostJob />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/create-company"
+                element={
+                  <PrivateRoute requiredRole="employer">
+                    <CreateCompany />
                   </PrivateRoute>
                 }
               />

@@ -41,6 +41,24 @@ router.post('/', [protect, isEmployer], [
   }
 });
 
+// @route   GET /api/companies/my-company
+// @desc    Get current user's company
+// @access  Private (Employer only)
+router.get('/my-company', [protect, isEmployer], async (req, res) => {
+  try {
+    const company = await Company.findOne({ owner: req.user._id });
+    
+    if (!company) {
+      return res.status(404).json({ message: 'No company profile found' });
+    }
+
+    res.json(company);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // @route   GET /api/companies/:id
 // @desc    Get company by ID
 // @access  Public
