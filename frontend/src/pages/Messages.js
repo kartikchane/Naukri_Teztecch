@@ -39,39 +39,11 @@ const Messages = () => {
 
   const fetchConversations = async () => {
     try {
-      // Mock data for now - replace with actual API call
-      const mockConversations = [
-        {
-          _id: '1',
-          otherUser: {
-            _id: 'user1',
-            name: 'Tech Corp HR',
-            avatar: null,
-          },
-          lastMessage: {
-            content: 'Thank you for applying to our Senior Developer position',
-            timestamp: new Date(Date.now() - 3600000),
-            read: false,
-          },
-          unreadCount: 2,
-        },
-        {
-          _id: '2',
-          otherUser: {
-            _id: 'user2',
-            name: 'Startup Inc',
-            avatar: null,
-          },
-          lastMessage: {
-            content: 'We would like to schedule an interview',
-            timestamp: new Date(Date.now() - 7200000),
-            read: true,
-          },
-          unreadCount: 0,
-        },
-      ];
-      setConversations(mockConversations);
+      // No conversations yet - will be implemented when backend messaging is ready
+      setConversations([]);
       setLoading(false);
+      // Auto-open AI Assistant since there are no conversations
+      setShowAIChat(true);
     } catch (error) {
       console.error('Error fetching conversations:', error);
       setLoading(false);
@@ -80,31 +52,8 @@ const Messages = () => {
 
   const fetchMessages = async (conversationId) => {
     try {
-      // Mock messages - replace with actual API call
-      const mockMessages = [
-        {
-          _id: 'm1',
-          sender: { _id: 'user1', name: 'Tech Corp HR' },
-          content: 'Hello! Thank you for applying to our Senior Developer position.',
-          timestamp: new Date(Date.now() - 7200000),
-          read: true,
-        },
-        {
-          _id: 'm2',
-          sender: { _id: 'current-user', name: 'You' },
-          content: 'Thank you! I am very interested in this opportunity.',
-          timestamp: new Date(Date.now() - 3600000),
-          read: true,
-        },
-        {
-          _id: 'm3',
-          sender: { _id: 'user1', name: 'Tech Corp HR' },
-          content: 'Great! We would like to schedule an interview. Are you available next week?',
-          timestamp: new Date(Date.now() - 1800000),
-          read: false,
-        },
-      ];
-      setMessages(mockMessages);
+      // Will be implemented when backend messaging is ready
+      setMessages([]);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -301,7 +250,11 @@ const Messages = () => {
               <div className="flex-1 overflow-y-auto">
                 {filteredConversations.length === 0 ? (
                   <div className="p-8 text-center text-gray-500">
-                    <p>No conversations yet</p>
+                    <FaPaperPlane className="mx-auto text-5xl text-gray-300 mb-4" />
+                    <p className="text-base font-medium text-gray-700 mb-2">No conversations yet</p>
+                    <p className="text-sm text-gray-500">
+                      When employers contact you, conversations will appear here
+                    </p>
                   </div>
                 ) : (
                   filteredConversations.map((conversation) => (
