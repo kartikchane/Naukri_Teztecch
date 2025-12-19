@@ -315,8 +315,8 @@ const Messages = () => {
             {/* Messages Area or AI Chat */}
             <div className="flex-1 flex flex-col w-full md:w-auto overflow-hidden">
               {showAIChat ? (
-                /* AI Assistant Chat */
                 <>
+                  {/* AI Assistant Chat */}
                   {/* AI Header */}
                   <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-blue-600 flex-shrink-0">
                     <div className="flex items-center justify-between">
