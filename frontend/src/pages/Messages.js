@@ -228,46 +228,69 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 md:py-8">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-        {/* Header with AI Assistant Button */}
-        <div className="flex items-center justify-between mb-4 md:mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Messages</h1>
+    <div className="h-screen bg-gray-50 flex flex-col">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200 px-4 py-3 flex-shrink-0">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Messages</h1>
           <button
             onClick={() => {
               setShowAIChat(!showAIChat);
               setSelectedConversation(null);
               setShowSidebar(false);
             }}
-            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg"
+            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-md text-sm"
           >
-            <FaRobot className="text-xl" />
+            <FaRobot className="text-lg" />
             <span className="hidden sm:inline">AI Assistant</span>
           </button>
         </div>
+      </div>
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden" style={{ height: 'calc(100vh - 180px)' }}>
-          <div className="flex h-full relative">
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setShowSidebar(!showSidebar)}
-              className="md:hidden absolute top-4 left-4 z-50 bg-white p-2 rounded-lg shadow-lg"
-            >
-              {showSidebar ? <FaTimes /> : <FaBars />}
-            </button>
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-hidden">
+        <div className="max-w-7xl mx-auto h-full">
+          <div className="h-full bg-white md:mx-4 md:my-4 md:rounded-lg shadow-lg overflow-hidden">
+            <div className="flex h-full relative">
+              {/* Mobile Overlay */}
+              {showSidebar && (
+                <div 
+                  className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+                  onClick={() => setShowSidebar(false)}
+                />
+              )}
 
-            {/* Conversations List - Mobile Responsive */}
-            <div className={`${
-              showSidebar ? 'translate-x-0' : '-translate-x-full'
-            } md:translate-x-0 fixed md:relative inset-y-0 left-0 z-40 w-80 md:w-1/3 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out`}>
+              {/* Mobile Menu Button */}
+              {!showSidebar && selectedConversation && (
+                <button
+                  onClick={() => setShowSidebar(true)}
+                  className="md:hidden absolute top-4 left-4 z-20 bg-white p-2 rounded-lg shadow-lg"
+                >
+                  <FaBars className="text-gray-600" />
+                </button>
+              )}
+
+              {/* Conversations List - Mobile Responsive */}
+              <div className={`${
+                showSidebar ? 'translate-x-0' : '-translate-x-full'
+              } md:translate-x-0 fixed md:relative inset-y-0 left-0 z-40 w-80 md:w-96 lg:w-1/3 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out h-full`}>
               {/* Search */}
-              <div className="p-4 border-b border-gray-200 mt-12 md:mt-0">
+              <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                <div className="flex items-center justify-between mb-3 md:hidden">
+                  <h2 className="text-lg font-semibold text-gray-900">Conversations</h2>
+                  <button
+                    onClick={() => setShowSidebar(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <FaTimes className="text-xl" />
+                  </button>
+                </div>
                 <div className="relative">
-                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
                   <input
                     type="text"
                     placeholder="Search conversations..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -286,7 +309,7 @@ const Messages = () => {
                       key={conversation._id}
                       onClick={() => handleConversationSelect(conversation)}
                       className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-                        selectedConversation?._id === conversation._id ? 'bg-blue-50' : ''
+                        selectedConversation?._id === conversation._id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
                       }`}
                     >
                       <div className="flex items-start">
@@ -337,24 +360,30 @@ const Messages = () => {
             )}
 
             {/* Messages Area or AI Chat */}
-            <div className="flex-1 flex flex-col w-full md:w-auto">
+            <div className="flex-1 flex flex-col w-full md:w-auto overflow-hidden">
               {showAIChat ? (
                 /* AI Assistant Chat */
                 <>
                   {/* AI Header */}
-                  <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-blue-600">
+                  <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-blue-600 flex-shrink-0">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
                           <FaRobot className="text-2xl text-purple-600" />
                         </div>
                         <div className="ml-3">
-                          <h2 className="font-semibold text-white">AI Assistant</h2>
+                          <h2 className="font-semibold text-white text-base md:text-lg">AI Assistant</h2>
                           <p className="text-xs text-purple-100">Ask me anything about jobs & companies</p>
                         </div>
                       </div>
                       <button
                         onClick={() => setShowAIChat(false)}
+                        className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-colors"
+                      >
+                        <FaTimes className="text-xl" />
+                      </button>
+                    </div>
+                  </div>
                         className="text-white hover:text-purple-200"
                       >
                         <FaTimes />
@@ -365,20 +394,20 @@ const Messages = () => {
                   {/* AI Messages */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50 to-blue-50">
                     {aiMessages.length === 0 && (
-                      <div className="text-center py-8">
-                        <FaRobot className="text-6xl text-purple-300 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                      <div className="text-center py-8 px-4">
+                        <FaRobot className="text-5xl md:text-6xl text-purple-300 mx-auto mb-4" />
+                        <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">
                           Hello! I'm your AI Assistant
                         </h3>
-                        <p className="text-gray-600 mb-4 px-4">
+                        <p className="text-sm md:text-base text-gray-600 mb-4">
                           Ask me about companies, jobs, applications, or career advice!
                         </p>
-                        <div className="flex flex-wrap gap-2 justify-center px-4">
+                        <div className="flex flex-wrap gap-2 justify-center">
                           {['Tell me about companies', 'How to apply?', 'Remote jobs?', 'Interview tips?'].map((suggestion) => (
                             <button
                               key={suggestion}
                               onClick={() => handleAIQuestion(suggestion)}
-                              className="px-4 py-2 bg-white text-purple-600 rounded-full text-sm hover:bg-purple-100 transition-colors shadow"
+                              className="px-3 py-2 bg-white text-purple-600 rounded-full text-xs md:text-sm hover:bg-purple-100 transition-colors shadow"
                             >
                               {suggestion}
                             </button>
@@ -430,28 +459,28 @@ const Messages = () => {
                   </div>
 
                   {/* AI Input */}
-                  <div className="p-4 bg-white border-t border-gray-200">
+                  <div className="p-3 md:p-4 bg-white border-t border-gray-200 flex-shrink-0">
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
                         handleAIQuestion(aiInput);
                       }}
-                      className="flex items-center space-x-2"
+                      className="flex items-center gap-2"
                     >
                       <input
                         type="text"
                         placeholder="Ask me anything..."
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="flex-1 px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm md:text-base"
                         value={aiInput}
                         onChange={(e) => setAiInput(e.target.value)}
                       />
                       <button
                         type="submit"
                         disabled={aiTyping}
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-colors flex items-center disabled:opacity-50"
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 md:px-6 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                       >
-                        <FaPaperPlane className="sm:mr-2" />
-                        <span className="hidden sm:inline">Send</span>
+                        <FaPaperPlane className="md:mr-2" />
+                        <span className="hidden md:inline">Send</span>
                       </button>
                     </form>
                   </div>
@@ -459,28 +488,36 @@ const Messages = () => {
               ) : selectedConversation ? (
                 <>
                   {/* Header */}
-                  <div className="p-4 border-b border-gray-200 bg-white">
-                    <div className="flex items-center">
-                      {selectedConversation.otherUser.avatar ? (
-                        <img
-                          src={selectedConversation.otherUser.avatar}
-                          alt={selectedConversation.otherUser.name}
-                          className="w-10 h-10 rounded-full"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                          <FaUserCircle className="text-2xl text-blue-500" />
-                        </div>
-                      )}
-                      <div className="ml-3">
-                        <h2 className="font-semibold text-gray-900">
-                          {selectedConversation.otherUser.name}
-                        </h2>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <FaCircle className="text-green-500 text-xs mr-1" />
-                          Online
+                  <div className="p-3 md:p-4 border-b border-gray-200 bg-white flex-shrink-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        {selectedConversation.otherUser.avatar ? (
+                          <img
+                            src={selectedConversation.otherUser.avatar}
+                            alt={selectedConversation.otherUser.name}
+                            className="w-10 h-10 rounded-full flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <FaUserCircle className="text-2xl text-blue-500" />
+                          </div>
+                        )}
+                        <div className="ml-3 min-w-0">
+                          <h2 className="font-semibold text-gray-900 text-sm md:text-base truncate">
+                            {selectedConversation.otherUser.name}
+                          </h2>
+                          <div className="flex items-center text-xs md:text-sm text-gray-500">
+                            <FaCircle className="text-green-500 text-xs mr-1" />
+                            Online
+                          </div>
                         </div>
                       </div>
+                      <button
+                        onClick={() => setShowSidebar(true)}
+                        className="md:hidden text-gray-600 p-2"
+                      >
+                        <FaBars />
+                      </button>
                     </div>
                   </div>
 
@@ -514,8 +551,8 @@ const Messages = () => {
                   </div>
 
                   {/* Input */}
-                  <div className="p-3 md:p-4 bg-white border-t border-gray-200">
-                    <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
+                  <div className="p-3 md:p-4 bg-white border-t border-gray-200 flex-shrink-0">
+                    <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                       <input
                         type="text"
                         placeholder="Type a message..."
@@ -525,7 +562,7 @@ const Messages = () => {
                       />
                       <button
                         type="submit"
-                        className="bg-blue-500 text-white px-4 md:px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center"
+                        className="bg-blue-500 text-white px-4 md:px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center flex-shrink-0"
                       >
                         <FaPaperPlane className="md:mr-2" />
                         <span className="hidden md:inline">Send</span>
@@ -534,15 +571,21 @@ const Messages = () => {
                   </div>
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center bg-gray-50">
-                  <div className="text-center">
-                    <FaPaperPlane className="mx-auto text-6xl text-gray-300 mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                <div className="flex-1 flex items-center justify-center bg-gray-50 p-4">
+                  <div className="text-center max-w-sm">
+                    <FaPaperPlane className="mx-auto text-5xl md:text-6xl text-gray-300 mb-4" />
+                    <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">
                       No conversation selected
                     </h3>
-                    <p className="text-gray-500">
+                    <p className="text-sm md:text-base text-gray-500">
                       Select a conversation from the list to start messaging
                     </p>
+                    <button
+                      onClick={() => setShowSidebar(true)}
+                      className="mt-4 md:hidden bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      View Conversations
+                    </button>
                   </div>
                 </div>
               )}
