@@ -20,15 +20,18 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      // Simulated password reset - in production, this would send an email
-      // await API.post('/auth/forgot-password', { email });
+      const response = await API.post('/auth/forgot-password', { email });
       
-      // For now, show success message
-      setTimeout(() => {
-        setEmailSent(true);
-        toast.success('Password reset instructions sent to your email!');
-        setLoading(false);
-      }, 1500);
+      setEmailSent(true);
+      toast.success('Password reset instructions sent!');
+      
+      // In development, show the reset link in console
+      if (response.data.resetLink) {
+        console.log('🔐 Password Reset Link:', response.data.resetLink);
+        console.log('User:', response.data.debug?.name, '(' + response.data.debug?.email + ')');
+      }
+      
+      setLoading(false);
     } catch (error) {
       console.error('Error:', error);
       toast.error(error.response?.data?.message || 'Failed to send reset email');
