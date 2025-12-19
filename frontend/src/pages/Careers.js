@@ -1,8 +1,65 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaBriefcase, FaRocket, FaUsers, FaGraduationCap } from 'react-icons/fa';
+import { FaBriefcase, FaRocket, FaUsers, FaGraduationCap, FaTimes } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 const Careers = () => {
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    resume: '',
+    coverLetter: ''
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleApplyClick = (position) => {
+    setSelectedPosition(position);
+    setShowApplyModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowApplyModal(false);
+    setSelectedPosition(null);
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      resume: '',
+      coverLetter: ''
+    });
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.name || !formData.email || !formData.phone) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
+
+    // Simulate application submission
+    setTimeout(() => {
+      toast.success(`Application submitted for ${selectedPosition.title}!`);
+      console.log('Application submitted:', {
+        position: selectedPosition.title,
+        ...formData
+      });
+      setLoading(false);
+      handleCloseModal();
+    }, 1500);
+  };
   const openPositions = [
     {
       title: 'Senior Full Stack Developer',
@@ -181,12 +238,12 @@ const Careers = () => {
                       </span>
                     </div>
                     <p className="text-gray-700 mb-4">{position.description}</p>
-                    <Link
-                      to="/contact"
+                    <button
+                      onClick={() => handleApplyClick(position)}
                       className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all"
                     >
                       Apply Now
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -210,6 +267,135 @@ const Careers = () => {
           </Link>
         </div>
       </section>
+
+      {/* Application Modal */}
+      {showApplyModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 flex justify-between items-start rounded-t-xl">
+              <div>
+                <h2 className="text-2xl font-bold mb-2">Apply for Position</h2>
+                <p className="text-blue-100">{selectedPosition?.title}</p>
+                <div className="flex gap-3 mt-2 text-sm">
+                  <span>📍 {selectedPosition?.location}</span>
+                  <span>⏰ {selectedPosition?.type}</span>
+                </div>
+              </div>
+              <button
+                onClick={handleCloseModal}
+                className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-colors"
+              >
+                <FaTimes className="text-2xl" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleSubmit} className="p-6">
+              <div className="space-y-4">
+                {/* Full Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Your full name"
+                    required
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="your.email@example.com"
+                    required
+                  />
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+91 9876543210"
+                    required
+                  />
+                </div>
+
+                {/* Resume Link */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Resume Link
+                  </label>
+                  <input
+                    type="url"
+                    name="resume"
+                    value={formData.resume}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="https://drive.google.com/... or LinkedIn profile"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Provide a link to your resume (Google Drive, Dropbox, LinkedIn, etc.)
+                  </p>
+                </div>
+
+                {/* Cover Letter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Cover Letter / Why do you want to join us?
+                  </label>
+                  <textarea
+                    name="coverLetter"
+                    value={formData.coverLetter}
+                    onChange={handleInputChange}
+                    rows="5"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Tell us why you're a great fit for this position..."
+                  />
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Submitting...' : 'Submit Application'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
