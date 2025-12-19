@@ -24,6 +24,20 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Naukri Platform API',
+    status: 'running',
+    endpoints: {
+      health: '/api/health',
+      jobs: '/api/jobs',
+      stats: '/api/stats',
+      auth: '/api/auth'
+    }
+  });
+});
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/jobs', require('./routes/jobs'));
