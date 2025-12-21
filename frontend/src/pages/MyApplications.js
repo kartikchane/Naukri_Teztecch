@@ -169,7 +169,9 @@ const MyApplications = () => {
         {/* Applications List */}
         <div className="space-y-4">
           {filteredApplications.length > 0 ? (
-            filteredApplications.map((application) => (
+            filteredApplications.map((application) => {
+              const resumeUrl = application.resume || application.applicant?.resume;
+              return (
               <div key={application._id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
                 <div className="p-6">
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
@@ -246,12 +248,12 @@ const MyApplications = () => {
                       >
                         View Job
                       </Link>
-                      {application.resume ? (
+                      {resumeUrl ? (
                         <a
                           href={
-                            application.resume.startsWith('http') 
-                              ? application.resume 
-                              : `http://localhost:5000/${application.resume}`
+                            resumeUrl.startsWith('http') 
+                              ? resumeUrl 
+                              : `http://localhost:5000/${resumeUrl}`
                           }
                           target="_blank"
                           rel="noopener noreferrer"
@@ -280,7 +282,8 @@ const MyApplications = () => {
                   )}
                 </div>
               </div>
-            ))
+            );
+            })
           ) : (
             <div className="bg-white rounded-lg shadow p-12 text-center">
               <div className="text-gray-400 mb-4">

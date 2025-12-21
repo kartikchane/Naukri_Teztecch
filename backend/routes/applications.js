@@ -99,6 +99,7 @@ router.get('/my', protect, async (req, res) => {
           select: 'name logo'
         }
       })
+      .populate('applicant', 'name email resume')
       .sort({ appliedAt: -1 });
 
     res.json({ applications });
