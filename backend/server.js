@@ -72,6 +72,10 @@ app.get('/', (req, res) => {
 });
 
 // Routes
+// Ensure DB is connected (lazy) before handling routes to provide graceful 503s in serverless.
+const dbConnectMiddleware = require('./middleware/dbConnect');
+app.use(dbConnectMiddleware);
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/jobs', require('./routes/jobs'));
 app.use('/api/applications', require('./routes/applications'));
