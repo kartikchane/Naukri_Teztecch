@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
 const { startJobExpirationChecker } = require('./utils/jobExpiration');
+const multer = require('multer');
 
 // Connect to MongoDB
 connectDB();
@@ -80,6 +81,15 @@ app.use((err, req, res, next) => {
     message: 'Something went wrong!',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
+});
+
+// Multer-specific error handler (catch file upload errors)
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    console.error('Multer error:', err);
+    return res.status(400).json({ message: err.message });
+  }
+  next(err);
 });
 
 // 404 handler

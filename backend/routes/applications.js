@@ -14,6 +14,16 @@ router.post('/', protect, upload.single('resume'), async (req, res) => {
     const fs = require('fs');
     const { jobId, coverLetter } = req.body;
 
+    // Debug logs to help diagnose upload/apply failures
+    try {
+      console.log('Apply request received:');
+      console.log(' - Authorization header present:', !!req.headers.authorization);
+      console.log(' - Body:', req.body);
+      console.log(' - File:', req.file ? { originalname: req.file.originalname, size: req.file.size } : null);
+    } catch (logErr) {
+      console.warn('Failed to log apply request details:', logErr.message);
+    }
+
     if (!jobId) {
       return res.status(400).json({ message: 'Job ID is required' });
     }
@@ -70,8 +80,9 @@ router.post('/', protect, upload.single('resume'), async (req, res) => {
 
     res.status(201).json(populatedApplication);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Application submission error:', error);
+    const msg = process.env.NODE_ENV === 'development' ? (error.message || 'Server error') : 'Server error';
+    res.status(500).json({ message: msg });
   }
 });
 
