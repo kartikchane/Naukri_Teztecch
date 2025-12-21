@@ -64,9 +64,8 @@ const ApplyModal = ({ job, isOpen, onClose }) => {
         submitData.append('resume', formData.resume);
       }
 
-      await API.post('/applications', submitData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      console.log('Submitting application, has file:', !!formData.resume);
+      await API.post('/applications', submitData);
 
       toast.success('Application submitted successfully!');
       onClose();
