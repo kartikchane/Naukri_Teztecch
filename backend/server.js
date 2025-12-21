@@ -36,15 +36,13 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
-// Ensure uploads directory exists
+// Serve uploaded files
+// Ensure uploads directory exists (useful for local development)
 const fs = require('fs');
 const uploadsDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
+  fs.mkdirSync(uploadsDir, { recursive: true });
 }
-
-// Serve uploaded files
 app.use('/uploads', express.static(uploadsDir));
 
 // Root route

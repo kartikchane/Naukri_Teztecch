@@ -6,88 +6,73 @@ const User = require('../models/User');
 const { protect, isEmployer } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
-
 // @route   POST /api/applications
 // @desc    Apply for a job
 // @access  Private (Job Seeker only)
-router.post('/', (req, res, next) => {
-  protect(req, res, function (err) {
-    if (err) return res.status(401).json({ message: 'Not authorized' });
-    upload.single('resume')(req, res, async function (err) {
-      if (err) {
-        // Multer error handling
-        if (err.code === 'LIMIT_FILE_SIZE') {
-          return res.status(400).json({ message: 'File size should be less than 5MB' });
-        }
-        return res.status(400).json({ message: err.message || err.toString() });
-      }
-      try {
-        const { jobId, coverLetter } = req.body;
+router.post('/', protect, upload.single('resume'), async (req, res) => {
+  try {
+    const fs = require('fs');
+    const { jobId, coverLetter } = req.body;
 
-        if (!jobId) {
-          return res.status(400).json({ message: 'Job ID is required' });
-        }
+    if (!jobId) {
+      return res.status(400).json({ message: 'Job ID is required' });
+    }
 
-        // Check if job exists
-        const job = await Job.findById(jobId);
-        if (!job) {
-          return res.status(404).json({ message: 'Job not found' });
-        }
+    // Check if job exists
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
 
-        // Check if already applied
-        const existingApplication = await Application.findOne({
-          job: jobId,
-          applicant: req.user._id
-        });
-
-        if (existingApplication) {
-          return res.status(400).json({ message: 'You have already applied for this job' });
-        }
-
-
-        // Get resume path
-        const fs = require('fs');
-
-        let resumePath = null;
-        console.log('req.file:', req.file);
-        if (req.file) {
-          resumePath = req.file.path;
-        } else if (req.user.resume) {
-          // Check if file exists
-          if (fs.existsSync(req.user.resume)) {
-            resumePath = req.user.resume;
-          } else {
-            return res.status(400).json({ message: 'Your previous resume file is missing. Please upload a new resume.' });
-          }
-        }
-
-        if (!resumePath) {
-          return res.status(400).json({ message: 'Resume is required' });
-        }
-
-        // Create application
-        const application = await Application.create({
-          job: jobId,
-          applicant: req.user._id,
-          resume: resumePath,
-          coverLetter
-        });
-
-        // Add application to job
-        job.applications.push(application._id);
-        await job.save();
-
-        const populatedApplication = await Application.findById(application._id)
-          .populate('job')
-          .populate('applicant', 'name email phone');
-
-        res.status(201).json(populatedApplication);
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-      }
+    // Check if already applied
+    const existingApplication = await Application.findOne({
+      job: jobId,
+      applicant: req.user._id
     });
-  });
+
+    if (existingApplication) {
+      return res.status(400).json({ message: 'You have already applied for this job' });
+    }
+
+    // Get resume path (prefer uploaded file; fall back to user's profile if file exists)
+    let resumePath = null;
+    if (req.file) {
+      resumePath = req.file.path;
+    } else if (req.user && req.user.resume) {
+      try {
+        if (fs.existsSync(req.user.resume)) {
+          resumePath = req.user.resume;
+        } else {
+          console.warn('Profile resume file missing:', req.user.resume);
+          resumePath = null;
+        }
+      } catch (err) {
+        console.warn('Error checking resume file:', err.message);
+        resumePath = null;
+      }
+    }
+
+    // Create application
+    const application = await Application.create({
+      job: jobId,
+      applicant: req.user._id,
+      resume: resumePath,
+      coverLetter
+    });
+
+    // Add application to job
+    job.applications.push(application._id);
+    await job.save();
+
+    const populatedApplication = await Application.findById(application._id)
+      .populate('job')
+      .populate('applicant', 'name email phone');
+
+    res.status(201).json(populatedApplication);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // @route   GET /api/applications/my
