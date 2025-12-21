@@ -9,8 +9,11 @@ const connectDB = async () => {
     
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`Error: ${error.message}`);
-    process.exit(1);
+    console.error(`Error connecting to MongoDB: ${error.message}`);
+    // Don't exit process in serverless environments (Vercel) where module import
+    // happens on each invocation. Let the application handle missing DB gracefully
+    // and return so the function can respond with proper errors instead of crashing.
+    return null;
   }
 };
 
