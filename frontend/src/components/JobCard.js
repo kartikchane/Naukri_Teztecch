@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
   const [isSaved, setIsSaved] = useState(initialSaved);
   const [saving, setSaving] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   const formatSalary = (min, max) => {
@@ -176,22 +176,25 @@ const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
           >
             View Details
           </Link>
-          {job.hasApplied ? (
-            <button 
-              disabled 
-              className="flex-1 px-5 py-3 text-sm font-semibold bg-green-600 text-white rounded-lg cursor-not-allowed text-center"
-            >
-              Applied
-            </button>
-          ) : (
-            <Link 
-              to={`/jobs/${job._id}?action=apply`}
-              onClick={handleApplyClick}
-              className="flex-1 px-5 py-3 text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors shadow-sm hover:shadow-md text-center"
-            >
-              Apply Now
-            </Link>
-          )}
+          {/* Only show Apply button for authenticated job seekers */}
+          {isAuthenticated && user?.role === 'jobseeker' ? (
+            job.hasApplied ? (
+              <button 
+                disabled 
+                className="flex-1 px-5 py-3 text-sm font-semibold bg-green-600 text-white rounded-lg cursor-not-allowed text-center"
+              >
+                Applied
+              </button>
+            ) : (
+              <Link 
+                to={`/jobs/${job._id}?action=apply`}
+                onClick={handleApplyClick}
+                className="flex-1 px-5 py-3 text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors shadow-sm hover:shadow-md text-center"
+              >
+                Apply Now
+              </Link>
+            )
+          ) : null}
         </div>
       </div>
     </div>
