@@ -119,7 +119,7 @@ async function addJobs() {
       }
     ];
 
-    // Add jobs for other categories
+    // Add jobs for other categories (expanded)
     const otherJobs = [
       {
         title: 'UI/UX Designer',
@@ -138,6 +138,22 @@ async function addJobs() {
         featured: true
       },
       {
+        title: 'Product Designer',
+        company: company._id,
+        postedBy: admin._id,
+        description: 'Design end-to-end product experiences.',
+        requirements: ['4+ years', 'Figma', 'Prototyping', 'User Testing'],
+        location: { city: 'Hyderabad', state: 'Telangana', country: 'India' },
+        employmentType: 'Full-time',
+        workMode: 'Remote',
+        category: 'Design',
+        salary: { min: 900000, max: 1500000, currency: 'INR' },
+        skills: ['Figma', 'User Research', 'Prototyping'],
+        experience: { min: 4, max: 7 },
+        status: 'Open',
+        featured: false
+      },
+      {
         title: 'Data Scientist',
         company: company._id,
         postedBy: admin._id,
@@ -154,6 +170,22 @@ async function addJobs() {
         featured: true
       },
       {
+        title: 'Data Engineer',
+        company: company._id,
+        postedBy: admin._id,
+        description: 'Build ETL pipelines and data platforms.',
+        requirements: ['3+ years', 'Python/Scala', 'Spark', 'Data Warehousing'],
+        location: { city: 'Gurgaon', state: 'Haryana', country: 'India' },
+        employmentType: 'Full-time',
+        workMode: 'Hybrid',
+        category: 'Data & Analytics',
+        salary: { min: 1200000, max: 2200000, currency: 'INR' },
+        skills: ['Spark', 'Airflow', 'SQL', 'Python'],
+        experience: { min: 3, max: 6 },
+        status: 'Open',
+        featured: false
+      },
+      {
         title: 'DevOps Engineer',
         company: company._id,
         postedBy: admin._id,
@@ -166,6 +198,22 @@ async function addJobs() {
         salary: { min: 1000000, max: 1800000, currency: 'INR' },
         skills: ['AWS', 'Docker', 'Kubernetes', 'Jenkins'],
         experience: { min: 3, max: 6 },
+        status: 'Open',
+        featured: true
+      },
+      {
+        title: 'Cloud Architect',
+        company: company._id,
+        postedBy: admin._id,
+        description: 'Design cloud solutions and reference architectures.',
+        requirements: ['6+ years', 'AWS/Azure/GCP', 'Architecting at scale'],
+        location: { city: 'Bengaluru', state: 'Karnataka', country: 'India' },
+        employmentType: 'Full-time',
+        workMode: 'Hybrid',
+        category: 'Operations',
+        salary: { min: 2000000, max: 3500000, currency: 'INR' },
+        skills: ['Cloud', 'Kubernetes', 'Networking', 'Security'],
+        experience: { min: 6, max: 12 },
         status: 'Open',
         featured: true
       },
@@ -186,18 +234,82 @@ async function addJobs() {
         featured: false
       },
       {
-        title: 'Customer Support Executive',
+        title: 'Content Writer',
         company: company._id,
         postedBy: admin._id,
-        description: 'Provide excellent customer support.',
-        requirements: ['1+ years', 'Communication', 'Problem Solving'],
-        location: { city: 'Bangalore', state: 'Karnataka', country: 'India' },
+        description: 'Create engaging content for blogs and product.',
+        requirements: ['2+ years', 'SEO writing', 'Editing'],
+        location: { city: 'Noida', state: 'Uttar Pradesh', country: 'India' },
+        employmentType: 'Full-time',
+        workMode: 'Remote',
+        category: 'Content',
+        salary: { min: 400000, max: 800000, currency: 'INR' },
+        skills: ['Writing', 'SEO', 'Research'],
+        experience: { min: 2, max: 4 },
+        status: 'Open',
+        featured: false
+      },
+      {
+        title: 'Sales Executive',
+        company: company._id,
+        postedBy: admin._id,
+        description: 'Drive B2B sales and close enterprise deals.',
+        requirements: ['3+ years', 'Sales', 'CRM', 'Negotiation'],
+        location: { city: 'Chennai', state: 'Tamil Nadu', country: 'India' },
         employmentType: 'Full-time',
         workMode: 'On-site',
-        category: 'Customer Support',
-        salary: { min: 300000, max: 500000, currency: 'INR' },
-        skills: ['Communication', 'Customer Service', 'Problem Solving'],
-        experience: { min: 1, max: 3 },
+        category: 'Sales',
+        salary: { min: 500000, max: 1200000, currency: 'INR' },
+        skills: ['Sales', 'Negotiation', 'CRM'],
+        experience: { min: 3, max: 6 },
+        status: 'Open',
+        featured: false
+      },
+      {
+        title: 'Human Resources Generalist',
+        company: company._id,
+        postedBy: admin._id,
+        description: 'Manage recruitment and employee relations.',
+        requirements: ['3+ years', 'Recruitment', 'HR Policies'],
+        location: { city: 'Ahmedabad', state: 'Gujarat', country: 'India' },
+        employmentType: 'Full-time',
+        workMode: 'On-site',
+        category: 'Human Resources',
+        salary: { min: 500000, max: 900000, currency: 'INR' },
+        skills: ['Recruitment', 'Employee Relations'],
+        experience: { min: 3, max: 6 },
+        status: 'Open',
+        featured: false
+      },
+      {
+        title: 'Quality Assurance Engineer',
+        company: company._id,
+        postedBy: admin._id,
+        description: 'Ensure product quality with automated tests.',
+        requirements: ['2+ years', 'Selenium', 'Cypress', 'Test Automation'],
+        location: { city: 'Kochi', state: 'Kerala', country: 'India' },
+        employmentType: 'Full-time',
+        workMode: 'Hybrid',
+        category: 'Quality Assurance',
+        salary: { min: 600000, max: 1100000, currency: 'INR' },
+        skills: ['Selenium', 'Cypress', 'JavaScript', 'Test Automation'],
+        experience: { min: 2, max: 5 },
+        status: 'Open',
+        featured: false
+      },
+      {
+        title: 'Business Analyst',
+        company: company._id,
+        postedBy: admin._id,
+        description: 'Work with stakeholders to define product requirements.',
+        requirements: ['3+ years', 'Requirements Gathering', 'UML', 'Stakeholder Management'],
+        location: { city: 'Lucknow', state: 'Uttar Pradesh', country: 'India' },
+        employmentType: 'Full-time',
+        workMode: 'On-site',
+        category: 'Business',
+        salary: { min: 700000, max: 1200000, currency: 'INR' },
+        skills: ['Analysis', 'Communication', 'Documentation'],
+        experience: { min: 3, max: 6 },
         status: 'Open',
         featured: false
       }
