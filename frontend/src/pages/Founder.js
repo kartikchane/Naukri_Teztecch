@@ -22,13 +22,17 @@ const Founder = () => {
               {/* Founder Image */}
               <div className="md:w-2/5 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center p-12">
                 <div className="w-64 h-64 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-6xl font-bold">
-                  T
+                  <img 
+                    src={process.env.PUBLIC_URL + '/founder.jpeg'} 
+                    alt="Founder" 
+                    className="w-56 h-56 object-cover rounded-full border-4 border-white shadow-lg" 
+                  />
                 </div>
               </div>
 
               {/* Founder Info */}
               <div className="md:w-3/5 p-12">
-                <h2 className="text-4xl font-bold mb-2">Founder Name</h2>
+                <h2 className="text-4xl font-bold mb-2">Tejaswini Bandarkar</h2>
                 <p className="text-xl text-gray-600 mb-6">Founder & CEO, Teztech</p>
 
                 <div className="prose max-w-none text-gray-700 space-y-4">

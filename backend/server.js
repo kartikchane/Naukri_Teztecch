@@ -4,24 +4,23 @@ const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
 const { startJobExpirationChecker } = require('./utils/jobExpiration');
-const multer = require('multer');
 
-// Connect to MongoDB only when a connection string is provided.
-// In serverless environments (e.g. Vercel) env vars may be set in the project
-// settings; if missing, skip connect to avoid crashing during import.
-if (process.env.MONGODB_URI) {
-  connectDB();
-} else {
-  console.warn('MONGODB_URI not set - skipping DB connect. Set MONGODB_URI in deployment env vars.');
-}
 
-// Start job expiration checker only in long-running environments (development or when explicitly enabled).
-// Serverless platforms should not run background intervals on import.
-if (process.env.NODE_ENV !== 'production' || process.env.RUN_JOB_EXPIRATION === 'true') {
-  startJobExpirationChecker();
-} else {
-  console.log('Skipping job expiration checker in production/serverless environment.');
-}
+// Connect to MongoDB
+connectDB();
+
+// Start job expiration checker
+startJobExpirationChecker();
+
+// Log uncaught exceptions and unhandled rejections
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
 
 const app = express();
 
@@ -49,13 +48,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded files
-// Ensure uploads directory exists (useful for local development)
-const fs = require('fs');
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-app.use('/uploads', express.static(uploadsDir));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Root route
 app.get('/', (req, res) => {
@@ -72,10 +65,6 @@ app.get('/', (req, res) => {
 });
 
 // Routes
-// Ensure DB is connected (lazy) before handling routes to provide graceful 503s in serverless.
-const dbConnectMiddleware = require('./middleware/dbConnect');
-app.use(dbConnectMiddleware);
-
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/jobs', require('./routes/jobs'));
 app.use('/api/applications', require('./routes/applications'));
@@ -84,18 +73,9 @@ app.use('/api/companies', require('./routes/companies'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/stats', require('./routes/stats'));
 
-// Health check (includes DB status when available)
-const { getDBStatus } = require('./config/db');
-
+// Health check
 app.get('/api/health', (req, res) => {
-  const health = { message: 'Server is running', timestamp: new Date() };
-  try {
-    const dbStatus = getDBStatus ? getDBStatus() : null;
-    if (dbStatus) health.db = dbStatus;
-  } catch (err) {
-    health.db = { connected: false, error: String(err.message || err) };
-  }
-  res.json(health);
+  res.json({ message: 'Server is running', timestamp: new Date() });
 });
 
 // Error handling middleware
@@ -105,15 +85,6 @@ app.use((err, req, res, next) => {
     message: 'Something went wrong!',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
-});
-
-// Multer-specific error handler (catch file upload errors)
-app.use((err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    console.error('Multer error:', err);
-    return res.status(400).json({ message: err.message });
-  }
-  next(err);
 });
 
 // 404 handler

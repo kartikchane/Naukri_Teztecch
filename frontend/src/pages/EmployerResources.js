@@ -153,9 +153,13 @@ const EmployerResources = () => {
               <p className="text-gray-600 mb-4">
                 A comprehensive template to help you write clear and attractive job descriptions.
               </p>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <a
+                href="/downloads/job-description-template.docx"
+                download
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors block text-center"
+              >
                 Download Template
-              </button>
+              </a>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -163,9 +167,13 @@ const EmployerResources = () => {
               <p className="text-gray-600 mb-4">
                 200+ curated interview questions for different roles and skill levels.
               </p>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <a
+                href="/downloads/interview-questions-bank.pdf"
+                download
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors block text-center"
+              >
                 Download Guide
-              </button>
+              </a>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -173,9 +181,13 @@ const EmployerResources = () => {
               <p className="text-gray-600 mb-4">
                 Standardized evaluation form to assess and compare candidates objectively.
               </p>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <a
+                href="/downloads/candidate-scorecard.xlsx"
+                download
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors block text-center"
+              >
                 Download Scorecard
-              </button>
+              </a>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -183,9 +195,13 @@ const EmployerResources = () => {
               <p className="text-gray-600 mb-4">
                 Step-by-step checklist to ensure you don't miss any important hiring steps.
               </p>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <a
+                href="/downloads/hiring-checklist.pdf"
+                download
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors block text-center"
+              >
                 Download Checklist
-              </button>
+              </a>
             </div>
           </div>
         </div>

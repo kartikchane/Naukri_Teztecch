@@ -45,6 +45,16 @@ const Companies = () => {
   // Get unique industries for filter
   const industries = [...new Set(companies.map(c => c.industry))].filter(Boolean);
 
+  // Filter unique companies by name
+  const uniqueCompanies = [];
+  const companyNames = new Set();
+  for (const company of companies) {
+    if (!companyNames.has(company.name)) {
+      uniqueCompanies.push(company);
+      companyNames.add(company.name);
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -116,7 +126,7 @@ const Companies = () => {
         </div>
 
         {/* Companies Grid */}
-        {companies.length === 0 ? (
+        {uniqueCompanies.length === 0 ? (
           <div className="text-center py-12">
             <FaBuilding className="mx-auto text-6xl text-gray-300 mb-4" />
             <h3 className="text-xl font-semibold text-gray-700 mb-2">No companies found</h3>
@@ -124,7 +134,7 @@ const Companies = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {companies.map((company) => (
+            {uniqueCompanies.map((company) => (
               <Link
                 key={company._id}
                 to={`/companies/${company._id}`}

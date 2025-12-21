@@ -17,67 +17,112 @@ const connectDB = async () => {
 
 const seedData = async () => {
   try {
-    // Clear existing data
-    await User.deleteMany();
-    await Company.deleteMany();
-    await Job.deleteMany();
-    console.log('Cleared existing data');
 
-    // Create Users
+    // Create Users if not exist
     const hashedPassword = await bcrypt.hash('password123', 10);
 
-    const jobSeeker = await User.create({
-      name: 'John Doe',
-      email: 'jobseeker@example.com',
-      password: hashedPassword,
-      role: 'jobseeker',
-      phone: '+91 9876543210',
-      skills: ['JavaScript', 'React', 'Node.js', 'MongoDB'],
-      location: {
-        city: 'Bangalore',
-        state: 'Karnataka',
-        country: 'India'
-      },
-      bio: 'Full-stack developer with 3 years of experience',
-    });
+    let jobSeeker = await User.findOne({ email: 'jobseeker@example.com' });
+    if (!jobSeeker) {
+      jobSeeker = await User.create({
+        name: 'John Doe',
+        email: 'jobseeker@example.com',
+        password: hashedPassword,
+        role: 'jobseeker',
+        phone: '+91 9876543210',
+        skills: ['JavaScript', 'React', 'Node.js', 'MongoDB'],
+        location: {
+          city: 'Bangalore',
+          state: 'Karnataka',
+          country: 'India'
+        },
+        bio: 'Full-stack developer with 3 years of experience',
+      });
+      console.log('Created jobseeker user');
+    }
 
-    const employer = await User.create({
-      name: 'Jane Smith',
-      email: 'employer@example.com',
-      password: hashedPassword,
-      role: 'employer',
-      phone: '+91 9876543211',
-    });
+    let employer = await User.findOne({ email: 'employer@example.com' });
+    if (!employer) {
+      employer = await User.create({
+        name: 'Jane Smith',
+        email: 'employer@example.com',
+        password: hashedPassword,
+        role: 'employer',
+        phone: '+91 9876543211',
+      });
+      console.log('Created employer user');
+    }
 
-    console.log('Created users');
+    // Create Companies if not exist
+    let company1 = await Company.findOne({ name: 'Tech Solutions Inc' });
+    if (!company1) {
+      company1 = await Company.create({
+        name: 'Tech Solutions Inc',
+        description: 'Leading technology company specializing in web and mobile app development',
+        website: 'https://techsolutions.example.com',
+        logo: '/teztecch-logo.svg',
+        industry: 'Technology',
+        companySize: '51-200',
+        location: {
+          city: 'Bangalore',
+          state: 'Karnataka',
+          country: 'India'
+        },
+        owner: employer._id,
+        verified: true
+      });
+      console.log('Created company1');
+    }
 
-    // Create Companies
-    const company1 = await Company.create({
-      name: 'Tech Solutions Inc',
-      description: 'Leading technology company specializing in web and mobile app development',
-      website: 'https://techsolutions.example.com',
+    let company2 = await Company.findOne({ name: 'DataTech Analytics' });
+    if (!company2) {
+      company2 = await Company.create({
+        name: 'DataTech Analytics',
+        description: 'Data analytics and business intelligence solutions provider',
+        website: 'https://datatech.example.com',
+        logo: '/teztecch-logo.svg',
+        industry: 'Data & Analytics',
+        companySize: '11-50',
+        location: {
+          city: 'Pune',
+          state: 'Maharashtra',
+          country: 'India'
+        },
+        owner: employer._id,
+        verified: true
+      });
+      console.log('Created company2');
+    }
+
+    let company3 = await Company.findOne({ name: 'Creative Agency' });
+    if (!company3) {
+      company3 = await Company.create({
+        name: 'Creative Agency',
+        description: 'Full-service agency offering digital marketing, design, and development solutions',
+        website: 'https://creativeagency.example.com',
+        logo: '/teztecch-logo.svg',
+        industry: 'Marketing & Advertising',
+        companySize: '11-50',
+        location: {
+          city: 'Mumbai',
+          state: 'Maharashtra',
+          country: 'India'
+        },
+        owner: employer._id,
+        verified: true
+      });
+      console.log('Created company3');
+    }
+
+    const company4 = await Company.create({
+      name: 'FinTech Innovations',
+      description: 'Revolutionizing finance with technology - payments, lending, and personal finance solutions',
+      website: 'https://fintechinnovations.example.com',
       logo: '/teztecch-logo.svg',
-      industry: 'Technology',
+      industry: 'Financial Services',
       companySize: '51-200',
       location: {
         city: 'Bangalore',
         state: 'Karnataka',
-        country: 'India'
-      },
-      owner: employer._id,
-      verified: true
-    });
-
-    const company2 = await Company.create({
-      name: 'DataTech Analytics',
-      description: 'Data analytics and business intelligence solutions provider',
-      website: 'https://datatech.example.com',
-      logo: '/teztecch-logo.svg',
-      industry: 'Data & Analytics',
-      companySize: '11-50',
-      location: {
-        city: 'Pune',
-        state: 'Maharashtra',
         country: 'India'
       },
       owner: employer._id,
@@ -92,48 +137,7 @@ const seedData = async () => {
 
     // Create Jobs
     const jobs = [
-      // Software Development Jobs
-      {
-        title: 'Senior Full Stack Developer',
-        description: 'We are looking for an experienced Full Stack developer to join our team and work on exciting projects using modern technologies.',
-        company: company1._id,
-        postedBy: employer._id,
-        category: 'Software Development',
-        employmentType: 'Full-time',
-        workMode: 'Remote',
-        location: {
-          city: 'Bangalore',
-          state: 'Karnataka',
-          country: 'India'
-        },
-        salary: {
-          min: 1800000,
-          max: 2800000,
-          currency: 'INR',
-          period: 'Yearly'
-        },
-        experience: {
-          min: 5,
-          max: 8
-        },
-        skills: ['React', 'Node.js', 'TypeScript', 'MongoDB', 'AWS'],
-        requirements: [
-          '5+ years of full stack development experience',
-          'Strong knowledge of React and Node.js',
-          'Experience with cloud platforms (AWS/Azure)',
-          'Good understanding of microservices architecture'
-        ],
-        responsibilities: [
-          'Design and develop full stack applications',
-          'Build reusable components and backend APIs',
-          'Optimize applications for performance and scalability',
-          'Mentor junior developers'
-        ],
-        benefits: ['Health Insurance', 'Work from Home', 'Flexible Hours', 'Stock Options'],
-        openings: 3,
-        featured: true,
-        status: 'Open'
-      },
+      // Software Development Jobs for company1
       {
         title: 'Python Developer',
         description: 'Join our team as a Python developer to build scalable backend systems and data pipelines.',
@@ -142,38 +146,14 @@ const seedData = async () => {
         category: 'Software Development',
         employmentType: 'Full-time',
         workMode: 'Hybrid',
-        location: {
-          city: 'Pune',
-          state: 'Maharashtra',
-          country: 'India'
-        },
-        salary: {
-          min: 1200000,
-          max: 1800000,
-          currency: 'INR',
-          period: 'Yearly'
-        },
-        experience: {
-          min: 3,
-          max: 6
-        },
+        location: { city: 'Pune', state: 'Maharashtra', country: 'India' },
+        salary: { min: 1200000, max: 1800000, currency: 'INR', period: 'Yearly' },
+        experience: { min: 3, max: 6 },
         skills: ['Python', 'Django', 'Flask', 'PostgreSQL', 'Docker'],
-        requirements: [
-          '3+ years of Python development',
-          'Experience with Django or Flask',
-          'Strong knowledge of databases',
-          'Understanding of containerization'
-        ],
-        responsibilities: [
-          'Develop backend APIs and services',
-          'Build data processing pipelines',
-          'Optimize code for performance',
-          'Write comprehensive tests'
-        ],
+        requirements: ['3+ years of Python development', 'Experience with Django or Flask', 'Strong knowledge of databases', 'Understanding of containerization'],
+        responsibilities: ['Develop backend APIs and services', 'Build data processing pipelines', 'Optimize code for performance', 'Write comprehensive tests'],
         benefits: ['Health Insurance', 'Flexible Hours', 'Learning Budget'],
-        openings: 2,
-        featured: true,
-        status: 'Open'
+        openings: 2, featured: true, status: 'Open'
       },
       {
         title: 'Java Spring Boot Developer',
@@ -183,121 +163,308 @@ const seedData = async () => {
         category: 'Software Development',
         employmentType: 'Full-time',
         workMode: 'On-site',
-        location: {
-          city: 'Hyderabad',
-          state: 'Telangana',
-          country: 'India'
-        },
-        salary: {
-          min: 1500000,
-          max: 2200000,
-          currency: 'INR',
-          period: 'Yearly'
-        },
-        experience: {
-          min: 4,
-          max: 7
-        },
+        location: { city: 'Hyderabad', state: 'Telangana', country: 'India' },
+        salary: { min: 1500000, max: 2200000, currency: 'INR', period: 'Yearly' },
+        experience: { min: 4, max: 7 },
         skills: ['Java', 'Spring Boot', 'Microservices', 'MySQL', 'Redis'],
-        requirements: [
-          '4+ years of Java development',
-          'Expert in Spring Boot framework',
-          'Experience with microservices',
-          'Knowledge of caching strategies'
-        ],
-        responsibilities: [
-          'Design and develop enterprise applications',
-          'Build RESTful APIs',
-          'Implement security best practices',
-          'Collaborate with cross-functional teams'
-        ],
+        requirements: ['4+ years of Java development', 'Expert in Spring Boot framework', 'Experience with microservices', 'Knowledge of caching strategies'],
+        responsibilities: ['Design and develop enterprise applications', 'Build RESTful APIs', 'Implement security best practices', 'Collaborate with cross-functional teams'],
         benefits: ['Health Insurance', 'Transport', 'Performance Bonus'],
-        openings: 2,
-        featured: false,
-        status: 'Open'
+        openings: 2, featured: false, status: 'Open'
       },
+      // --- NEW JOBS FOR company2, company3, company4 ---
       {
-        title: 'Frontend React Developer',
-        description: 'Build beautiful and responsive user interfaces using React and modern frontend technologies.',
-        company: company1._id,
+        title: 'Cloud Solutions Architect',
+        description: 'Design and implement scalable cloud solutions for enterprise clients.',
+        company: company2._id,
         postedBy: employer._id,
-        category: 'Software Development',
-        employmentType: 'Full-time',
-        workMode: 'Remote',
-        location: {
-          city: 'Remote',
-          state: '',
-          country: 'India'
-        },
-        salary: {
-          min: 1000000,
-          max: 1600000,
-          currency: 'INR',
-          period: 'Yearly'
-        },
-        experience: {
-          min: 2,
-          max: 5
-        },
-        skills: ['React', 'JavaScript', 'CSS', 'Redux', 'Webpack'],
-        requirements: [
-          '2+ years of React development',
-          'Strong JavaScript fundamentals',
-          'Experience with state management',
-          'Knowledge of responsive design'
-        ],
-        responsibilities: [
-          'Develop user-facing features',
-          'Build reusable components',
-          'Ensure cross-browser compatibility',
-          'Optimize applications for speed'
-        ],
-        benefits: ['Health Insurance', 'Work from Home', 'Flexible Hours'],
-        openings: 3,
-        featured: true,
-        status: 'Open'
-      },
-      {
-        title: 'Mobile App Developer (React Native)',
-        description: 'Develop cross-platform mobile applications using React Native.',
-        company: company1._id,
-        postedBy: employer._id,
-        category: 'Software Development',
+        category: 'Cloud & DevOps',
         employmentType: 'Full-time',
         workMode: 'Hybrid',
-        location: {
-          city: 'Bangalore',
-          state: 'Karnataka',
-          country: 'India'
-        },
-        salary: {
-          min: 1400000,
-          max: 2000000,
-          currency: 'INR',
-          period: 'Yearly'
-        },
-        experience: {
-          min: 3,
-          max: 6
-        },
-        skills: ['React Native', 'JavaScript', 'iOS', 'Android', 'Firebase'],
-        requirements: [
-          '3+ years of mobile development',
-          'Strong React Native experience',
-          'Published apps on App Store/Play Store',
-          'Knowledge of native modules'
-        ],
-        responsibilities: [
-          'Develop mobile applications',
-          'Integrate with backend APIs',
-          'Optimize app performance',
-          'Handle app store submissions'
-        ],
-        benefits: ['Health Insurance', 'Hybrid Work', 'Device Allowance'],
-        openings: 2,
-        featured: false,
-        status: 'Open'
+        location: { city: 'Pune', state: 'Maharashtra', country: 'India' },
+        salary: { min: 2000000, max: 3000000, currency: 'INR', period: 'Yearly' },
+        experience: { min: 5, max: 10 },
+        skills: ['AWS', 'Azure', 'GCP', 'Terraform', 'Kubernetes'],
+        requirements: ['5+ years in cloud architecture', 'Experience with AWS/Azure/GCP', 'Strong DevOps background', 'Excellent communication skills'],
+        responsibilities: ['Design cloud architectures', 'Lead migration projects', 'Mentor junior engineers', 'Ensure security compliance'],
+        benefits: ['Health Insurance', 'Stock Options', 'Flexible Hours'],
+        openings: 1, featured: true, status: 'Open'
       },
+      {
+        title: 'AI/ML Engineer',
+        description: 'Develop and deploy machine learning models for real-world applications.',
+        company: company2._id,
+        postedBy: employer._id,
+        category: 'Artificial Intelligence',
+        employmentType: 'Full-time',
+        workMode: 'Remote',
+        location: { city: 'Remote', state: '', country: 'India' },
+        salary: { min: 1800000, max: 2500000, currency: 'INR', period: 'Yearly' },
+        experience: { min: 3, max: 7 },
+        skills: ['Python', 'TensorFlow', 'PyTorch', 'ML Ops', 'Data Science'],
+        requirements: ['3+ years in ML/AI', 'Experience with TensorFlow/PyTorch', 'Strong statistics background', 'Production deployment experience'],
+        responsibilities: ['Build ML models', 'Deploy to production', 'Collaborate with data scientists', 'Optimize model performance'],
+        benefits: ['Remote Work', 'Learning Budget', 'Performance Bonus'],
+        openings: 2, featured: true, status: 'Open'
+      },
+      {
+        title: 'Cybersecurity Analyst',
+        description: 'Monitor and secure company networks and data.',
+        company: company3._id,
+        postedBy: employer._id,
+        category: 'Cybersecurity',
+        employmentType: 'Full-time',
+        workMode: 'On-site',
+        location: { city: 'Mumbai', state: 'Maharashtra', country: 'India' },
+        salary: { min: 1200000, max: 1800000, currency: 'INR', period: 'Yearly' },
+        experience: { min: 2, max: 5 },
+        skills: ['Network Security', 'SIEM', 'Incident Response', 'Firewalls'],
+        requirements: ['2+ years in cybersecurity', 'Experience with SIEM tools', 'Incident response skills', 'Certifications preferred'],
+        responsibilities: ['Monitor security alerts', 'Respond to incidents', 'Conduct vulnerability assessments', 'Train staff on security'],
+        benefits: ['Health Insurance', 'On-site Gym', 'Performance Bonus'],
+        openings: 1, featured: false, status: 'Open'
+      },
+      {
+        title: 'Digital Marketing Manager',
+        description: 'Lead digital marketing campaigns and grow online presence.',
+        company: company3._id,
+        postedBy: employer._id,
+        category: 'Marketing',
+        employmentType: 'Full-time',
+        workMode: 'Hybrid',
+        location: { city: 'Delhi', state: 'Delhi', country: 'India' },
+        salary: { min: 1000000, max: 1600000, currency: 'INR', period: 'Yearly' },
+        experience: { min: 3, max: 6 },
+        skills: ['SEO', 'SEM', 'Google Ads', 'Content Strategy'],
+        requirements: ['3+ years in digital marketing', 'Experience with Google Ads', 'Strong content skills', 'Analytical mindset'],
+        responsibilities: ['Plan campaigns', 'Manage budgets', 'Analyze results', 'Grow brand awareness'],
+        benefits: ['Hybrid Work', 'Performance Bonus', 'Learning Budget'],
+        openings: 2, featured: true, status: 'Open'
+      },
+      {
+        title: 'Financial Product Manager',
+        description: 'Manage and launch new financial products for the fintech sector.',
+        company: company4._id,
+        postedBy: employer._id,
+        category: 'Product Management',
+        employmentType: 'Full-time',
+        workMode: 'On-site',
+        location: { city: 'Bangalore', state: 'Karnataka', country: 'India' },
+        salary: { min: 1800000, max: 2500000, currency: 'INR', period: 'Yearly' },
+        experience: { min: 4, max: 8 },
+        skills: ['Product Management', 'Fintech', 'Agile', 'Market Research'],
+        requirements: ['4+ years in product management', 'Fintech experience', 'Agile certification', 'Strong leadership'],
+        responsibilities: ['Launch new products', 'Conduct market research', 'Coordinate with tech teams', 'Drive product strategy'],
+        benefits: ['Health Insurance', 'Stock Options', 'Leadership Training'],
+        openings: 1, featured: true, status: 'Open'
+      },
+      {
+        title: 'Blockchain Developer',
+        description: 'Develop decentralized applications and smart contracts.',
+        company: company4._id,
+        postedBy: employer._id,
+        category: 'Blockchain',
+        employmentType: 'Full-time',
+        workMode: 'Remote',
+        location: { city: 'Remote', state: '', country: 'India' },
+        salary: { min: 2000000, max: 3000000, currency: 'INR', period: 'Yearly' },
+        experience: { min: 2, max: 6 },
+        skills: ['Solidity', 'Ethereum', 'Smart Contracts', 'Web3.js'],
+        requirements: ['2+ years in blockchain', 'Experience with Solidity', 'Smart contract development', 'Web3.js knowledge'],
+        responsibilities: ['Develop dApps', 'Write smart contracts', 'Test and deploy on Ethereum', 'Collaborate with product teams'],
+        benefits: ['Remote Work', 'Learning Budget', 'Performance Bonus'],
+        openings: 2, featured: true, status: 'Open'
+      },
+      // --- Add 20+ more jobs for all companies, unique per company/domain/skill ---
+            {
+              title: 'Healthcare Data Analyst',
+              description: 'Analyze healthcare data to improve patient outcomes and operational efficiency.',
+              company: company2._id,
+              postedBy: employer._id,
+              category: 'Healthcare Analytics',
+              employmentType: 'Full-time',
+              workMode: 'Hybrid',
+              location: { city: 'Pune', state: 'Maharashtra', country: 'India' },
+              salary: { min: 1200000, max: 1800000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 2, max: 5 },
+              skills: ['SQL', 'Healthcare Analytics', 'Python', 'Power BI'],
+              requirements: ['2+ years in healthcare analytics', 'Strong SQL skills', 'Experience with Power BI', 'Healthcare domain knowledge'],
+              responsibilities: ['Analyze patient data', 'Create dashboards', 'Support clinical teams', 'Ensure data quality'],
+              benefits: ['Health Insurance', 'Learning Budget'],
+              openings: 1, featured: false, status: 'Open'
+            },
+            {
+              title: 'Creative Copywriter',
+              description: 'Craft compelling copy for digital campaigns and branding.',
+              company: company3._id,
+              postedBy: employer._id,
+              category: 'Content & Copywriting',
+              employmentType: 'Full-time',
+              workMode: 'On-site',
+              location: { city: 'Mumbai', state: 'Maharashtra', country: 'India' },
+              salary: { min: 700000, max: 1200000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 2, max: 4 },
+              skills: ['Copywriting', 'Branding', 'SEO', 'Content Strategy'],
+              requirements: ['2+ years in copywriting', 'Portfolio of digital campaigns', 'SEO knowledge', 'Creative mindset'],
+              responsibilities: ['Write campaign copy', 'Collaborate with designers', 'Edit and proofread', 'Support branding initiatives'],
+              benefits: ['Creative Environment', 'Performance Bonus'],
+              openings: 1, featured: false, status: 'Open'
+            },
+            {
+              title: 'Investment Banking Analyst',
+              description: 'Support investment banking operations and financial modeling.',
+              company: company4._id,
+              postedBy: employer._id,
+              category: 'Banking & Finance',
+              employmentType: 'Full-time',
+              workMode: 'On-site',
+              location: { city: 'Bangalore', state: 'Karnataka', country: 'India' },
+              salary: { min: 1500000, max: 2200000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 2, max: 5 },
+              skills: ['Financial Modeling', 'Excel', 'Valuation', 'M&A'],
+              requirements: ['2+ years in investment banking', 'Strong Excel skills', 'Experience with M&A', 'Analytical mindset'],
+              responsibilities: ['Build financial models', 'Support deal execution', 'Conduct market research', 'Prepare presentations'],
+              benefits: ['Health Insurance', 'Performance Bonus'],
+              openings: 2, featured: true, status: 'Open'
+            },
+            {
+              title: 'UI/UX Designer (Fintech)',
+              description: 'Design user-centric fintech products and mobile apps.',
+              company: company4._id,
+              postedBy: employer._id,
+              category: 'Design',
+              employmentType: 'Full-time',
+              workMode: 'Hybrid',
+              location: { city: 'Bangalore', state: 'Karnataka', country: 'India' },
+              salary: { min: 1200000, max: 1800000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 2, max: 5 },
+              skills: ['Figma', 'Fintech Design', 'User Research', 'Prototyping'],
+              requirements: ['2+ years in UI/UX', 'Fintech product experience', 'Strong portfolio', 'User research skills'],
+              responsibilities: ['Design fintech UIs', 'Conduct user research', 'Create prototypes', 'Work with product teams'],
+              benefits: ['Health Insurance', 'Learning Budget'],
+              openings: 1, featured: false, status: 'Open'
+            },
+            {
+              title: 'Sales Executive',
+              description: 'Drive B2B sales and manage client relationships.',
+              company: company3._id,
+              postedBy: employer._id,
+              category: 'Sales',
+              employmentType: 'Full-time',
+              workMode: 'On-site',
+              location: { city: 'Delhi', state: 'Delhi', country: 'India' },
+              salary: { min: 800000, max: 1400000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 2, max: 5 },
+              skills: ['B2B Sales', 'CRM', 'Negotiation', 'Lead Generation'],
+              requirements: ['2+ years in B2B sales', 'CRM experience', 'Strong negotiation skills', 'Target-driven'],
+              responsibilities: ['Generate leads', 'Close deals', 'Manage accounts', 'Report sales metrics'],
+              benefits: ['Performance Bonus', 'Travel Allowance'],
+              openings: 2, featured: false, status: 'Open'
+            },
+            {
+              title: 'Operations Lead',
+              description: 'Oversee daily operations and logistics for a growing company.',
+              company: company2._id,
+              postedBy: employer._id,
+              category: 'Operations',
+              employmentType: 'Full-time',
+              workMode: 'Hybrid',
+              location: { city: 'Pune', state: 'Maharashtra', country: 'India' },
+              salary: { min: 1100000, max: 1600000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 3, max: 6 },
+              skills: ['Operations', 'Logistics', 'Team Management', 'Process Improvement'],
+              requirements: ['3+ years in operations', 'Logistics experience', 'Team management skills', 'Process improvement mindset'],
+              responsibilities: ['Manage daily ops', 'Lead logistics', 'Improve processes', 'Coordinate teams'],
+              benefits: ['Health Insurance', 'Leadership Training'],
+              openings: 1, featured: false, status: 'Open'
+            },
+            {
+              title: 'Mobile App QA Engineer',
+              description: 'Test and ensure quality of mobile applications.',
+              company: company3._id,
+              postedBy: employer._id,
+              category: 'Quality Assurance',
+              employmentType: 'Full-time',
+              workMode: 'On-site',
+              location: { city: 'Mumbai', state: 'Maharashtra', country: 'India' },
+              salary: { min: 900000, max: 1400000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 2, max: 5 },
+              skills: ['QA', 'Mobile Testing', 'Appium', 'JIRA'],
+              requirements: ['2+ years in QA', 'Mobile app testing experience', 'Familiarity with Appium', 'Bug tracking skills'],
+              responsibilities: ['Test mobile apps', 'Report bugs', 'Work with devs', 'Automate test cases'],
+              benefits: ['Health Insurance', 'Performance Bonus'],
+              openings: 1, featured: false, status: 'Open'
+            },
+            {
+              title: 'Business Development Manager',
+              description: 'Identify new business opportunities and partnerships.',
+              company: company4._id,
+              postedBy: employer._id,
+              category: 'Business Development',
+              employmentType: 'Full-time',
+              workMode: 'Hybrid',
+              location: { city: 'Bangalore', state: 'Karnataka', country: 'India' },
+              salary: { min: 1300000, max: 2000000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 3, max: 7 },
+              skills: ['Business Development', 'Partnerships', 'Strategy', 'Negotiation'],
+              requirements: ['3+ years in business development', 'Partnership experience', 'Strategic mindset', 'Negotiation skills'],
+              responsibilities: ['Identify opportunities', 'Build partnerships', 'Negotiate deals', 'Drive growth'],
+              benefits: ['Health Insurance', 'Performance Bonus'],
+              openings: 1, featured: true, status: 'Open'
+            },
+            {
+              title: 'HR Executive',
+              description: 'Manage recruitment and employee engagement activities.',
+              company: company2._id,
+              postedBy: employer._id,
+              category: 'HR & Recruitment',
+              employmentType: 'Full-time',
+              workMode: 'On-site',
+              location: { city: 'Pune', state: 'Maharashtra', country: 'India' },
+              salary: { min: 700000, max: 1100000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 2, max: 4 },
+              skills: ['Recruitment', 'Employee Engagement', 'HR Operations'],
+              requirements: ['2+ years in HR', 'Recruitment experience', 'Employee engagement skills', 'HR operations knowledge'],
+              responsibilities: ['Recruit talent', 'Engage employees', 'Support HR ops', 'Conduct onboarding'],
+              benefits: ['Health Insurance', 'Learning Budget'],
+              openings: 1, featured: false, status: 'Open'
+            },
+            {
+              title: 'Legal Associate',
+              description: 'Support legal operations and contract management.',
+              company: company3._id,
+              postedBy: employer._id,
+              category: 'Legal',
+              employmentType: 'Full-time',
+              workMode: 'On-site',
+              location: { city: 'Delhi', state: 'Delhi', country: 'India' },
+              salary: { min: 900000, max: 1400000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 2, max: 5 },
+              skills: ['Legal Research', 'Contract Management', 'Compliance'],
+              requirements: ['2+ years in legal', 'Contract management experience', 'Compliance knowledge', 'Legal research skills'],
+              responsibilities: ['Draft contracts', 'Review legal docs', 'Support compliance', 'Advise teams'],
+              benefits: ['Health Insurance', 'Legal Training'],
+              openings: 1, featured: false, status: 'Open'
+            },
+            {
+              title: 'Customer Success Manager',
+              description: 'Ensure customer satisfaction and retention for SaaS products.',
+              company: company4._id,
+              postedBy: employer._id,
+              category: 'Customer Success',
+              employmentType: 'Full-time',
+              workMode: 'Hybrid',
+              location: { city: 'Bangalore', state: 'Karnataka', country: 'India' },
+              salary: { min: 1000000, max: 1600000, currency: 'INR', period: 'Yearly' },
+              experience: { min: 2, max: 5 },
+              skills: ['Customer Success', 'SaaS', 'Account Management', 'CRM'],
+              requirements: ['2+ years in customer success', 'SaaS experience', 'Account management skills', 'CRM knowledge'],
+              responsibilities: ['Manage accounts', 'Drive retention', 'Support onboarding', 'Collect feedback'],
+              benefits: ['Health Insurance', 'Performance Bonus'],
+              openings: 1, featured: false, status: 'Open'
+            },
+            // ...add more jobs as needed to reach 50-60 total, ensuring unique jobs per company/domain/skill
+      // ...existing code...
 
       // Data & Analytics Jobs
       {
@@ -504,90 +671,6 @@ const seedData = async () => {
         ],
         benefits: ['Health Insurance', 'Creative Environment'],
         openings: 1,
-        featured: false,
-        status: 'Open'
-      },
-
-      // Marketing Jobs
-      {
-        title: 'Digital Marketing Manager',
-        description: 'Lead digital marketing initiatives and drive online growth.',
-        company: company1._id,
-        postedBy: employer._id,
-        category: 'Marketing',
-        employmentType: 'Full-time',
-        workMode: 'Hybrid',
-        location: {
-          city: 'Mumbai',
-          state: 'Maharashtra',
-          country: 'India'
-        },
-        salary: {
-          min: 1200000,
-          max: 1800000,
-          currency: 'INR',
-          period: 'Yearly'
-        },
-        experience: {
-          min: 4,
-          max: 7
-        },
-        skills: ['SEO', 'SEM', 'Google Analytics', 'Social Media', 'Content Marketing'],
-        requirements: [
-          '4+ years in digital marketing',
-          'Proven track record',
-          'Strong analytical skills',
-          'Experience with marketing tools'
-        ],
-        responsibilities: [
-          'Develop marketing strategies',
-          'Manage campaigns',
-          'Analyze campaign performance',
-          'Lead marketing team'
-        ],
-        benefits: ['Health Insurance', 'Performance Bonus', 'Flexible Hours'],
-        openings: 1,
-        featured: true,
-        status: 'Open'
-      },
-      {
-        title: 'Content Writer',
-        description: 'Create engaging content for blogs, websites, and marketing materials.',
-        company: company1._id,
-        postedBy: employer._id,
-        category: 'Marketing',
-        employmentType: 'Full-time',
-        workMode: 'Remote',
-        location: {
-          city: 'Remote',
-          state: '',
-          country: 'India'
-        },
-        salary: {
-          min: 500000,
-          max: 800000,
-          currency: 'INR',
-          period: 'Yearly'
-        },
-        experience: {
-          min: 1,
-          max: 3
-        },
-        skills: ['Content Writing', 'SEO', 'Research', 'Storytelling', 'Copywriting'],
-        requirements: [
-          '1+ years of content writing',
-          'Excellent writing skills',
-          'SEO knowledge',
-          'Portfolio of published work'
-        ],
-        responsibilities: [
-          'Write blog posts and articles',
-          'Create marketing copy',
-          'Research industry topics',
-          'Optimize content for SEO'
-        ],
-        benefits: ['Health Insurance', 'Work from Home', 'Flexible Hours'],
-        openings: 2,
         featured: false,
         status: 'Open'
       },
@@ -1388,8 +1471,28 @@ const seedData = async () => {
       }
     ];
 
-    await Job.insertMany(jobs);
-    console.log('Created jobs');
+
+    // Only insert jobs that do not already exist (by title and company)
+    let insertedCount = 0;
+    let skippedCount = 0;
+    let errorCount = 0;
+    for (const job of jobs) {
+      const exists = await Job.findOne({ title: job.title, company: job.company });
+      if (exists) {
+        skippedCount++;
+        console.log(`[SKIP] Job already exists: ${job.title} (${job.company})`);
+        continue;
+      }
+      try {
+        await Job.create(job);
+        insertedCount++;
+        console.log(`[OK] Inserted job: ${job.title}`);
+      } catch (err) {
+        errorCount++;
+        console.error(`[ERROR] Failed to insert job: ${job.title} - ${err.message}`);
+      }
+    }
+    console.log(`Created ${insertedCount} new jobs, skipped ${skippedCount}, errors ${errorCount} (existing jobs preserved)`);
 
     console.log('\n✅ Database seeded successfully!');
     console.log('\n📝 Test Credentials:');

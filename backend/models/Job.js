@@ -40,6 +40,7 @@ const jobSchema = new mongoose.Schema({
       'Legal',
       'Banking & Finance',
       'HR & Recruitment',
+      'Cloud & DevOps',
       'Other'
     ]
   },

@@ -54,9 +54,11 @@ const Home = () => {
   const fetchFeaturedJobs = async () => {
     try {
       setLoading(true);
-      const response = await API.get('/jobs?featured=true&limit=6');
-      console.log('Featured jobs response:', response.data);
-      setFeaturedJobs(response.data.jobs || []);
+      // Fetch 8 most recent jobs (not just featured)
+      const response = await API.get('/jobs?limit=8&sort=createdAt');
+      // Sort jobs by createdAt descending (most recent first)
+      const jobs = (response.data.jobs || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setFeaturedJobs(jobs);
     } catch (error) {
       console.error('Error fetching featured jobs:', error);
     } finally {
@@ -233,16 +235,16 @@ const Home = () => {
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredJobs.length > 0 ? (
-                featuredJobs.map((job) => (
-                  <JobCard key={job._id} job={job} />
-                ))
-              ) : (
-                <div className="col-span-full text-center py-12">
-                  <p className="text-gray-500 text-lg">No featured jobs available at the moment.</p>
-                </div>
-              )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {Array.from({ length: 2 }).map((_, rowIdx) => (
+                <React.Fragment key={rowIdx}>
+                  {featuredJobs.slice(rowIdx * 4, rowIdx * 4 + 4).map((job) => (
+                    <div className="h-full flex items-stretch">
+                      <JobCard key={job._id} job={job} className="!h-auto min-h-[340px] max-h-[400px] flex flex-col" />
+                    </div>
+                  ))}
+                </React.Fragment>
+              ))}
             </div>
           )}
         </div>

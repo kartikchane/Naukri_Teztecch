@@ -11,18 +11,7 @@ const upload = require('../middleware/upload');
 // @access  Private (Job Seeker only)
 router.post('/', protect, upload.single('resume'), async (req, res) => {
   try {
-    const fs = require('fs');
     const { jobId, coverLetter } = req.body;
-
-    // Debug logs to help diagnose upload/apply failures
-    try {
-      console.log('Apply request received:');
-      console.log(' - Authorization header present:', !!req.headers.authorization);
-      console.log(' - Body:', req.body);
-      console.log(' - File:', req.file ? { originalname: req.file.originalname, size: req.file.size } : null);
-    } catch (logErr) {
-      console.warn('Failed to log apply request details:', logErr.message);
-    }
 
     if (!jobId) {
       return res.status(400).json({ message: 'Job ID is required' });
@@ -44,22 +33,11 @@ router.post('/', protect, upload.single('resume'), async (req, res) => {
       return res.status(400).json({ message: 'You have already applied for this job' });
     }
 
-    // Get resume path (prefer uploaded file; fall back to user's profile if file exists)
-    let resumePath = null;
-    if (req.file) {
-      resumePath = req.file.path;
-    } else if (req.user && req.user.resume) {
-      try {
-        if (fs.existsSync(req.user.resume)) {
-          resumePath = req.user.resume;
-        } else {
-          console.warn('Profile resume file missing:', req.user.resume);
-          resumePath = null;
-        }
-      } catch (err) {
-        console.warn('Error checking resume file:', err.message);
-        resumePath = null;
-      }
+    // Get resume path
+    const resumePath = req.file ? req.file.path : req.user.resume;
+    
+    if (!resumePath) {
+      return res.status(400).json({ message: 'Resume is required' });
     }
 
     // Create application
@@ -80,9 +58,8 @@ router.post('/', protect, upload.single('resume'), async (req, res) => {
 
     res.status(201).json(populatedApplication);
   } catch (error) {
-    console.error('Application submission error:', error);
-    const msg = process.env.NODE_ENV === 'development' ? (error.message || 'Server error') : 'Server error';
-    res.status(500).json({ message: msg });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -99,7 +76,6 @@ router.get('/my', protect, async (req, res) => {
           select: 'name logo'
         }
       })
-      .populate('applicant', 'name email resume')
       .sort({ appliedAt: -1 });
 
     res.json({ applications });

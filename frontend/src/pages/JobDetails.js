@@ -32,6 +32,7 @@ const JobDetails = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [relatedJobs, setRelatedJobs] = useState([]);
 
   useEffect(() => {
     fetchJob();
@@ -86,7 +87,10 @@ const JobDetails = () => {
     try {
       const { data } = await API.get(`/jobs/${id}`);
       setJob(data);
-      
+      // fetch related jobs by same category (domain-specific)
+      if (data?.category) {
+        fetchRelated(data.category, data._id);
+      }
       // Check if job is saved
       if (isAuthenticated && user?.role === 'jobseeker') {
         try {
@@ -104,6 +108,20 @@ const JobDetails = () => {
       navigate('/jobs');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRelated = async (category, currentJobId) => {
+    try {
+      const { data } = await API.get('/jobs', { params: { category, limit: 12 } });
+      // Ensure returned jobs match the requested category (backend should filter, but double-check on frontend)
+      const jobs = (data.jobs || [])
+        .filter(j => j.category === category)
+        .filter(j => j._id !== currentJobId)
+        .slice(0, 5);
+      setRelatedJobs(jobs);
+    } catch (err) {
+      console.error('Failed to fetch related jobs:', err);
     }
   };
 
@@ -419,6 +437,30 @@ const JobDetails = () => {
           </div>
         </div>
       )}
+
+            {/* Related jobs (same domain/category) */}
+          {relatedJobs && relatedJobs.length > 0 && (
+            <div className="max-w-4xl mx-auto mt-6">
+              <h2 className="text-2xl font-bold mb-4">More {job.category} jobs</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {relatedJobs.map(rj => (
+                  <div key={rj._id} className="bg-white rounded-lg shadow p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <a href={`/jobs/${rj._id}`} className="text-lg font-semibold text-gray-900 hover:text-primary">{rj.title}</a>
+                        <div className="text-sm text-gray-600">{rj.company?.name}</div>
+                        <div className="text-sm text-gray-500 mt-2">{rj.location?.city || 'Location not specified'}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-600">{rj.employmentType}</div>
+                        <div className="text-sm font-semibold text-gray-900">{rj.views || 0} views</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
       {/* Apply Modal */}
       <ApplyModal 

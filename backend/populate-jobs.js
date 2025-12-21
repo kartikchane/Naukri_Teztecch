@@ -9,19 +9,8 @@ async function addJobs() {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
-    // Create a company first
+    // Create or update company and ensure owner is set
     let company = await Company.findOne({ name: 'TezTech Solutions' });
-    if (!company) {
-      company = await Company.create({
-        name: 'TezTech Solutions',
-        description: 'Leading technology company',
-        industry: 'Technology',
-        location: 'Bangalore, India',
-        website: 'https://teztech.com',
-        employees: '1000-5000'
-      });
-      console.log('Company created');
-    }
 
     // Get or create admin user
     const User = require('./models/User');
@@ -33,6 +22,26 @@ async function addJobs() {
         password: 'admin123',
         role: 'admin'
       });
+    }
+
+    if (!company) {
+      company = await Company.create({
+        name: 'TezTech Solutions',
+        description: 'Leading technology company',
+        industry: 'Technology',
+        location: 'Bangalore, India',
+        website: 'https://teztech.com',
+        employees: '1000-5000',
+        owner: admin._id
+      });
+      console.log('Company created');
+    } else {
+      // Always ensure owner is set
+      if (!company.owner || String(company.owner) !== String(admin._id)) {
+        company.owner = admin._id;
+        await company.save();
+        console.log('Assigned admin as company owner (existing company)');
+      }
     }
 
     // Add jobs for Software Development category
@@ -317,13 +326,19 @@ async function addJobs() {
 
     const allJobs = [...softwareJobs, ...otherJobs];
 
-    // Clear existing jobs
-    await Job.deleteMany({});
-    console.log('Cleared existing jobs');
-
-    // Insert new jobs
-    const inserted = await Job.insertMany(allJobs);
-    console.log(`✅ Successfully added ${inserted.length} jobs`);
+    let addedCount = 0;
+    for (const job of allJobs) {
+      // Check if a job with same title and company already exists
+      const exists = await Job.findOne({ title: job.title, company: job.company });
+      if (!exists) {
+        await Job.create(job);
+        addedCount++;
+        console.log(`Added: ${job.title}`);
+      } else {
+        console.log(`Skipped (already exists): ${job.title}`);
+      }
+    }
+    console.log(`\n✅ Successfully added ${addedCount} new jobs (existing jobs were not deleted)`);
 
     // Show stats
     const stats = await Job.aggregate([
@@ -337,7 +352,7 @@ async function addJobs() {
     });
 
     await mongoose.connection.close();
-    console.log('\n✅ Database populated successfully!');
+    console.log('\n✅ Database update complete!');
   } catch (error) {
     console.error('Error:', error);
     process.exit(1);

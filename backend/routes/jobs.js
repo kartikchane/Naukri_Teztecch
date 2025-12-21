@@ -23,11 +23,16 @@ router.get('/', optionalAuth, async (req, res) => {
       search,
       page = 1,
       limit = 10,
-      featured
+      featured,
+      company
     } = req.query;
 
     // Build query
     const query = { status: 'Open' };
+    // If company is specified, filter by company
+    if (company) {
+      query.company = company;
+    }
 
     // Exclude jobs with expired deadlines
     query.$or = [

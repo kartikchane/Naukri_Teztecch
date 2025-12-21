@@ -9,15 +9,15 @@ const User = require('../models/User');
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const [jobsCount, companiesCount, usersCount] = await Promise.all([
+    const [jobsCount, uniqueCompanyNames, usersCount] = await Promise.all([
       Job.countDocuments({ status: 'Open' }),
-      Company.countDocuments(),
+      Company.distinct('name'),
       User.countDocuments()
     ]);
 
     res.json({
       jobs: jobsCount,
-      companies: companiesCount,
+      companies: uniqueCompanyNames.length,
       users: usersCount
     });
   } catch (error) {
