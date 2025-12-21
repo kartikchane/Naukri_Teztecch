@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
 
+
 const ApplyModal = ({ job, isOpen, onClose }) => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -20,6 +21,23 @@ const ApplyModal = ({ job, isOpen, onClose }) => {
     noticePeriod: '',
   });
   const [fileName, setFileName] = useState('');
+  const [userResume, setUserResume] = useState(user?.resume || '');
+
+  // Fetch user profile to check for resume
+  React.useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await API.get('/users/profile');
+        setUserResume(res.data.resume || '');
+      } catch (err) {
+        // ignore
+      }
+    };
+    if (isOpen && isAuthenticated) {
+      fetchProfile();
+    }
+    // eslint-disable-next-line
+  }, [isOpen, isAuthenticated]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -32,6 +50,7 @@ const ApplyModal = ({ job, isOpen, onClose }) => {
       setFileName(file.name);
     }
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,6 +66,12 @@ const ApplyModal = ({ job, isOpen, onClose }) => {
       return;
     }
 
+    // Resume logic: require resume if not present in user profile and not uploaded
+    if (!formData.resume && !userResume) {
+      toast.error('Please upload your resume (PDF/DOC/DOCX, max 5MB)');
+      return;
+    }
+
     setApplying(true);
 
     try {
@@ -59,7 +84,7 @@ const ApplyModal = ({ job, isOpen, onClose }) => {
       submitData.append('currentCTC', formData.currentCTC);
       submitData.append('expectedCTC', formData.expectedCTC);
       submitData.append('noticePeriod', formData.noticePeriod);
-      
+
       if (formData.resume) {
         submitData.append('resume', formData.resume);
       }
@@ -82,7 +107,14 @@ const ApplyModal = ({ job, isOpen, onClose }) => {
       });
       setFileName('');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to apply');
+      // Show backend validation errors if present
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        error.response.data.errors.forEach(err => toast.error(err.message));
+      } else {
+        toast.error('Failed to apply');
+      }
     } finally {
       setApplying(false);
     }
