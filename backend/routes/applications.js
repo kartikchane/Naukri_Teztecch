@@ -47,7 +47,9 @@ router.post('/', (req, res, next) => {
 
         // Get resume path
         const fs = require('fs');
+
         let resumePath = null;
+        console.log('req.file:', req.file);
         if (req.file) {
           resumePath = req.file.path;
         } else if (req.user.resume) {
