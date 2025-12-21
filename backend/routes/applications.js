@@ -44,9 +44,21 @@ router.post('/', (req, res, next) => {
           return res.status(400).json({ message: 'You have already applied for this job' });
         }
 
+
         // Get resume path
-        const resumePath = req.file ? req.file.path : req.user.resume;
-        
+        const fs = require('fs');
+        let resumePath = null;
+        if (req.file) {
+          resumePath = req.file.path;
+        } else if (req.user.resume) {
+          // Check if file exists
+          if (fs.existsSync(req.user.resume)) {
+            resumePath = req.user.resume;
+          } else {
+            return res.status(400).json({ message: 'Your previous resume file is missing. Please upload a new resume.' });
+          }
+        }
+
         if (!resumePath) {
           return res.status(400).json({ message: 'Resume is required' });
         }
