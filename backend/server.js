@@ -6,11 +6,22 @@ const connectDB = require('./config/db');
 const { startJobExpirationChecker } = require('./utils/jobExpiration');
 const multer = require('multer');
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB only when a connection string is provided.
+// In serverless environments (e.g. Vercel) env vars may be set in the project
+// settings; if missing, skip connect to avoid crashing during import.
+if (process.env.MONGODB_URI) {
+  connectDB();
+} else {
+  console.warn('MONGODB_URI not set - skipping DB connect. Set MONGODB_URI in deployment env vars.');
+}
 
-// Start job expiration checker
-startJobExpirationChecker();
+// Start job expiration checker only in long-running environments (development or when explicitly enabled).
+// Serverless platforms should not run background intervals on import.
+if (process.env.NODE_ENV !== 'production' || process.env.RUN_JOB_EXPIRATION === 'true') {
+  startJobExpirationChecker();
+} else {
+  console.log('Skipping job expiration checker in production/serverless environment.');
+}
 
 const app = express();
 
