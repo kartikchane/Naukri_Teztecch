@@ -80,9 +80,18 @@ app.use('/api/companies', require('./routes/companies'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/stats', require('./routes/stats'));
 
-// Health check
+// Health check (includes DB status when available)
+const { getDBStatus } = require('./config/db');
+
 app.get('/api/health', (req, res) => {
-  res.json({ message: 'Server is running', timestamp: new Date() });
+  const health = { message: 'Server is running', timestamp: new Date() };
+  try {
+    const dbStatus = getDBStatus ? getDBStatus() : null;
+    if (dbStatus) health.db = dbStatus;
+  } catch (err) {
+    health.db = { connected: false, error: String(err.message || err) };
+  }
+  res.json(health);
 });
 
 // Error handling middleware
