@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import API from '../utils/api';
 import { FaBuilding, FaMapMarkerAlt, FaUsers, FaCalendar, FaCheckCircle, FaGlobe, FaLinkedin, FaTwitter, FaFacebook, FaArrowLeft, FaBriefcase } from 'react-icons/fa';
 
 const CompanyDetails = () => {
@@ -17,7 +17,7 @@ const CompanyDetails = () => {
 
   const fetchCompanyDetails = async () => {
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/companies/${id}`);
+      const { data } = await API.get(`/companies/${id}`);
       setCompany(data);
       setLoading(false);
     } catch (error) {
@@ -29,7 +29,7 @@ const CompanyDetails = () => {
 
   const fetchCompanyJobs = async () => {
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/jobs?company=${id}`);
+      const { data } = await API.get(`/jobs?company=${id}`);
       setJobs(data.jobs || []);
     } catch (error) {
       console.error('Error fetching company jobs:', error);
