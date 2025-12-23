@@ -33,14 +33,11 @@ router.post('/', protect, upload.single('resume'), async (req, res) => {
       return res.status(400).json({ message: 'You have already applied for this job' });
     }
 
-    // Get resume path
-    const resumePath = req.file ? req.file.path : req.user.resume;
-    
-    if (!resumePath) {
-      return res.status(400).json({ message: 'Resume is required' });
-    }
 
-    // Create application
+    // Get resume path (optional)
+    const resumePath = req.file ? req.file.path : req.user.resume || null;
+
+    // Create application (resume is optional)
     const application = await Application.create({
       job: jobId,
       applicant: req.user._id,

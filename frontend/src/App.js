@@ -40,6 +40,13 @@ import EmployerResources from './pages/EmployerResources';
 import RecruitmentSolutions from './pages/RecruitmentSolutions';
 import Blog from './pages/Blog';
 
+// Admin Panel Imports
+import AdminLayout from './pages/admin/Layout';
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminJobs from './pages/admin/Jobs';
+import AdminApplications from './pages/admin/Applications';
+import AdminUsers from './pages/admin/Users';
+
 function App() {
   return (
     <AuthProvider>
@@ -138,6 +145,49 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              
+              {/* Admin Routes */}
+              <Route
+                path="/admin"
+                element={
+                  <PrivateRoute requiredRole="admin">
+                    <AdminLayout />
+                  </PrivateRoute>
+                }
+              >
+                <Route
+                  path="dashboard"
+                  element={
+                    <PrivateRoute requiredRole="admin">
+                      <AdminDashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="jobs"
+                  element={
+                    <PrivateRoute requiredRole="admin">
+                      <AdminJobs />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="applications"
+                  element={
+                    <PrivateRoute requiredRole="admin">
+                      <AdminApplications />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="users"
+                  element={
+                    <PrivateRoute requiredRole="admin">
+                      <AdminUsers />
+                    </PrivateRoute>
+                  }
+                />
+              </Route>
               
               {/* 404 */}
               <Route

@@ -72,6 +72,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/companies', require('./routes/companies'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/stats', require('./routes/stats'));
+app.use('/api/admin', require('./routes/admin')); // Admin routes
 
 // Health check
 app.get('/api/health', (req, res) => {

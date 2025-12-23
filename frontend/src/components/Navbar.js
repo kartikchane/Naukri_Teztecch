@@ -62,7 +62,10 @@ const Navbar = () => {
       const { data } = await API.get('/notifications?read=false');
       setUnreadCount(data.unreadCount || 0);
     } catch (error) {
-      console.error('Error fetching unread count:', error);
+      // Only log error, do not break UI
+      setUnreadCount(0);
+      // Optionally show a toast or silent fail
+      // toast.error('Could not fetch notifications');
     }
   };
 

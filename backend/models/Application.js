@@ -12,8 +12,7 @@ const applicationSchema = new mongoose.Schema({
     required: true
   },
   resume: {
-    type: String,
-    required: true
+    type: String
   },
   coverLetter: {
     type: String
