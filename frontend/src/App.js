@@ -45,7 +45,9 @@ import AdminLayout from './pages/admin/Layout';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminJobs from './pages/admin/Jobs';
 import AdminApplications from './pages/admin/Applications';
+
 import AdminUsers from './pages/admin/Users';
+import EmployerJobs from './pages/EmployerJobs';
 
 function App() {
   return (
@@ -135,13 +137,12 @@ function App() {
                   </PrivateRoute>
                 }
               />
+
               <Route
                 path="/my-jobs"
                 element={
                   <PrivateRoute requiredRole="employer">
-                    <div className="container mx-auto px-4 py-8">
-                      <h1 className="text-3xl font-bold">My Jobs (Coming Soon)</h1>
-                    </div>
+                    <EmployerJobs />
                   </PrivateRoute>
                 }
               />
