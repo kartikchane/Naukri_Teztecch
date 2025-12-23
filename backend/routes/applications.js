@@ -5,6 +5,7 @@ const Job = require('../models/Job');
 const User = require('../models/User');
 const { protect, isEmployer } = require('../middleware/auth');
 const upload = require('../middleware/upload');
+const NotificationService = require('../services/notificationService');
 
 // @route   POST /api/applications
 // @desc    Apply for a job
@@ -154,6 +155,14 @@ router.put('/:id/status', [protect, isEmployer], async (req, res) => {
     application.updatedAt = Date.now();
 
     await application.save();
+
+    // Create notification for applicant about status update
+    try {
+      await NotificationService.createApplicationStatusNotification(application, status);
+    } catch (notificationError) {
+      console.error('Error creating application status notification:', notificationError);
+      // Do not fail the status update if notification fails
+    }
 
     const updatedApplication = await Application.findById(application._id)
       .populate('job')
