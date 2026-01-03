@@ -28,7 +28,9 @@ const app = express();
 const allowedOrigins = [
   'https://teztecch-naukri-frontend.vercel.app',
   'https://teztech-naukri-frontend.vercel.app',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'http://localhost:3001',  // Admin Panel Local
+  'https://your-admin-panel.vercel.app'  // Admin Panel Production (update with actual URL)
 ];
 
 app.use(cors({
@@ -50,19 +52,36 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Root route
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Naukri Platform API',
-    status: 'running',
-    endpoints: {
-      health: '/api/health',
-      jobs: '/api/jobs',
-      stats: '/api/stats',
-      auth: '/api/auth'
+// Serve Admin Panel static files (Production)
+if (process.env.NODE_ENV === 'production') {
+  const adminPanelPath = path.join(__dirname, '../admin-panel/build');
+  app.use(express.static(adminPanelPath));
+  
+  // Serve admin panel for all routes except API routes
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+      return next();
     }
+    res.sendFile(path.join(adminPanelPath, 'index.html'));
   });
-});
+}
+
+// Root route for development
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/', (req, res) => {
+    res.json({ 
+      message: 'Naukri Platform API',
+      status: 'running',
+      endpoints: {
+        health: '/api/health',
+        jobs: '/api/jobs',
+        stats: '/api/stats',
+        auth: '/api/auth',
+        admin: 'http://localhost:3001 (Admin Panel)'
+      }
+    });
+  });
+}
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -88,9 +107,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+// 404 handler - Only for API routes in production
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ message: 'API route not found' });
 });
 
 const PORT = process.env.PORT || 5000;

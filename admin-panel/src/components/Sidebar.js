@@ -1,14 +1,14 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaBars, FaTimes, FaTachometerAlt, FaBriefcase, FaUser, FaClipboardList, FaSignOutAlt, FaHome } from 'react-icons/fa';
-import { useAuth } from '../../context/AuthContext';
+import { FaBars, FaTimes, FaTachometerAlt, FaBriefcase, FaUser, FaClipboardList, FaSignOutAlt } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
-  { to: '/admin/dashboard', label: 'Dashboard', icon: <FaTachometerAlt className="inline mr-2" /> },
-  { to: '/admin/jobs', label: 'Jobs', icon: <FaBriefcase className="inline mr-2" /> },
-  { to: '/admin/applications', label: 'Applications', icon: <FaClipboardList className="inline mr-2" /> },
-  { to: '/admin/users', label: 'Users', icon: <FaUser className="inline mr-2" /> },
+  { to: '/dashboard', label: 'Dashboard', icon: <FaTachometerAlt className="inline mr-2" /> },
+  { to: '/jobs', label: 'Jobs', icon: <FaBriefcase className="inline mr-2" /> },
+  { to: '/applications', label: 'Applications', icon: <FaClipboardList className="inline mr-2" /> },
+  { to: '/users', label: 'Users', icon: <FaUser className="inline mr-2" /> },
 ];
 
 const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
@@ -21,7 +21,7 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
 
   const handleLogout = () => {
     logout();
-    navigate('/admin/login');
+    navigate('/login');
   };
 
   // Sidebar content
@@ -78,14 +78,6 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
 
       {/* Bottom Actions */}
       <div className="mt-auto pt-4 border-t border-gray-200">
-        <Link
-          to="/"
-          className="flex items-center px-4 py-2 rounded mb-2 text-gray-700 hover:bg-gray-100 transition-colors duration-150"
-          onClick={() => setMobileOpen(false)}
-        >
-          <FaHome className="inline mr-2" />
-          View Website
-        </Link>
         <button
           onClick={handleLogout}
           className="flex items-center w-full px-4 py-2 rounded text-red-600 hover:bg-red-50 transition-colors duration-150"

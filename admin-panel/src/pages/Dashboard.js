@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import API from '../../utils/api';
+import API from '../utils/api';
 import { Link } from 'react-router-dom';
 import { FaBriefcase, FaUser, FaClipboardList, FaArrowRight } from 'react-icons/fa';
 
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
         <div className="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
             <h2 className="text-lg md:text-xl font-semibold text-gray-800">Recent Jobs</h2>
-            <Link to="/admin/jobs" className="text-blue-600 hover:text-blue-700 hover:underline text-xs md:text-sm flex items-center gap-1 font-medium">
+            <Link to="/jobs" className="text-blue-600 hover:text-blue-700 hover:underline text-xs md:text-sm flex items-center gap-1 font-medium">
               View All <FaArrowRight className="text-xs" />
             </Link>
           </div>
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
         <div className="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
             <h2 className="text-lg md:text-xl font-semibold text-gray-800">Recent Applications</h2>
-            <Link to="/admin/applications" className="text-blue-600 hover:text-blue-700 hover:underline text-xs md:text-sm flex items-center gap-1 font-medium">
+            <Link to="/applications" className="text-blue-600 hover:text-blue-700 hover:underline text-xs md:text-sm flex items-center gap-1 font-medium">
               View All <FaArrowRight className="text-xs" />
             </Link>
           </div>

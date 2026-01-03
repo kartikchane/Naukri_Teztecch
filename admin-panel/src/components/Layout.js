@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import AdminSidebar from './Sidebar';
 import { FaBars } from 'react-icons/fa';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 const AdminLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);

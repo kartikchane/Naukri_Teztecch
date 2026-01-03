@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
-const AdminLogin = () => {
+const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -12,10 +12,9 @@ const AdminLogin = () => {
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in as admin
   useEffect(() => {
-    if (user && user.role === 'admin') {
-      navigate('/admin/dashboard');
+    if (user) {
+      navigate('/dashboard');
     }
   }, [user, navigate]);
 
@@ -33,18 +32,10 @@ const AdminLogin = () => {
     const result = await login(formData.email, formData.password);
 
     if (result.success) {
-      // Check if user is admin
-      if (result.user && result.user.role === 'admin') {
-        toast.success('Admin login successful!');
-        navigate('/admin/dashboard');
-      } else {
-        toast.error('Access denied. Admin credentials required.');
-        // Logout non-admin user
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-      }
+      toast.success('Admin login successful!');
+      navigate('/dashboard');
     } else {
-      toast.error(result.message || 'Login failed. Please check your credentials.');
+      toast.error(result.message || 'Invalid credentials');
     }
 
     setLoading(false);
@@ -71,7 +62,7 @@ const AdminLogin = () => {
             </svg>
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-white">Admin Portal</h2>
-          <p className="mt-2 text-sm md:text-base text-blue-200">Sign in to access admin dashboard</p>
+          <p className="mt-2 text-sm md:text-base text-blue-200">Naukri Platform Administration</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-2xl p-6 md:p-8">
@@ -86,8 +77,9 @@ const AdminLogin = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="admin@example.com"
+                placeholder="admin@naukri.com"
                 required
+                autoComplete="email"
               />
             </div>
 
@@ -103,17 +95,8 @@ const AdminLogin = () => {
                 className="w-full px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter admin password"
                 required
+                autoComplete="current-password"
               />
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center text-gray-600">
-                <input type="checkbox" className="mr-2 rounded" />
-                Remember me
-              </label>
-              <Link to="/forgot-password" className="text-blue-600 hover:underline">
-                Forgot password?
-              </Link>
             </div>
 
             <button
@@ -130,48 +113,34 @@ const AdminLogin = () => {
                   Signing in...
                 </span>
               ) : (
-                'Sign In as Admin'
+                'Sign In'
               )}
             </button>
           </form>
 
-          <div className="mt-4 md:mt-6 text-center">
-            <p className="text-sm">
-              Not an admin?{' '}
-              <Link to="/login" className="text-blue-600 hover:underline font-medium">
-                Regular Login
-              </Link>
-            </p>
-          </div>
-
           {/* Security Notice */}
           <div className="mt-4 md:mt-6 p-3 md:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-start">
-              <svg className="w-5 h-5 text-yellow-600 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
               <div>
-                <p className="text-xs font-medium text-yellow-800">Security Notice</p>
+                <p className="text-xs font-medium text-yellow-800">Restricted Access</p>
                 <p className="text-xs text-yellow-700 mt-1">
-                  This is a restricted area. Unauthorized access attempts are logged.
+                  This is an administrative area. Unauthorized access attempts will be logged and reported.
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Back to Home Link */}
-        <div className="text-center mt-6">
-          <Link to="/" className="text-white hover:text-blue-200 text-sm flex items-center justify-center">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Home
-          </Link>
+        {/* Footer */}
+        <div className="text-center mt-6 text-white text-xs">
+          <p>© 2026 Naukri Platform. All rights reserved.</p>
         </div>
       </div>
     </div>
   );
 };
 
-export default AdminLogin;
+export default Login;
