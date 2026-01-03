@@ -52,18 +52,10 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Serve Admin Panel static files (Production)
+// Serve Admin Panel static files (Production) - only static assets
 if (process.env.NODE_ENV === 'production') {
   const adminPanelPath = path.join(__dirname, '../admin-panel/build');
   app.use(express.static(adminPanelPath));
-  
-  // Serve admin panel for all routes except API routes
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api/')) {
-      return next();
-    }
-    res.sendFile(path.join(adminPanelPath, 'index.html'));
-  });
 }
 
 // Root route for development
@@ -97,6 +89,14 @@ app.use('/api/admin', require('./routes/admin')); // Admin routes
 app.get('/api/health', (req, res) => {
   res.json({ message: 'Server is running', timestamp: new Date() });
 });
+
+// Serve Admin Panel for all non-API routes (Production) - MUST BE AFTER API ROUTES
+if (process.env.NODE_ENV === 'production') {
+  const adminPanelPath = path.join(__dirname, '../admin-panel/build');
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(adminPanelPath, 'index.html'));
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
