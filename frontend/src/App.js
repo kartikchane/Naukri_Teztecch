@@ -13,6 +13,7 @@ import ScrollToTop from './components/ScrollToTop';
 // Pages
 import Home from './pages/Home';
 import Login from './pages/Login';
+import AdminLogin from './pages/AdminLogin';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Jobs from './pages/Jobs';
@@ -54,14 +55,61 @@ function App() {
     <AuthProvider>
       <Router>
         <ScrollToTop />
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Routes>
+          {/* Admin Routes - No Navbar/Footer */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute requiredRole="admin">
+                <AdminLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route
+              path="dashboard"
+              element={
+                <PrivateRoute requiredRole="admin">
+                  <AdminDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="jobs"
+              element={
+                <PrivateRoute requiredRole="admin">
+                  <AdminJobs />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="applications"
+              element={
+                <PrivateRoute requiredRole="admin">
+                  <AdminApplications />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <PrivateRoute requiredRole="admin">
+                  <AdminUsers />
+                </PrivateRoute>
+              }
+            />
+          </Route>
+
+          {/* Regular Routes - With Navbar/Footer */}
+          <Route path="*" element={
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <main className="flex-grow">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/jobs" element={<Jobs />} />
               <Route path="/jobs/:id" element={<JobDetails />} />
               <Route path="/companies" element={<Companies />} />
@@ -147,49 +195,6 @@ function App() {
                 }
               />
               
-              {/* Admin Routes */}
-              <Route
-                path="/admin"
-                element={
-                  <PrivateRoute requiredRole="admin">
-                    <AdminLayout />
-                  </PrivateRoute>
-                }
-              >
-                <Route
-                  path="dashboard"
-                  element={
-                    <PrivateRoute requiredRole="admin">
-                      <AdminDashboard />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="jobs"
-                  element={
-                    <PrivateRoute requiredRole="admin">
-                      <AdminJobs />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="applications"
-                  element={
-                    <PrivateRoute requiredRole="admin">
-                      <AdminApplications />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="users"
-                  element={
-                    <PrivateRoute requiredRole="admin">
-                      <AdminUsers />
-                    </PrivateRoute>
-                  }
-                />
-              </Route>
-              
               {/* 404 */}
               <Route
                 path="*"
@@ -201,21 +206,23 @@ function App() {
                   </div>
                 }
               />
-            </Routes>
-          </main>
-          <Footer />
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-        </div>
+                </Routes>
+              </main>
+              <Footer />
+            </div>
+          } />
+        </Routes>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </Router>
     </AuthProvider>
   );

@@ -99,6 +99,54 @@ router.post('/login', [
   }
 });
 
+// @route   POST /api/auth/admin-login
+// @desc    Admin login (same as regular login but checks for admin role)
+// @access  Public
+router.post('/admin-login', [
+  body('email').isEmail().withMessage('Please provide a valid email'),
+  body('password').notEmpty().withMessage('Password is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array()[0].msg });
+    }
+
+    const { email, password } = req.body;
+
+    // Check for user
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Check if user is admin
+    if (user.role !== 'admin') {
+      console.log(`⚠️ Non-admin attempted admin login: ${email}`);
+      return res.status(403).json({ message: 'Access denied. Admin credentials required.' });
+    }
+
+    // Check password
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    console.log(`✅ Admin login successful: ${user.email}`);
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id)
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // @route   GET /api/auth/me
 // @desc    Get current user
 // @access  Private

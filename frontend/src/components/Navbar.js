@@ -226,6 +226,17 @@ const Navbar = () => {
                       </Link>
                     )}
 
+                    {user?.role === 'admin' && (
+                      <Link
+                        to="/admin/dashboard"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
+                      >
+                        <FaBriefcase className="mr-3 text-gray-400" /> 
+                        <span className="font-medium">Admin Dashboard</span>
+                      </Link>
+                    )}
+
                     <div className="border-t border-gray-100 mt-2"></div>
                     
                     <button
