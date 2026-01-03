@@ -114,13 +114,11 @@ app.use('/api/*', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV}`);
-  });
-}
+// Always start server (Vercel will ignore this in serverless mode)
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+});
 
 // Export for Vercel serverless
 module.exports = app;
