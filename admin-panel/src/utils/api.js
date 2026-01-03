@@ -1,7 +1,17 @@
 import axios from 'axios';
 
+// Use relative URL in production, localhost in development
+const getBaseURL = () => {
+  // In production, use relative /api (same domain as admin panel)
+  if (window.location.hostname !== 'localhost') {
+    return '/api';
+  }
+  // In development, use localhost:5000
+  return process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+};
+
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },
