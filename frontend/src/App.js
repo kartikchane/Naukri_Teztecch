@@ -13,7 +13,6 @@ import ScrollToTop from './components/ScrollToTop';
 // Pages
 import Home from './pages/Home';
 import Login from './pages/Login';
-import AdminLogin from './pages/AdminLogin';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Jobs from './pages/Jobs';
@@ -40,14 +39,6 @@ import Pricing from './pages/Pricing';
 import EmployerResources from './pages/EmployerResources';
 import RecruitmentSolutions from './pages/RecruitmentSolutions';
 import Blog from './pages/Blog';
-
-// Admin Panel Imports
-import AdminLayout from './pages/admin/Layout';
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminJobs from './pages/admin/Jobs';
-import AdminApplications from './pages/admin/Applications';
-
-import AdminUsers from './pages/admin/Users';
 import EmployerJobs from './pages/EmployerJobs';
 
 function App() {
@@ -56,50 +47,6 @@ function App() {
       <Router>
         <ScrollToTop />
         <Routes>
-          {/* Admin Routes - No Navbar/Footer */}
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route
-            path="/admin"
-            element={
-              <PrivateRoute requiredRole="admin">
-                <AdminLayout />
-              </PrivateRoute>
-            }
-          >
-            <Route
-              path="dashboard"
-              element={
-                <PrivateRoute requiredRole="admin">
-                  <AdminDashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="jobs"
-              element={
-                <PrivateRoute requiredRole="admin">
-                  <AdminJobs />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="applications"
-              element={
-                <PrivateRoute requiredRole="admin">
-                  <AdminApplications />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="users"
-              element={
-                <PrivateRoute requiredRole="admin">
-                  <AdminUsers />
-                </PrivateRoute>
-              }
-            />
-          </Route>
-
           {/* Regular Routes - With Navbar/Footer */}
           <Route path="*" element={
             <div className="flex flex-col min-h-screen">
