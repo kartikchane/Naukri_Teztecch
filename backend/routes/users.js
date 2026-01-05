@@ -68,13 +68,17 @@ router.post('/resume', protect, upload.single('resume'), async (req, res) => {
       return res.status(400).json({ message: 'Please upload a file' });
     }
 
+    // Convert absolute path to relative: uploads/resume-xxx.pdf
+    const relativePath = req.file.path.replace(/\\/g, '/').split('/uploads/')[1];
+    const resumePath = `uploads/${relativePath}`;
+
     const user = await User.findById(req.user._id);
-    user.resume = req.file.path;
+    user.resume = resumePath;
     await user.save();
 
     res.json({
       message: 'Resume uploaded successfully',
-      resume: req.file.path
+      resume: resumePath
     });
   } catch (error) {
     console.error(error);
@@ -91,13 +95,17 @@ router.post('/avatar', protect, upload.single('avatar'), async (req, res) => {
       return res.status(400).json({ message: 'Please upload a file' });
     }
 
+    // Convert absolute path to relative: uploads/avatar-xxx.png
+    const relativePath = req.file.path.replace(/\\/g, '/').split('/uploads/')[1];
+    const avatarPath = `uploads/${relativePath}`;
+
     const user = await User.findById(req.user._id);
-    user.avatar = req.file.path;
+    user.avatar = avatarPath;
     await user.save();
 
     res.json({
       message: 'Avatar uploaded successfully',
-      avatar: req.file.path
+      avatar: avatarPath
     });
   } catch (error) {
     console.error(error);

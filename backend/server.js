@@ -49,8 +49,20 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Serve uploaded files with path normalization middleware
+app.use('/uploads', (req, res, next) => {
+  // Normalize path - remove absolute path prefixes if present
+  let filePath = req.path;
+  
+  // Handle absolute Windows paths (D:/demo_project/...)
+  if (filePath.includes('demo_project')) {
+    const parts = filePath.split('uploads/');
+    filePath = parts.length > 1 ? '/' + parts[parts.length - 1] : filePath;
+  }
+  
+  req.url = filePath;
+  next();
+}, express.static(path.join(__dirname, '../uploads')));
 
 // Serve Admin Panel static files (Production) - only static assets
 if (process.env.NODE_ENV === 'production') {

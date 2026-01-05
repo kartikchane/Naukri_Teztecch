@@ -6,6 +6,29 @@ const User = require('../models/User');
 const { protect, isEmployer } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const NotificationService = require('../services/notificationService');
+const fs = require('fs');
+const path = require('path');
+
+// Helper function to normalize resume path and check if file exists
+const normalizeResumePath = (resumePath) => {
+  if (!resumePath) return null;
+  
+  // If it's already a URL, return as-is
+  if (resumePath.startsWith('http')) return resumePath;
+  
+  // Remove absolute path prefix if exists
+  let normalizedPath = resumePath.replace(/^[A-Z]:\\.*?\\uploads\\/i, 'uploads/');
+  normalizedPath = normalizedPath.replace(/\\/g, '/');
+  
+  // Check if file exists
+  const fullPath = path.join(__dirname, '../..', normalizedPath);
+  if (fs.existsSync(fullPath)) {
+    return normalizedPath;
+  }
+  
+  // File doesn't exist, return null
+  return null;
+};
 
 // @route   POST /api/applications
 // @desc    Apply for a job
@@ -35,8 +58,15 @@ router.post('/', protect, upload.single('resume'), async (req, res) => {
     }
 
 
-    // Get resume path (optional)
-    const resumePath = req.file ? req.file.path : req.user.resume || null;
+    // Get resume path (optional) - convert to relative path for serving
+    let resumePath = null;
+    if (req.file) {
+      // Convert absolute path to relative: uploads/resume-xxx.pdf
+      resumePath = req.file.path.replace(/\\/g, '/').split('/uploads/')[1];
+      resumePath = `uploads/${resumePath}`;
+    } else if (req.user.resume) {
+      resumePath = req.user.resume;
+    }
 
     // Create application (resume is optional)
     const application = await Application.create({
@@ -76,7 +106,14 @@ router.get('/my', protect, async (req, res) => {
       })
       .sort({ appliedAt: -1 });
 
-    res.json({ applications });
+    // Normalize resume paths and check file existence
+    const applicationsWithValidResumes = applications.map(app => {
+      const appObj = app.toObject();
+      appObj.resume = normalizeResumePath(app.resume);
+      return appObj;
+    });
+
+    res.json({ applications: applicationsWithValidResumes });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -125,7 +162,14 @@ router.get('/job/:jobId', [protect, isEmployer], async (req, res) => {
       .populate('applicant', 'name email phone skills experience education')
       .sort({ appliedAt: -1 });
 
-    res.json(applications);
+    // Normalize resume paths and check file existence
+    const applicationsWithValidResumes = applications.map(app => {
+      const appObj = app.toObject();
+      appObj.resume = normalizeResumePath(app.resume);
+      return appObj;
+    });
+
+    res.json(applicationsWithValidResumes);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

@@ -452,7 +452,7 @@ const Profile = () => {
                         </svg>
                         <span className="flex-1">Current: {user.resume.split('/').pop()}</span>
                         <a 
-                          href={`http://localhost:5000${user.resume}`} 
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${user.resume}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="text-primary hover:underline"

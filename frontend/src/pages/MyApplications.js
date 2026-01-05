@@ -246,16 +246,24 @@ const MyApplications = () => {
                       >
                         View Job
                       </Link>
-                      {application.resume ? (
+                      {application.resume && !application.resume.includes(':/') ? (
                         <a
                           href={
                             application.resume.startsWith('http') 
                               ? application.resume 
-                              : `http://localhost:5000/${application.resume}`
+                              : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${application.resume}`
                           }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="btn-outline text-center bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-600"
+                          onClick={(e) => {
+                            // Check if file exists by trying to fetch
+                            fetch(e.currentTarget.href, { method: 'HEAD' })
+                              .catch(() => {
+                                e.preventDefault();
+                                toast.error('Resume file not found');
+                              });
+                          }}
                         >
                           View Resume
                         </a>

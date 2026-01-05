@@ -159,12 +159,16 @@ router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), async (re
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    company.logo = req.file.path;
+    // Convert absolute path to relative: uploads/logo-xxx.png
+    const relativePath = req.file.path.replace(/\\/g, '/').split('/uploads/')[1];
+    const logoPath = `uploads/${relativePath}`;
+
+    company.logo = logoPath;
     await company.save();
 
     res.json({
       message: 'Logo uploaded successfully',
-      logo: req.file.path
+      logo: logoPath
     });
   } catch (error) {
     console.error(error);
