@@ -48,7 +48,15 @@ const EmployerApplicants = ({ jobId, onClose }) => {
                   <div className="text-gray-500 text-xs">Applied: {new Date(app.appliedAt).toLocaleDateString()}</div>
                   <div className="mt-2 text-sm">Status: <span className="font-bold">{app.status}</span></div>
                   {app.coverLetter && <div className="mt-1 text-xs text-gray-700">Cover: {app.coverLetter}</div>}
-                  {app.resume && !app.resume.includes(':/') && <a href={app.resume.startsWith('http') ? app.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${app.resume}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">View Resume</a>}
+                  {app.resume && (
+                    <a 
+                      href={app.resume.startsWith('http') ? app.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${app.resume}`} 
+                      target="_blank" 
+                      className="text-blue-600 underline text-xs hover:text-blue-800"
+                    >
+                      View Resume
+                    </a>
+                  ) || <span className="text-gray-400 text-xs">No resume</span>}
                 </div>
                 {/* Status update UI */}
                 <div className="flex flex-col gap-2 min-w-[180px]">
