@@ -16,8 +16,13 @@ router.get('/stats', isAdmin, async (req, res) => {
     const users = await User.countDocuments();
     const applications = await Application.countDocuments();
     const companies = await Company.countDocuments();
-    res.json({ jobs, users, applications, companies });
+    const rejections = await Application.countDocuments({ status: 'Rejected' });
+    
+    console.log('📊 Admin Stats:', { jobs, users, applications, companies, rejections });
+    
+    res.json({ jobs, users, applications, companies, rejections });
   } catch (err) {
+    console.error('❌ Stats Error:', err);
     res.status(500).json({ message: 'Error fetching stats', error: err.message });
   }
 });

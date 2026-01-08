@@ -2,14 +2,15 @@
 import React, { useEffect, useState } from 'react';
 import API from '../utils/api';
 import { Link } from 'react-router-dom';
-import { FaBriefcase, FaUser, FaClipboardList, FaArrowRight, FaBuilding } from 'react-icons/fa';
+import { FaBriefcase, FaUser, FaClipboardList, FaArrowRight, FaBuilding, FaTimes } from 'react-icons/fa';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ 
     jobs: 0, 
     users: 0, 
     applications: 0, 
-    companies: 0
+    companies: 0,
+    rejections: 0
   });
   const [recentJobs, setRecentJobs] = useState([]);
   const [recentApplications, setRecentApplications] = useState([]);
@@ -27,8 +28,20 @@ const AdminDashboard = () => {
       
       // Fetch basic stats
       const statsRes = await API.get('/admin/stats');
-      console.log('Stats Response:', statsRes.data);
-      setStats(statsRes.data);
+      console.log('📊 Stats Response:', statsRes.data);
+      console.log('📊 Rejections count:', statsRes.data.rejections);
+      
+      // Ensure all fields are present with default values
+      const statsData = {
+        jobs: statsRes.data.jobs || 0,
+        users: statsRes.data.users || 0,
+        applications: statsRes.data.applications || 0,
+        companies: statsRes.data.companies || 0,
+        rejections: statsRes.data.rejections || 0
+      };
+      
+      console.log('📊 Setting stats:', statsData);
+      setStats(statsData);
       
       // Fetch recent jobs
       try {
@@ -90,6 +103,19 @@ const AdminDashboard = () => {
         </div>
       )}
       
+      {/* Force Refresh Button */}
+      <div className="mb-6 flex justify-end">
+        <button
+          onClick={() => {
+            console.log('🔄 Force refreshing dashboard...');
+            fetchAllData();
+          }}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium flex items-center gap-2"
+        >
+          🔄 Refresh Stats
+        </button>
+      </div>
+      
       {loading ? (
         <div className="bg-white rounded-lg p-12 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -109,9 +135,9 @@ const AdminDashboard = () => {
       ) : (
         <>
           {/* Stats Cards with Gradient */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6 mb-8">
             {/* Jobs Card */}
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl hover:shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 cursor-pointer">
+            <Link to="/jobs" className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl hover:shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-14 h-14 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                   <FaBriefcase className="text-3xl text-white" />
@@ -122,10 +148,10 @@ const AdminDashboard = () => {
               </div>
               <div className="text-white text-opacity-90 font-semibold text-lg">Total Jobs</div>
               <div className="text-white text-opacity-70 text-sm mt-1">Active listings</div>
-            </div>
+            </Link>
 
             {/* Users Card */}
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-xl hover:shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 cursor-pointer">
+            <Link to="/users" className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-xl hover:shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-14 h-14 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                   <FaUser className="text-3xl text-white" />
@@ -136,10 +162,10 @@ const AdminDashboard = () => {
               </div>
               <div className="text-white text-opacity-90 font-semibold text-lg">Total Users</div>
               <div className="text-white text-opacity-70 text-sm mt-1">Registered members</div>
-            </div>
+            </Link>
 
             {/* Applications Card */}
-            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-xl hover:shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 cursor-pointer">
+            <Link to="/applications" className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-xl hover:shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-14 h-14 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                   <FaClipboardList className="text-3xl text-white" />
@@ -150,10 +176,10 @@ const AdminDashboard = () => {
               </div>
               <div className="text-white text-opacity-90 font-semibold text-lg">Applications</div>
               <div className="text-white text-opacity-70 text-sm mt-1">Total submissions</div>
-            </div>
+            </Link>
 
             {/* Companies Card */}
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-xl hover:shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 cursor-pointer">
+            <Link to="/companies" className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-xl hover:shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-14 h-14 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                   <FaBuilding className="text-3xl text-white" />
@@ -164,7 +190,21 @@ const AdminDashboard = () => {
               </div>
               <div className="text-white text-opacity-90 font-semibold text-lg">Companies</div>
               <div className="text-white text-opacity-70 text-sm mt-1">Hiring partners</div>
-            </div>
+            </Link>
+
+            {/* Rejections Card */}
+            <Link to="/applications?status=Rejected" className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-xl hover:shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-14 h-14 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                  <FaTimes className="text-3xl text-white" />
+                </div>
+                <div className="text-right">
+                  <div className="text-4xl font-bold text-white">{stats.rejections || 0}</div>
+                </div>
+              </div>
+              <div className="text-white text-opacity-90 font-semibold text-lg">Rejections</div>
+              <div className="text-white text-opacity-70 text-sm mt-1">Rejected applications</div>
+            </Link>
           </div>
 
           {/* Recent Jobs & Applications with Better Design */}
