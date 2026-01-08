@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { SettingsProvider } from './context/SettingsContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -43,10 +44,11 @@ import EmployerJobs from './pages/EmployerJobs';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <ScrollToTop />
-        <Routes>
+    <SettingsProvider>
+      <AuthProvider>
+        <Router>
+          <ScrollToTop />
+          <Routes>
           {/* Regular Routes - With Navbar/Footer */}
           <Route path="*" element={
             <div className="flex flex-col min-h-screen">
@@ -172,6 +174,7 @@ function App() {
         />
       </Router>
     </AuthProvider>
+    </SettingsProvider>
   );
 }
 

@@ -1,0 +1,43 @@
+const mongoose = require('mongoose');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, 'backend', '.env') });
+
+const Job = require('./backend/models/Job');
+
+mongoose.connect(process.env.MONGODB_URI)
+  .then(async () => {
+    console.log('✅ MongoDB Connected\n');
+    
+    // Get all featured jobs
+    const featuredJobs = await Job.find({ featured: true })
+      .select('title company featured createdAt')
+      .populate('company', 'name')
+      .sort('-createdAt')
+      .limit(10);
+    
+    console.log(`📊 Featured Jobs Count: ${featuredJobs.length}\n`);
+    
+    if (featuredJobs.length > 0) {
+      console.log('⭐ Featured Jobs:');
+      featuredJobs.forEach((job, index) => {
+        console.log(`${index + 1}. ${job.title} - ${job.company?.name || 'Unknown'} (${job.featured ? '⭐ Featured' : ''})`);
+      });
+    } else {
+      console.log('❌ No jobs are currently marked as featured.');
+      console.log('\n💡 To mark jobs as featured:');
+      console.log('   1. Open admin panel: http://localhost:3001');
+      console.log('   2. Click the star ⭐ icon on any job card');
+      console.log('   3. The job will be marked as featured');
+      console.log('   4. Refresh main website to see it in "Featured Jobs" section');
+    }
+    
+    // Get total jobs count
+    const totalJobs = await Job.countDocuments({ status: 'Open' });
+    console.log(`\n📋 Total Open Jobs: ${totalJobs}`);
+    
+    process.exit(0);
+  })
+  .catch(err => {
+    console.error('❌ MongoDB Connection Error:', err.message);
+    process.exit(1);
+  });

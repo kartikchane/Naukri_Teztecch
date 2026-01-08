@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Admin Storage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        h1 { color: #333; margin-bottom: 20px; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover { background: #5568d3; }
+        .success { color: green; margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin Panel Fix</h1>
+        <p>Token error fix karne ke liye niche button click karo:</p>
+        <button onclick="clearStorage()">Clear Admin Token & Reload</button>
+        <div id="message"></div>
+    </div>
+    
+    <script>
+        function clearStorage() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            document.getElementById('message').innerHTML = '<div class="success">✅ Token cleared! Redirecting to login...</div>';
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

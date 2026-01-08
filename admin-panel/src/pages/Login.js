@@ -42,13 +42,19 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 py-6 px-4">
-      <div className="max-w-md w-full">
-        {/* Admin Badge */}
-        <div className="text-center mb-6 md:mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-white rounded-full mb-3 md:mb-4 shadow-xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 py-6 px-4 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="max-w-md w-full relative z-10">
+        {/* Admin Badge with Animation */}
+        <div className="text-center mb-8 animate-fadeIn">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl mb-4 shadow-2xl transform hover:scale-110 transition-transform duration-300">
             <svg 
-              className="w-8 h-8 md:w-10 md:h-10 text-blue-600" 
+              className="w-10 h-10 text-blue-600" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -61,11 +67,11 @@ const Login = () => {
               />
             </svg>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white">Admin Portal</h2>
-          <p className="mt-2 text-sm md:text-base text-blue-200">Naukri Platform Administration</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Admin Portal</h2>
+          <p className="text-lg text-white text-opacity-90">Naukri Platform Administration</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-2xl p-6 md:p-8">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -102,7 +108,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 md:py-3 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-2xl transform hover:scale-105"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -113,20 +119,20 @@ const Login = () => {
                   Signing in...
                 </span>
               ) : (
-                'Sign In'
+                'Sign In to Dashboard'
               )}
             </button>
           </form>
 
-          {/* Security Notice */}
-          <div className="mt-4 md:mt-6 p-3 md:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          {/* Security Notice with Better Design */}
+          <div className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl">
             <div className="flex items-start">
-              <svg className="w-5 h-5 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-6 h-6 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
               <div>
-                <p className="text-xs font-medium text-yellow-800">Restricted Access</p>
-                <p className="text-xs text-yellow-700 mt-1">
+                <p className="text-sm font-bold text-yellow-800">🔒 Restricted Access</p>
+                <p className="text-sm text-yellow-700 mt-1">
                   This is an administrative area. Unauthorized access attempts will be logged and reported.
                 </p>
               </div>
@@ -134,9 +140,9 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-6 text-white text-xs">
-          <p>© 2026 Naukri Platform. All rights reserved.</p>
+        {/* Footer with Better Styling */}
+        <div className="text-center mt-6 text-white text-sm font-medium">
+          <p className="opacity-90">© 2026 Naukri Platform. All rights reserved.</p>
         </div>
       </div>
     </div>

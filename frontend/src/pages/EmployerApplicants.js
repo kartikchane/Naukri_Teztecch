@@ -47,16 +47,24 @@ const EmployerApplicants = ({ jobId, onClose }) => {
                   <div className="text-gray-600 text-sm">{app.applicant?.email}</div>
                   <div className="text-gray-500 text-xs">Applied: {new Date(app.appliedAt).toLocaleDateString()}</div>
                   <div className="mt-2 text-sm">Status: <span className="font-bold">{app.status}</span></div>
-                  {app.coverLetter && <div className="mt-1 text-xs text-gray-700">Cover: {app.coverLetter}</div>}
-                  {app.resume && (
-                    <a 
-                      href={app.resume.startsWith('http') ? app.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${app.resume}`} 
-                      target="_blank" 
-                      className="text-blue-600 underline text-xs hover:text-blue-800"
-                    >
-                      View Resume
-                    </a>
-                  ) || <span className="text-gray-400 text-xs">No resume</span>}
+                  {app.coverLetter && <div className="mt-1 text-xs text-gray-700 line-clamp-2">Cover: {app.coverLetter}</div>}
+                  <div className="mt-2">
+                    {app.resume ? (
+                      <a 
+                        href={app.resume.startsWith('http') ? app.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${app.resume}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        View Resume
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 text-xs italic">No resume uploaded</span>
+                    )}
+                  </div>
                 </div>
                 {/* Status update UI */}
                 <div className="flex flex-col gap-2 min-w-[180px]">
@@ -79,7 +87,6 @@ const EmployerApplicants = ({ jobId, onClose }) => {
                     }}
                   >
                     <select name="status" defaultValue={app.status} className="input-field mb-1">
-                      <option value="Applied">Applied</option>
                       <option value="Under Review">Under Review</option>
                       <option value="Shortlisted">Shortlisted</option>
                       <option value="Rejected">Rejected</option>

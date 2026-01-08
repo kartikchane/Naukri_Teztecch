@@ -20,6 +20,11 @@ const API = axios.create({
 // Add token to requests
 API.interceptors.request.use(
   (config) => {
+    // Don't add token to login requests
+    if (config.url?.includes('/auth/admin-login')) {
+      return config;
+    }
+    
     const token = localStorage.getItem('adminToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -35,10 +40,15 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Only redirect to login on 401 (not 403 or 500)
     if (error.response?.status === 401) {
+      console.log('401 Unauthorized - redirecting to login');
       localStorage.removeItem('adminToken');
       localStorage.removeItem('adminUser');
-      window.location.href = '/login';
+      // Only redirect if not already on login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

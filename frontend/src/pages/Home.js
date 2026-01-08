@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import API from '../utils/api';
 import JobCard from '../components/JobCard';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { useCountUp } from '../hooks/useCountUp';
 import { 
   FaMapMarkerAlt, 
@@ -22,6 +23,7 @@ import {
 
 const Home = () => {
   const { isAuthenticated, user } = useAuth();
+  const { settings } = useSettings();
   const [featuredJobs, setFeaturedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,8 +56,8 @@ const Home = () => {
   const fetchFeaturedJobs = async () => {
     try {
       setLoading(true);
-      // Fetch 8 most recent jobs (not just featured)
-      const response = await API.get('/jobs?limit=8&sort=createdAt');
+      // Fetch only featured jobs for homepage
+      const response = await API.get('/jobs?featured=true&limit=8&sort=createdAt');
       // Sort jobs by createdAt descending (most recent first)
       const jobs = (response.data.jobs || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setFeaturedJobs(jobs);
@@ -96,35 +98,44 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12 md:py-16 lg:py-20">
+      <section 
+        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12 md:py-16 lg:py-20"
+        style={settings.hero?.backgroundImage ? {
+          backgroundImage: `linear-gradient(rgba(37, 99, 235, 0.85), rgba(147, 51, 234, 0.85)), url(${settings.hero.backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        } : {}}
+      >
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
-              Find Your Dream Job
+              {settings.hero?.title || 'Find Your Dream Job'}
             </h1>
             <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 opacity-90 px-4">
-              Discover thousands of job opportunities with all the information you need. Its your future.
+              {settings.hero?.subtitle || 'Discover thousands of job opportunities with all the information you need. Its your future.'}
             </p>
             
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-6 md:mb-8">
-              <form onSubmit={handleSearch} className="flex flex-col sm:flex-row bg-white rounded-lg shadow-lg overflow-hidden">
-                <input
-                  type="text"
-                  placeholder="Job title, keywords, or company"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 px-4 md:px-6 py-3 md:py-4 text-gray-900 focus:outline-none text-sm md:text-base"
-                />
-                <button
-                  type="submit"
-                  className="bg-orange-500 hover:bg-orange-600 px-6 md:px-8 py-3 md:py-4 font-semibold transition-colors flex items-center justify-center text-sm md:text-base"
-                >
-                  <FaSearch className="mr-2" />
-                  Search
-                </button>
-              </form>
-            </div>
+            {/* Search Bar - Only show if enabled in settings */}
+            {(settings.hero?.showSearchBar !== false) && (
+              <div className="max-w-2xl mx-auto mb-6 md:mb-8">
+                <form onSubmit={handleSearch} className="flex flex-col sm:flex-row bg-white rounded-lg shadow-lg overflow-hidden">
+                  <input
+                    type="text"
+                    placeholder="Job title, keywords, or company"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 px-4 md:px-6 py-3 md:py-4 text-gray-900 focus:outline-none text-sm md:text-base"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-orange-500 hover:bg-orange-600 px-6 md:px-8 py-3 md:py-4 font-semibold transition-colors flex items-center justify-center text-sm md:text-base"
+                  >
+                    <FaSearch className="mr-2" />
+                    Search
+                  </button>
+                </form>
+              </div>
+            )}
 
             {/* Quick Stats */}
             <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-md mx-auto">

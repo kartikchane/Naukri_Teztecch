@@ -22,11 +22,17 @@ const normalizeResumePath = (resumePath) => {
   
   // Check if file exists
   const fullPath = path.join(__dirname, '../..', normalizedPath);
+  console.log(`[DEBUG] Original: ${resumePath}`);
+  console.log(`[DEBUG] Normalized: ${normalizedPath}`);
+  console.log(`[DEBUG] Full path: ${fullPath}`);
+  console.log(`[DEBUG] File exists: ${fs.existsSync(fullPath)}`);
+  
   if (fs.existsSync(fullPath)) {
     return normalizedPath;
   }
   
   // File doesn't exist, return null
+  console.log(`[DEBUG] File not found, returning null`);
   return null;
 };
 

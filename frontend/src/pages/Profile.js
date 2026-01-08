@@ -201,8 +201,39 @@ const Profile = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
-          {/* Profile Completion Card */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 mb-6 text-white">
+          <>
+          {/* For Employers - Redirect to Company Profile */}
+          {user?.role === 'employer' ? (
+            <div className="bg-white rounded-xl shadow-md p-8 text-center">
+              <div className="mb-6">
+                <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FaUser className="text-blue-600 text-3xl" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Employer Profile</h2>
+                <p className="text-gray-600 mb-6">
+                  As an employer, your company profile is your main profile on this platform.
+                </p>
+              </div>
+              
+              <div className="space-y-4 max-w-md mx-auto">
+                <button
+                  onClick={() => navigate('/create-company')}
+                  className="w-full btn-primary py-3"
+                >
+                  {user?.company ? 'View Company Profile' : 'Create Company Profile'}
+                </button>
+                <button
+                  onClick={() => navigate('/employer/jobs')}
+                  className="w-full btn-outline py-3"
+                >
+                  Manage Posted Jobs
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              {/* Profile Completion Card */}
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 mb-6 text-white">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-2xl font-bold mb-2">Profile Completion</h2>
@@ -316,10 +347,10 @@ const Profile = () => {
             </div>
           </div>
         </div>
-      </div>
+          )}
 
-      {/* Edit Profile Modal */}
-      {isEditModalOpen && (
+          {/* Edit Profile Modal */}
+          {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
@@ -499,6 +530,9 @@ const Profile = () => {
           </div>
         </div>
       )}
+          </>
+        </div>
+      </div>
     </div>
   );
 };

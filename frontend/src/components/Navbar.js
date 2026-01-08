@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { FaBell, FaEnvelope, FaBriefcase, FaUser, FaSignOutAlt, FaChevronDown, FaBookmark, FaSearch, FaBars, FaTimes } from 'react-icons/fa';
 import API from '../utils/api';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
+  const { settings } = useSettings();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,17 +89,26 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
+      {/* Top Bar */}
+      {settings.header?.showTopBar && settings.header?.topBarText && (
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-2 text-sm">
+          {settings.header.topBarText}
+        </div>
+      )}
+      
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 flex-shrink-0">
             <img 
-              src="/teztech-logo.svg" 
-              alt="Teztech Logo" 
-              className="h-12 w-12 rounded-full"
+              src={settings.siteLogo || '/teztech-logo.svg'} 
+              alt={`${settings.siteName || 'Naukri Platform'} Logo`} 
+              className="h-12 w-12 rounded-full object-contain"
             />
             <div className="hidden sm:flex flex-col">
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Teztecch</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                {settings.siteName || 'Naukri Platform'}
+              </span>
               <span className="text-xs text-gray-600 -mt-1">Naukri Platform</span>
             </div>
           </Link>

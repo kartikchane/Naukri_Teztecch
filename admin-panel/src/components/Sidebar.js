@@ -1,14 +1,16 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaBars, FaTimes, FaTachometerAlt, FaBriefcase, FaUser, FaClipboardList, FaSignOutAlt } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaBriefcase, FaUser, FaClipboardList, FaSignOutAlt, FaBuilding, FaCog } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: <FaTachometerAlt className="inline mr-2" /> },
+  { to: '/users', label: 'Users', icon: <FaUser className="inline mr-2" /> },
   { to: '/jobs', label: 'Jobs', icon: <FaBriefcase className="inline mr-2" /> },
   { to: '/applications', label: 'Applications', icon: <FaClipboardList className="inline mr-2" /> },
-  { to: '/users', label: 'Users', icon: <FaUser className="inline mr-2" /> },
+  { to: '/companies', label: 'Companies', icon: <FaBuilding className="inline mr-2" /> },
+  { to: '/settings', label: 'Website Settings', icon: <FaCog className="inline mr-2" /> },
 ];
 
 const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
@@ -17,7 +19,11 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
   const { user, logout } = useAuth();
   
   const linkClass = (path) =>
-    `flex items-center px-4 py-2 rounded mb-2 transition-colors duration-150 ${location.pathname === path ? 'bg-blue-600 text-white' : 'hover:bg-blue-100 text-gray-800'}`;
+    `flex items-center px-4 py-3 rounded-xl mb-2 transition-all duration-200 font-medium transform ${
+      location.pathname === path 
+        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105' 
+        : 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 text-gray-700 hover:text-gray-900 hover:shadow-md'
+    }`;
 
   const handleLogout = () => {
     logout();
@@ -77,12 +83,12 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
       </nav>
 
       {/* Bottom Actions */}
-      <div className="mt-auto pt-4 border-t border-gray-200">
+      <div className="mt-auto pt-4 border-t-2 border-gray-200">
         <button
           onClick={handleLogout}
-          className="flex items-center w-full px-4 py-2 rounded text-red-600 hover:bg-red-50 transition-colors duration-150"
+          className="flex items-center w-full px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-semibold hover:shadow-md transform hover:scale-105"
         >
-          <FaSignOutAlt className="inline mr-2" />
+          <FaSignOutAlt className="inline mr-2 text-lg" />
           Logout
         </button>
       </div>

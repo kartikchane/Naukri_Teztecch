@@ -16,18 +16,32 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const adminUser = localStorage.getItem('adminUser');
-    const adminToken = localStorage.getItem('adminToken');
-    
-    if (adminUser && adminToken) {
-      try {
-        setUser(JSON.parse(adminUser));
-      } catch (error) {
-        localStorage.removeItem('adminUser');
-        localStorage.removeItem('adminToken');
+    const validateAndLoadUser = () => {
+      const adminUser = localStorage.getItem('adminUser');
+      const adminToken = localStorage.getItem('adminToken');
+      
+      if (adminUser && adminToken) {
+        try {
+          // Validate JWT format
+          const tokenParts = adminToken.split('.');
+          if (tokenParts.length !== 3) {
+            console.log('Invalid token format, clearing...');
+            localStorage.removeItem('adminUser');
+            localStorage.removeItem('adminToken');
+            setLoading(false);
+            return;
+          }
+          setUser(JSON.parse(adminUser));
+        } catch (error) {
+          console.log('Error parsing user data, clearing...');
+          localStorage.removeItem('adminUser');
+          localStorage.removeItem('adminToken');
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+    
+    validateAndLoadUser();
   }, []);
 
   const login = async (email, password) => {
@@ -55,10 +69,18 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
     setUser(null);
+    window.location.href = '/login';
+  };
+
+  const forceLogout = () => {
+    console.log('Force logout triggered');
+    localStorage.clear();
+    setUser(null);
+    window.location.href = '/login';
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, forceLogout, loading }}>
       {children}
     </AuthContext.Provider>
   );

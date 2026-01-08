@@ -9,6 +9,17 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- AUTO FIX: Clear old tokens on page load -->
+    <script>
+      (function() {
+        var token = localStorage.getItem('adminToken');
+        if (token) {
+          console.log('🔧 AUTO-FIX: Clearing old admin token...');
+          localStorage.clear();
+          sessionStorage.clear();
+        }
+      })();
+    </script>
     <div id="root"></div>
   </body>
 </html>
