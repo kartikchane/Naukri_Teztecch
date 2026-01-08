@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
 
-const ApplyModal = ({ job, isOpen, onClose }) => {
+const ApplyModal = ({ job, isOpen, onClose, onApplySuccess }) => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [applying, setApplying] = useState(false);
@@ -69,6 +69,12 @@ const ApplyModal = ({ job, isOpen, onClose }) => {
       });
 
       toast.success('Application submitted successfully!');
+      
+      // Call the success callback to update parent component
+      if (onApplySuccess) {
+        onApplySuccess();
+      }
+      
       onClose();
       setFormData({
         coverLetter: '',

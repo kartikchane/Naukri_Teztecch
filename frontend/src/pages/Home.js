@@ -246,15 +246,9 @@ const Home = () => {
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {Array.from({ length: 2 }).map((_, rowIdx) => (
-                <React.Fragment key={rowIdx}>
-                  {featuredJobs.slice(rowIdx * 4, rowIdx * 4 + 4).map((job) => (
-                    <div className="h-full flex items-stretch">
-                      <JobCard key={job._id} job={job} className="!h-auto min-h-[340px] max-h-[400px] flex flex-col" />
-                    </div>
-                  ))}
-                </React.Fragment>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredJobs.map((job) => (
+                <JobCard key={job._id} job={job} isFeatured={true} />
               ))}
             </div>
           )}

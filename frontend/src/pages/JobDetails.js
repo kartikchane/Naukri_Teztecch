@@ -33,6 +33,7 @@ const JobDetails = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [relatedJobs, setRelatedJobs] = useState([]);
+  const [hasApplied, setHasApplied] = useState(false);
 
   useEffect(() => {
     fetchJob();
@@ -91,13 +92,24 @@ const JobDetails = () => {
       if (data?.category) {
         fetchRelated(data.category, data._id);
       }
-      // Check if job is saved
+      // Check if job is saved and if user has applied
       if (isAuthenticated && user?.role === 'jobseeker') {
         try {
           const { data: userData } = await API.get('/users/profile');
           setIsSaved(userData.savedJobs?.some(savedJob => 
             (typeof savedJob === 'string' ? savedJob : savedJob._id) === id
           ));
+          
+          // Check if user has already applied
+          const { data: applicationsData } = await API.get('/applications/my');
+          console.log('My Applications:', applicationsData);
+          const alreadyApplied = applicationsData.applications?.some(app => {
+            const jobId = typeof app.job === 'string' ? app.job : app.job?._id;
+            console.log('Comparing:', jobId, 'with', id);
+            return jobId === id;
+          });
+          console.log('Has Applied:', alreadyApplied);
+          setHasApplied(alreadyApplied);
         } catch (error) {
           console.error('Failed to check saved status:', error);
         }
@@ -175,6 +187,11 @@ const JobDetails = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success('Job link copied to clipboard!');
     setShowShareModal(false);
+  };
+
+  const handleApplySuccess = () => {
+    // Update hasApplied state after successful application
+    setHasApplied(true);
   };
 
   if (loading) {
@@ -302,19 +319,29 @@ const JobDetails = () => {
             </div>
 
             {user?.role !== 'employer' && (
-              <button
-                onClick={() => {
-                  if (!isAuthenticated) {
-                    toast.info('Please login to apply for this job');
-                    navigate('/login', { state: { from: `/jobs/${id}?action=apply` } });
-                  } else {
-                    setShowApplyModal(true);
-                  }
-                }}
-                className="btn-primary w-full md:w-auto px-8"
-              >
-                Apply Now
-              </button>
+              hasApplied ? (
+                <button
+                  disabled
+                  className="w-full md:w-auto px-8 py-3 bg-green-100 text-green-700 font-semibold rounded-lg flex items-center justify-center gap-2 cursor-not-allowed"
+                >
+                  <FaCheckCircle />
+                  Already Applied
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      toast.info('Please login to apply for this job');
+                      navigate('/login', { state: { from: `/jobs/${id}?action=apply` } });
+                    } else {
+                      setShowApplyModal(true);
+                    }
+                  }}
+                  className="btn-primary w-full md:w-auto px-8"
+                >
+                  Apply Now
+                </button>
+              )
             )}
           </div>
 
@@ -466,7 +493,8 @@ const JobDetails = () => {
       <ApplyModal 
         job={job} 
         isOpen={showApplyModal} 
-        onClose={() => setShowApplyModal(false)} 
+        onClose={() => setShowApplyModal(false)}
+        onApplySuccess={handleApplySuccess}
       />
     </div>
   );

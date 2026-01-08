@@ -48,19 +48,39 @@ const EmployerApplicants = ({ jobId, onClose }) => {
                   <div className="text-gray-500 text-xs">Applied: {new Date(app.appliedAt).toLocaleDateString()}</div>
                   <div className="mt-2 text-sm">Status: <span className="font-bold">{app.status}</span></div>
                   {app.coverLetter && <div className="mt-1 text-xs text-gray-700 line-clamp-2">Cover: {app.coverLetter}</div>}
-                  <div className="mt-2">
+                  <div className="mt-2 flex gap-2">
                     {app.resume ? (
-                      <a 
-                        href={app.resume.startsWith('http') ? app.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${app.resume}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        View Resume
-                      </a>
+                      <>
+                        <a 
+                          href={app.resume.startsWith('http') ? app.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${app.resume}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
+                          onClick={(e) => {
+                            // Check if file exists by trying to fetch
+                            fetch(e.currentTarget.href, { method: 'HEAD' })
+                              .catch(() => {
+                                e.preventDefault();
+                                toast.error('Resume file not found');
+                              });
+                          }}
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          View Resume
+                        </a>
+                        <a 
+                          href={app.resume.startsWith('http') ? app.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${app.resume}`} 
+                          download
+                          className="inline-flex items-center gap-1 bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 transition-colors"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          Download
+                        </a>
+                      </>
                     ) : (
                       <span className="text-gray-400 text-xs italic">No resume uploaded</span>
                     )}

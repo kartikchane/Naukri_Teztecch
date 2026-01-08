@@ -16,6 +16,14 @@ const MyApplications = () => {
   const fetchApplications = async () => {
     try {
       const { data } = await API.get('/applications/my');
+      console.log('📋 Total Applications:', data.applications.length);
+      console.log('📋 Applications with resumes:', data.applications.filter(a => a.resume).length);
+      console.log('📋 Sample data:', data.applications.slice(0, 2).map(a => ({ 
+        id: a._id, 
+        resume: a.resume,
+        hasResume: !!a.resume,
+        jobTitle: a.job?.title 
+      })));
       setApplications(data.applications);
     } catch (error) {
       toast.error('Failed to fetch applications');
@@ -246,7 +254,7 @@ const MyApplications = () => {
                       >
                         View Job
                       </Link>
-                      {application.resume && !application.resume.includes(':/') ? (
+                      {application.resume ? (
                         <a
                           href={
                             application.resume.startsWith('http') 
@@ -257,24 +265,19 @@ const MyApplications = () => {
                           rel="noopener noreferrer"
                           className="btn-outline text-center bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-600"
                           onClick={(e) => {
-                            // Check if file exists by trying to fetch
-                            fetch(e.currentTarget.href, { method: 'HEAD' })
-                              .catch(() => {
-                                e.preventDefault();
-                                toast.error('Resume file not found');
-                              });
+                            console.log('🔍 Resume path:', application.resume);
+                            console.log('🔗 Full URL:', e.currentTarget.href);
                           }}
                         >
                           View Resume
                         </a>
                       ) : (
-                        <button
-                          disabled
-                          className="btn-outline text-center opacity-50 cursor-not-allowed"
-                          title="No resume uploaded"
+                        <span
+                          className="btn-outline text-center bg-gray-100 text-gray-500 cursor-default border-gray-300"
+                          title="No resume was uploaded with this application"
                         >
                           No Resume
-                        </button>
+                        </span>
                       )}
                     </div>
                   </div>

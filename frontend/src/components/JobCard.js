@@ -5,7 +5,7 @@ import API from '../utils/api';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 
-const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
+const JobCard = ({ job, onSave, isSaved: initialSaved, isFeatured = false }) => {
   const [isSaved, setIsSaved] = useState(initialSaved);
   const [saving, setSaving] = useState(false);
   const { isAuthenticated, user } = useAuth();
@@ -63,7 +63,7 @@ const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-200 p-4 md:p-6 lg:p-8 relative group h-full flex flex-col">
+    <div className={`bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-200 p-4 md:p-6 ${isFeatured ? 'lg:p-6' : 'lg:p-8'} relative group ${isFeatured ? 'h-[420px]' : 'h-full'} flex flex-col`}>
       {/* Bookmark Icon - Top Right */}
       <button
         onClick={handleSaveJob}
@@ -75,8 +75,8 @@ const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
       </button>
 
       {/* Company Logo & Basic Info */}
-      <div className="flex items-start space-x-3 md:space-x-5 mb-4 md:mb-5">
-        <div className="w-14 h-14 md:w-20 md:h-20 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl md:rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm border border-gray-200">
+      <div className={`flex items-start ${isFeatured ? 'space-x-3 mb-3' : 'space-x-3 md:space-x-5 mb-4 md:mb-5'}`}>
+        <div className={`${isFeatured ? 'w-12 h-12' : 'w-14 h-14 md:w-20 md:h-20'} bg-gradient-to-br from-indigo-50 to-blue-50 ${isFeatured ? 'rounded-xl' : 'rounded-xl md:rounded-2xl'} flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm border border-gray-200`}>
           {job.company?.logo ? (
             <img 
               src={job.company.logo} 
@@ -88,27 +88,27 @@ const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
               }}
             />
           ) : null}
-          <span className={`text-xl md:text-3xl font-bold text-indigo-600 ${job.company?.logo ? 'hidden' : 'flex'}`}>
+          <span className={`${isFeatured ? 'text-xl' : 'text-xl md:text-3xl'} font-bold text-indigo-600 ${job.company?.logo ? 'hidden' : 'flex'}`}>
             {job.company?.name?.charAt(0)}
           </span>
         </div>
 
-        <div className="flex-1 min-w-0 pr-8 md:pr-10">
+        <div className={`flex-1 min-w-0 ${isFeatured ? 'pr-8' : 'pr-8 md:pr-10'}`}>
           <Link to={`/jobs/${job._id}`} className="block group-hover:text-blue-600 transition-colors">
-            <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2 line-clamp-2 leading-tight">{job.title}</h3>
+            <h3 className={`${isFeatured ? 'text-base font-bold line-clamp-1' : 'text-lg md:text-xl lg:text-2xl font-bold line-clamp-2'} text-gray-900 ${isFeatured ? 'mb-1' : 'mb-1 md:mb-2'} leading-tight`}>{job.title}</h3>
           </Link>
-          <p className="text-gray-600 font-medium text-sm md:text-base">{job.company?.name}</p>
+          <p className={`text-gray-600 font-medium ${isFeatured ? 'text-sm line-clamp-1' : 'text-sm md:text-base'}`}>{job.company?.name}</p>
         </div>
       </div>
 
       {/* Job Meta Info */}
-      <div className="flex flex-wrap gap-x-3 md:gap-x-5 gap-y-2 text-xs md:text-sm text-gray-600 mb-4 md:mb-5">
+      <div className={`flex flex-wrap ${isFeatured ? 'gap-x-3 gap-y-1 text-xs mb-3' : 'gap-x-3 md:gap-x-5 gap-y-2 text-xs md:text-sm mb-4 md:mb-5'} text-gray-600`}>
         <span className="flex items-center">
-          <FaMapMarkerAlt className="mr-1.5 text-gray-400" />
-          <span className="font-medium">{job.location.city}, {job.location.state}</span>
+          <FaMapMarkerAlt className={`${isFeatured ? 'mr-1' : 'mr-1.5'} text-gray-400`} />
+          <span className="font-medium">{isFeatured ? job.location.city : `${job.location.city}, ${job.location.state}`}</span>
         </span>
         <span className="flex items-center">
-          <FaBriefcase className="mr-1.5 text-gray-400" />
+          <FaBriefcase className={`${isFeatured ? 'mr-1' : 'mr-1.5'} text-gray-400`} />
           <span className="font-medium">{formatExperience(job.experience.min, job.experience.max)}</span>
         </span>
         <span className="flex items-center text-green-600 font-semibold">
@@ -118,8 +118,8 @@ const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
       </div>
 
       {/* Skills */}
-      <div className="flex flex-wrap gap-1.5 md:gap-2 mb-4 md:mb-5">
-        {job.skills.slice(0, 5).map((skill, index) => {
+      <div className={`flex flex-wrap ${isFeatured ? 'gap-1.5 mb-3' : 'gap-1.5 md:gap-2 mb-4 md:mb-5'}`}>
+        {job.skills.slice(0, isFeatured ? 3 : 5).map((skill, index) => {
           const colors = [
             'bg-blue-100 text-blue-700',
             'bg-indigo-100 text-indigo-700',
@@ -128,21 +128,21 @@ const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
             'bg-blue-50 text-blue-600'
           ];
           return (
-            <span key={index} className={`px-2 py-1 md:px-3 md:py-1.5 ${colors[index % colors.length]} rounded-md text-xs md:text-sm font-medium`}>
+            <span key={index} className={`${isFeatured ? 'px-2 py-1' : 'px-2 py-1 md:px-3 md:py-1.5'} ${colors[index % colors.length]} rounded-md ${isFeatured ? 'text-xs' : 'text-xs md:text-sm'} font-medium`}>
               {skill}
             </span>
           );
         })}
-        {job.skills.length > 5 && (
-          <span className="px-2 py-1 md:px-3 md:py-1.5 bg-gray-100 text-gray-600 rounded-md text-xs md:text-sm font-medium">
-            +{job.skills.length - 5} more
+        {job.skills.length > (isFeatured ? 3 : 5) && (
+          <span className={`${isFeatured ? 'px-2 py-1' : 'px-2 py-1 md:px-3 md:py-1.5'} bg-gray-100 text-gray-600 rounded-md ${isFeatured ? 'text-xs' : 'text-xs md:text-sm'} font-medium`}>
+            +{job.skills.length - (isFeatured ? 3 : 5)} {isFeatured ? '' : 'more'}
           </span>
         )}
       </div>
 
       {/* Badges */}
-      <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-4 md:mb-6">
-        <span className={`px-3 py-1.5 text-xs font-semibold rounded-md ${
+      <div className={`flex flex-wrap items-center ${isFeatured ? 'gap-1.5 mb-4' : 'gap-1.5 md:gap-2 mb-4 md:mb-6'}`}>
+        <span className={`${isFeatured ? 'px-2.5 py-1' : 'px-3 py-1.5'} text-xs font-semibold rounded-md ${
           job.workMode === 'Remote' 
             ? 'bg-green-50 text-green-700' 
             : job.workMode === 'Hybrid'
@@ -151,28 +151,28 @@ const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
         }`}>
           {job.workMode}
         </span>
-        <span className="px-3 py-1.5 text-xs font-semibold rounded-md bg-orange-50 text-orange-700">
+        <span className={`${isFeatured ? 'px-2.5 py-1' : 'px-3 py-1.5'} text-xs font-semibold rounded-md bg-orange-50 text-orange-700`}>
           {job.employmentType}
         </span>
         {job.featured && (
-          <span className="px-3 py-1.5 text-xs font-semibold rounded-md bg-yellow-50 text-yellow-700">
+          <span className={`${isFeatured ? 'px-2.5 py-1' : 'px-3 py-1.5'} text-xs font-semibold rounded-md bg-yellow-50 text-yellow-700`}>
             Featured
           </span>
         )}
       </div>
 
       {/* Footer - Posted Time & Action Buttons */}
-      <div className="mt-auto pt-5">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center text-sm text-gray-500">
-            <FaClock className="mr-2" />
-            <span>Posted {new Date(job.createdAt).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
+      <div className={`mt-auto ${isFeatured ? 'pt-3' : 'pt-5'}`}>
+        <div className={`flex items-center justify-between ${isFeatured ? 'mb-3' : 'mb-5'}`}>
+          <div className={`flex items-center ${isFeatured ? 'text-xs' : 'text-sm'} text-gray-500`}>
+            <FaClock className={`${isFeatured ? 'mr-1.5' : 'mr-2'}`} />
+            <span>Posted {new Date(job.createdAt).toLocaleDateString('en-US', isFeatured ? { month: 'short', day: 'numeric' } : { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
           </div>
         </div>
-        <div className="flex gap-3">
+        <div className={`flex ${isFeatured ? 'gap-2' : 'gap-3'}`}>
           <Link 
             to={`/jobs/${job._id}`} 
-            className="flex-1 px-5 py-3 text-sm font-semibold text-blue-600 bg-white hover:bg-gray-50 rounded-lg transition-colors border-2 border-blue-600 text-center"
+            className={`flex-1 ${isFeatured ? 'px-4 py-2.5 text-xs' : 'px-5 py-3 text-sm'} font-semibold text-blue-600 bg-white hover:bg-gray-50 rounded-lg transition-colors border-2 border-blue-600 text-center`}
           >
             View Details
           </Link>
@@ -181,7 +181,7 @@ const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
             job.hasApplied ? (
               <button 
                 disabled 
-                className="flex-1 px-5 py-3 text-sm font-semibold bg-green-600 text-white rounded-lg cursor-not-allowed text-center"
+                className={`flex-1 ${isFeatured ? 'px-4 py-2.5 text-xs' : 'px-5 py-3 text-sm'} font-semibold bg-green-600 text-white rounded-lg cursor-not-allowed text-center`}
               >
                 Applied
               </button>
@@ -189,7 +189,7 @@ const JobCard = ({ job, onSave, isSaved: initialSaved }) => {
               <Link 
                 to={`/jobs/${job._id}?action=apply`}
                 onClick={handleApplyClick}
-                className="flex-1 px-5 py-3 text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors shadow-sm hover:shadow-md text-center"
+                className={`flex-1 ${isFeatured ? 'px-4 py-2.5 text-xs' : 'px-5 py-3 text-sm'} font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors shadow-sm hover:shadow-md text-center`}
               >
                 Apply Now
               </Link>

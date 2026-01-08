@@ -344,6 +344,41 @@ const Profile = () => {
                   </div>
                 </div>
               )}
+
+              {/* Resume */}
+              {user.resume && (
+                <div>
+                  <label className="text-sm text-gray-600 mb-2 block">Resume/CV</label>
+                  <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border-2 border-blue-200">
+                    <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900">{user.resume.split('/').pop()}</p>
+                      <p className="text-sm text-gray-500">Click to view or download your resume</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <a 
+                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${user.resume}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium text-sm transition-all transform hover:scale-105"
+                      >
+                        View
+                      </a>
+                      <a 
+                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${user.resume}`} 
+                        download
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium text-sm transition-all transform hover:scale-105"
+                      >
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -477,18 +512,25 @@ const Profile = () => {
                   </label>
                   <div className="space-y-2">
                     {user.resume && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 bg-green-50 p-3 rounded-lg border border-green-200">
+                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <span className="flex-1">Current: {user.resume.split('/').pop()}</span>
+                        <span className="flex-1 font-medium">Current: {user.resume.split('/').pop()}</span>
                         <a 
-                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${user.resume}`} 
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${user.resume}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-primary hover:underline"
+                          className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 font-medium text-xs"
                         >
-                          View
+                          View Resume
+                        </a>
+                        <a 
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${user.resume}`} 
+                          download
+                          className="bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 font-medium text-xs"
+                        >
+                          Download
                         </a>
                       </div>
                     )}
@@ -499,7 +541,8 @@ const Profile = () => {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-dark cursor-pointer"
                     />
                     {resumeFile && (
-                      <p className="text-sm text-green-600">
+                      <p className="text-sm text-green-600 flex items-center gap-2">
+                        <FaCheckCircle />
                         ✓ New file selected: {resumeFile.name}
                       </p>
                     )}

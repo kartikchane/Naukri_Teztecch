@@ -68,20 +68,23 @@ router.post('/resume', protect, upload.single('resume'), async (req, res) => {
       return res.status(400).json({ message: 'Please upload a file' });
     }
 
-    // Convert absolute path to relative: uploads/resume-xxx.pdf
-    const relativePath = req.file.path.replace(/\\/g, '/').split('/uploads/')[1];
-    const resumePath = `uploads/${relativePath}`;
+    // Use just the filename - multer already saves to correct folder
+    const relativePath = `uploads/${req.file.filename}`;
+
+    console.log('📄 File uploaded to:', req.file.path);
+    console.log('📄 Saving as:', relativePath);
 
     const user = await User.findById(req.user._id);
-    user.resume = resumePath;
+    user.resume = relativePath;
     await user.save();
 
     res.json({
       message: 'Resume uploaded successfully',
-      resume: resumePath
+      resume: relativePath,
+      fileName: req.file.originalname
     });
   } catch (error) {
-    console.error(error);
+    console.error('Resume upload error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

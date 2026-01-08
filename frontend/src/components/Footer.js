@@ -1,10 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useSettings } from '../context/SettingsContext';
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaFacebook, FaTwitter, FaLinkedin, FaInstagram, FaYoutube, FaGithub, FaApple, FaGooglePlay } from 'react-icons/fa';
 
 const Footer = () => {
-  const { settings } = useSettings();
   return (
     <footer className="bg-gray-900 text-gray-300">
       {/* Mobile App Section */}
@@ -61,49 +59,29 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <img 
-                src={settings.siteLogo || '/teztech-logo.svg'} 
-                alt={`${settings.siteName || 'Naukri Platform'} Logo`} 
+                src="/teztech-logo.svg" 
+                alt="Teztecch Logo" 
                 className="h-10 w-10 rounded-full object-contain" 
               />
-              <h3 className="text-xl font-bold text-white">{settings.siteName || 'Naukri Platform'}</h3>
+              <h3 className="text-xl font-bold text-white">Teztecch</h3>
             </div>
             <p className="mb-4 text-sm">
-              {settings.footer?.aboutText || 'One Complete Solution For Your Growth. Your Complete Platform for networking and building Future.'}
+              One Complete Solution For Your Growth. Your Complete Platform for networking and building Future.
             </p>
-            {settings.footer?.showSocialLinks && (
-              <div className="flex gap-3">
-                {settings.socialMedia?.facebook && (
-                  <a href={settings.socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 transition-colors">
-                    <FaFacebook className="text-xl" />
-                  </a>
-                )}
-                {settings.socialMedia?.twitter && (
-                  <a href={settings.socialMedia.twitter} target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
-                    <FaTwitter className="text-xl" />
-                  </a>
-                )}
-                {settings.socialMedia?.linkedin && (
-                  <a href={settings.socialMedia.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">
-                    <FaLinkedin className="text-xl" />
-                  </a>
-                )}
-                {settings.socialMedia?.instagram && (
-                  <a href={settings.socialMedia.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-pink-500 transition-colors">
-                    <FaInstagram className="text-xl" />
-                  </a>
-                )}
-                {settings.socialMedia?.youtube && (
-                  <a href={settings.socialMedia.youtube} target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">
-                    <FaYoutube className="text-xl" />
-                  </a>
-                )}
-                {settings.socialMedia?.github && (
-                  <a href={settings.socialMedia.github} target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">
-                    <FaGithub className="text-xl" />
-                  </a>
-                )}
-              </div>
-            )}
+            <div className="flex gap-3">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 transition-colors">
+                <FaFacebook className="text-xl" />
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">
+                <FaTwitter className="text-xl" />
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">
+                <FaLinkedin className="text-xl" />
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-pink-500 transition-colors">
+                <FaInstagram className="text-xl" />
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}
@@ -135,32 +113,24 @@ const Footer = () => {
           <div>
             <h4 className="text-white font-semibold mb-4">Contact Us</h4>
             <ul className="space-y-3 text-sm">
-              {settings.contact?.address && (
-                <li className="flex items-start gap-2">
-                  <FaMapMarkerAlt className="text-blue-500 mt-1 flex-shrink-0" />
-                  <span>{settings.contact.address}</span>
-                </li>
-              )}
-              {settings.contact?.phone && (
-                <li className="flex items-center gap-2">
-                  <FaPhone className="text-blue-500 flex-shrink-0" />
-                  <span>{settings.contact.phone}</span>
-                </li>
-              )}
-              {settings.contact?.email && (
-                <li className="flex items-center gap-2">
-                  <FaEnvelope className="text-blue-500 flex-shrink-0" />
-                  <a href={`mailto:${settings.contact.email}`} className="hover:text-white transition-colors">
-                    {settings.contact.email}
-                  </a>
-                </li>
-              )}
-              {settings.contact?.workingHours && (
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 font-semibold flex-shrink-0">Hours:</span>
-                  <span>{settings.contact.workingHours}</span>
-                </li>
-              )}
+              <li className="flex items-start gap-2">
+                <FaMapMarkerAlt className="text-blue-500 mt-1 flex-shrink-0" />
+                <span>123 Business Street, Tech City, TC 12345</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <FaPhone className="text-blue-500 flex-shrink-0" />
+                <span>+91 1234567890</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <FaEnvelope className="text-blue-500 flex-shrink-0" />
+                <a href="mailto:info@teztecch.com" className="hover:text-white transition-colors">
+                  info@teztecch.com
+                </a>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-500 font-semibold flex-shrink-0">Hours:</span>
+                <span>Mon - Fri: 9:00 AM - 6:00 PM</span>
+              </li>
             </ul>
           </div>
         </div>
@@ -183,7 +153,7 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
-          <p>{settings.footer?.copyrightText || `© ${new Date().getFullYear()} Naukri Platform. All rights reserved.`}</p>
+          <p>© {new Date().getFullYear()} Teztecch. All rights reserved.</p>
         </div>
       </div>
     </footer>

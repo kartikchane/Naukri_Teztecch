@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Resume Access</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-link {
+            display: block;
+            padding: 10px;
+            margin: 10px 0;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .test-link:hover {
+            background: #45a049;
+        }
+        h1 {
+            color: #333;
+        }
+        .info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Resume Access Test</h1>
+    
+    <div class="info">
+        <h3>Test Instructions:</h3>
+        <ol>
+            <li>Make sure your backend server is running on <code>http://localhost:5000</code></li>
+            <li>Click the test links below to verify resumes can be accessed</li>
+            <li>Each link should open the PDF in a new tab</li>
+        </ol>
+    </div>
+
+    <h2>Test Resume Links:</h2>
+    
+    <a href="http://localhost:5000/uploads/resume-1765961652569.pdf" target="_blank" class="test-link">
+        📄 Test Resume 1 - resume-1765961652569.pdf
+    </a>
+    
+    <a href="http://localhost:5000/uploads/resume-1767865271649.pdf" target="_blank" class="test-link">
+        📄 Test Resume 2 - resume-1767865271649.pdf
+    </a>
+    
+    <a href="http://localhost:5000/uploads/resume-1766038114761.pdf" target="_blank" class="test-link">
+        📄 Test Resume 3 - resume-1766038114761.pdf
+    </a>
+
+    <div class="info" style="margin-top: 30px; background: #e3f2fd;">
+        <h3>✅ What to expect:</h3>
+        <ul>
+            <li>If working: PDF should open in a new tab</li>
+            <li>If not working: You'll see a 404 or connection error</li>
+        </ul>
+    </div>
+</body>
+</html>

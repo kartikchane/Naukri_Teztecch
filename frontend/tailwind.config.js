@@ -6,9 +6,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#4F46E5',
-        secondary: '#7C3AED',
-        accent: '#EC4899',
+        primary: '#00C2A8',      // Teztecch Teal
+        secondary: '#00A896',    // Darker Teal
+        accent: '#FF6B35',       // Teztecch Orange
+        'teztecch-teal': '#00CED1',
+        'teztecch-dark': '#1a1a1a',
+        'teztecch-gray': '#f5f5f5',
+      },
+      fontFamily: {
+        'sans': ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
+        'heading': ['Montserrat', 'Poppins', 'sans-serif'],
       },
     },
   },

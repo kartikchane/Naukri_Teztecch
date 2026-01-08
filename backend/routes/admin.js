@@ -117,7 +117,8 @@ router.get('/applications', isAdmin, async (req, res) => {
         companyDescription: company.description || null,
         appliedOn: app.appliedAt ? app.appliedAt : app.createdAt,
         status: app.status || 'Applied',
-        coverLetter: app.coverLetter || null
+        coverLetter: app.coverLetter || null,
+        resume: app.resume || null
       };
     });
     

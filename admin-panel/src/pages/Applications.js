@@ -19,6 +19,13 @@ const Applications = () => {
     try {
       setLoading(true);
       const { data } = await API.get('/admin/applications');
+      console.log('📊 Admin: Total Applications:', data.applications.length);
+      console.log('📊 Admin: Applications with resumes:', data.applications.filter(a => a.resume).length);
+      console.log('📊 Admin: Sample data:', data.applications.slice(0, 2).map(a => ({ 
+        id: a._id, 
+        resume: a.resume,
+        hasResume: !!a.resume 
+      })));
       setApplications(data.applications || []);
     } catch (error) {
       toast.error('Failed to fetch applications');
@@ -164,6 +171,17 @@ const Applications = () => {
                         >
                           <FaEye className="inline text-lg" />
                         </button>
+                        {app.resume && (
+                          <a
+                            href={app.resume.startsWith('http') ? app.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${app.resume}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-green-600 hover:text-green-900"
+                            title="View Resume"
+                          >
+                            <FaDownload className="inline text-lg" />
+                          </a>
+                        )}
                         <button
                           onClick={() => handleDelete(app._id)}
                           className="text-red-600 hover:text-red-900"
@@ -327,6 +345,33 @@ const Applications = () => {
                   )}
                 </div>
               </div>
+
+              {/* Resume */}
+              {viewingApp.resume && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Resume</h3>
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <FaFileAlt className="text-green-600 text-2xl" />
+                        <div>
+                          <p className="font-medium text-gray-900">Resume Available</p>
+                          <p className="text-sm text-gray-600">Click to view or download</p>
+                        </div>
+                      </div>
+                      <a
+                        href={viewingApp.resume.startsWith('http') ? viewingApp.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${viewingApp.resume}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                      >
+                        <FaDownload />
+                        View Resume
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Cover Letter */}
               {viewingApp.coverLetter && (
