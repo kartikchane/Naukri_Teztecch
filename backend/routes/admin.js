@@ -46,6 +46,26 @@ router.get('/jobs', isAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/jobs/:id - Get single job details
+router.get('/jobs/:id', isAdmin, async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id)
+      .populate('company', 'name website description logo industry location companySize founded')
+      .lean();
+    
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+    
+    // Add applications count
+    job.applicationsCount = await Application.countDocuments({ job: job._id });
+    
+    res.json({ job });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching job details', error: err.message });
+  }
+});
+
 // DELETE /api/admin/jobs/:id
 router.delete('/jobs/:id', isAdmin, async (req, res) => {
   try {

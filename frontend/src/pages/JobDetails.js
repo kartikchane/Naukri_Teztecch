@@ -217,10 +217,10 @@ const JobDetails = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Job Header */}
-          <div className="bg-white rounded-xl shadow-md p-8 mb-6">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-start space-x-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center overflow-hidden p-1">
+          <div className="bg-white rounded-xl shadow-md p-4 md:p-8 mb-6">
+            <div className="flex flex-col md:flex-row items-start justify-between mb-6 gap-4">
+              <div className="flex items-start space-x-3 md:space-x-4 flex-1">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center overflow-hidden p-1 flex-shrink-0">
                   {job.company?.logo ? (
                     <>
                       <img 
@@ -242,12 +242,12 @@ const JobDetails = () => {
                     </span>
                   )}
                 </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{job.title}</h1>
-                  <p className="text-xl text-gray-700">{job.company?.name}</p>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2 break-words">{job.title}</h1>
+                  <p className="text-base md:text-xl text-gray-700 break-words">{job.company?.name}</p>
                 </div>
               </div>
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 self-start">
                 <button 
                   onClick={handleSaveJob}
                   disabled={saving}
@@ -270,40 +270,40 @@ const JobDetails = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Location</p>
-                <p className="font-semibold flex items-center">
+                <p className="text-xs md:text-sm text-gray-600 mb-1">Location</p>
+                <p className="text-sm md:text-base font-semibold flex items-center">
                   <FaMapMarkerAlt className="mr-1" />
                   {job.location.city}, {job.location.state}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Experience</p>
-                <p className="font-semibold flex items-center">
+                <p className="text-xs md:text-sm text-gray-600 mb-1">Experience</p>
+                <p className="text-sm md:text-base font-semibold flex items-center">
                   <FaBriefcase className="mr-1" />
                   {formatExperience()}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Salary</p>
-                <p className="font-semibold flex items-center">
+                <p className="text-xs md:text-sm text-gray-600 mb-1">Salary</p>
+                <p className="text-sm md:text-base font-semibold flex items-center">
                   <FaRupeeSign className="mr-1" />
                   {formatSalary()}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1 flex items-center gap-1">
+                <p className="text-xs md:text-sm text-gray-600 mb-1 flex items-center gap-1">
                   <FaEye className="text-gray-400" />
                   Views
                 </p>
-                <p className="font-semibold">
+                <p className="text-sm md:text-base font-semibold">
                   {job.views || 0}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Posted</p>
-                <p className="font-semibold flex items-center">
+                <p className="text-xs md:text-sm text-gray-600 mb-1">Posted</p>
+                <p className="text-sm md:text-base font-semibold flex items-center">
                   <FaClock className="mr-1" />
                   {new Date(job.createdAt).toLocaleDateString()}
                 </p>
@@ -322,7 +322,7 @@ const JobDetails = () => {
               hasApplied ? (
                 <button
                   disabled
-                  className="w-full md:w-auto px-8 py-3 bg-green-100 text-green-700 font-semibold rounded-lg flex items-center justify-center gap-2 cursor-not-allowed"
+                  className="w-full md:w-auto px-6 md:px-8 py-3 bg-green-100 text-green-700 font-semibold rounded-lg flex items-center justify-center gap-2 cursor-not-allowed text-sm md:text-base"
                 >
                   <FaCheckCircle />
                   Already Applied
@@ -337,7 +337,7 @@ const JobDetails = () => {
                       setShowApplyModal(true);
                     }
                   }}
-                  className="btn-primary w-full md:w-auto px-8"
+                  className="btn-primary w-full md:w-auto px-6 md:px-8 text-sm md:text-base"
                 >
                   Apply Now
                 </button>
@@ -346,17 +346,17 @@ const JobDetails = () => {
           </div>
 
           {/* Job Description */}
-          <div className="bg-white rounded-xl shadow-md p-8 mb-6">
-            <h2 className="text-2xl font-bold mb-4">Job Description</h2>
+          <div className="bg-white rounded-xl shadow-md p-4 md:p-8 mb-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-4">Job Description</h2>
             <p className="text-gray-700 whitespace-pre-line">{job.description}</p>
           </div>
 
           {/* Skills Required */}
-          <div className="bg-white rounded-xl shadow-md p-8 mb-6">
-            <h2 className="text-2xl font-bold mb-4">Skills Required</h2>
+          <div className="bg-white rounded-xl shadow-md p-4 md:p-8 mb-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-4">Skills Required</h2>
             <div className="flex flex-wrap gap-2">
               {job.skills.map((skill, index) => (
-                <span key={index} className="badge badge-blue text-base">
+                <span key={index} className="badge badge-blue text-sm md:text-base">
                   {skill}
                 </span>
               ))}
@@ -365,9 +365,9 @@ const JobDetails = () => {
 
           {/* Responsibilities */}
           {job.responsibilities && job.responsibilities.length > 0 && (
-            <div className="bg-white rounded-xl shadow-md p-8 mb-6">
-              <h2 className="text-2xl font-bold mb-4">Responsibilities</h2>
-              <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <div className="bg-white rounded-xl shadow-md p-4 md:p-8 mb-6">
+              <h2 className="text-xl md:text-2xl font-bold mb-4">Responsibilities</h2>
+              <ul className="list-disc list-inside space-y-2 text-sm md:text-base text-gray-700">
                 {job.responsibilities.map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
@@ -377,9 +377,9 @@ const JobDetails = () => {
 
           {/* Requirements */}
           {job.requirements && job.requirements.length > 0 && (
-            <div className="bg-white rounded-xl shadow-md p-8 mb-6">
-              <h2 className="text-2xl font-bold mb-4">Requirements</h2>
-              <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <div className="bg-white rounded-xl shadow-md p-4 md:p-8 mb-6">
+              <h2 className="text-xl md:text-2xl font-bold mb-4">Requirements</h2>
+              <ul className="list-disc list-inside space-y-2 text-sm md:text-base text-gray-700">
                 {job.requirements.map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
@@ -389,9 +389,9 @@ const JobDetails = () => {
 
           {/* Company Info */}
           {job.company && (
-            <div className="bg-white rounded-xl shadow-md p-8">
-              <h2 className="text-2xl font-bold mb-4">About {job.company.name}</h2>
-              <p className="text-gray-700 mb-4">{job.company.description}</p>
+            <div className="bg-white rounded-xl shadow-md p-4 md:p-8">
+              <h2 className="text-xl md:text-2xl font-bold mb-4">About {job.company.name}</h2>
+              <p className="text-sm md:text-base text-gray-700 mb-4">{job.company.description}</p>
               {job.company.website && (
                 <a
                   href={job.company.website}
@@ -468,19 +468,19 @@ const JobDetails = () => {
             {/* Related jobs (same domain/category) */}
           {relatedJobs && relatedJobs.length > 0 && (
             <div className="max-w-4xl mx-auto mt-6">
-              <h2 className="text-2xl font-bold mb-4">More {job.category} jobs</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h2 className="text-xl md:text-2xl font-bold mb-4 px-4 md:px-0">More {job.category} jobs</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-0">
                 {relatedJobs.map(rj => (
                   <div key={rj._id} className="bg-white rounded-lg shadow p-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <a href={`/jobs/${rj._id}`} className="text-lg font-semibold text-gray-900 hover:text-primary">{rj.title}</a>
-                        <div className="text-sm text-gray-600">{rj.company?.name}</div>
-                        <div className="text-sm text-gray-500 mt-2">{rj.location?.city || 'Location not specified'}</div>
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <a href={`/jobs/${rj._id}`} className="text-base md:text-lg font-semibold text-gray-900 hover:text-primary block break-words">{rj.title}</a>
+                        <div className="text-sm text-gray-600 break-words">{rj.company?.name}</div>
+                        <div className="text-xs md:text-sm text-gray-500 mt-2">{rj.location?.city || 'Location not specified'}</div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-sm text-gray-600">{rj.employmentType}</div>
-                        <div className="text-sm font-semibold text-gray-900">{rj.views || 0} views</div>
+                      <div className="text-left sm:text-right flex-shrink-0">
+                        <div className="text-xs md:text-sm text-gray-600">{rj.employmentType}</div>
+                        <div className="text-xs md:text-sm font-semibold text-gray-900">{rj.views || 0} views</div>
                       </div>
                     </div>
                   </div>

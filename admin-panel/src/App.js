@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 import Jobs from './pages/Jobs';
+import JobDetails from './pages/JobDetails';
 import Applications from './pages/Applications';
 import Companies from './pages/Companies';
 import Settings from './pages/Settings';
@@ -52,6 +53,7 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="users" element={<Users />} />
             <Route path="jobs" element={<Jobs />} />
+            <Route path="jobs/:id" element={<JobDetails />} />
             <Route path="applications" element={<Applications />} />
             <Route path="companies" element={<Companies />} />
             <Route path="settings" element={<Settings />} />

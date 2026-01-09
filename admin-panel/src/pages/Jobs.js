@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaBriefcase, FaEdit, FaTrash, FaSearch, FaStar, FaRegStar, FaEye, FaPlus, FaDollarSign, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
 
 const Jobs = () => {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -323,15 +325,7 @@ const Jobs = () => {
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => {
-                    const locationStr = typeof job.location === 'string' 
-                      ? job.location 
-                      : `${job.location?.city || ''}${job.location?.state ? ', ' + job.location.state : ''}${job.location?.country ? ', ' + job.location.country : ''}`;
-                    const salaryStr = job.salary?.min && job.salary?.max 
-                      ? `₹${job.salary.min.toLocaleString('en-IN')} - ₹${job.salary.max.toLocaleString('en-IN')}${job.salary.period ? ' / ' + job.salary.period : ''}`
-                      : 'Not disclosed';
-                    alert(`Job: ${job.title}\nCompany: ${job.company?.name}\nLocation: ${locationStr}\nSalary: ${salaryStr}\nType: ${job.employmentType}\nWork Mode: ${job.workMode}\nExperience: ${job.experience?.min || 0}-${job.experience?.max || 0} years\nApplications: ${job.applicationsCount || 0}`);
-                  }}
+                  onClick={() => navigate(`/jobs/${job._id}`)}
                   className="flex-1 px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition flex items-center justify-center gap-2"
                 >
                   <FaEye /> View Details
