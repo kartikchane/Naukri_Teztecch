@@ -13,7 +13,7 @@ const Founder = () => {
           </p>
         </div>
       </section>
-
+                
       {/* Founder Profile */}
       <section className="py-16">
         <div className="container mx-auto px-4">
