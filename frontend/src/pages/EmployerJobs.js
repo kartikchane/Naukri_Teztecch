@@ -17,8 +17,16 @@ const EmployerJobs = () => {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const { data } = await API.get('/jobs', { params: { postedBy: user?._id } });
-      setJobs(data.jobs || []);
+      const { data } = await API.get('/jobs', {
+        params: { postedBy: user?._id }
+      });
+
+      // Filter to show ONLY jobs posted by the current user
+      const myJobs = (data.jobs || []).filter(job =>
+        job.postedBy?._id === user?._id || job.postedBy === user?._id
+      );
+
+      setJobs(myJobs);
     } catch (err) {
       setJobs([]);
     } finally {

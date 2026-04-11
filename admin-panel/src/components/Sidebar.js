@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaBars, FaTimes, FaTachometerAlt, FaBriefcase, FaUser, FaClipboardList, FaSignOutAlt, FaBuilding, FaCog } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaBriefcase, FaUser, FaClipboardList, FaSignOutAlt, FaBuilding, FaCog, FaExclamationTriangle, FaShieldAlt, FaCheckCircle, FaChartBar, FaEnvelope, FaFileAlt, FaHistory, FaHeadset, FaStar, FaGaugeHigh, FaToggleOn } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
@@ -10,6 +10,23 @@ const navLinks = [
   { to: '/jobs', label: 'Jobs', icon: <FaBriefcase className="inline mr-2" /> },
   { to: '/applications', label: 'Applications', icon: <FaClipboardList className="inline mr-2" /> },
   { to: '/companies', label: 'Companies', icon: <FaBuilding className="inline mr-2" /> },
+  { divider: true, label: 'Management' },
+  { to: '/content-moderation', label: 'Content Moderation', icon: <FaExclamationTriangle className="inline mr-2" /> },
+  { to: '/company-verification', label: 'Company Verification', icon: <FaShieldAlt className="inline mr-2" /> },
+  { to: '/user-control', label: 'User Control', icon: <FaCheckCircle className="inline mr-2" /> },
+  { to: '/job-approval', label: 'Job Approval Workflow', icon: <FaCheckCircle className="inline mr-2" /> },
+  { to: '/review-moderation', label: 'Review Moderation', icon: <FaStar className="inline mr-2" /> },
+  { to: '/batch-actions', label: 'Batch Actions', icon: <FaClipboardList className="inline mr-2" /> },
+  { to: '/support-tickets', label: 'Support Tickets', icon: <FaHeadset className="inline mr-2" /> },
+  { divider: true, label: 'Operations' },
+  { to: '/analytics', label: 'Analytics', icon: <FaChartBar className="inline mr-2" /> },
+  { to: '/reports', label: 'Reports & Export', icon: <FaFileAlt className="inline mr-2" /> },
+  { to: '/audit-logs', label: 'Audit Logs', icon: <FaHistory className="inline mr-2" /> },
+  { to: '/performance', label: 'Performance Monitor', icon: <FaGaugeHigh className="inline mr-2" /> },
+  { divider: true, label: 'Configuration' },
+  { to: '/notifications', label: 'Notifications', icon: <FaEnvelope className="inline mr-2" /> },
+  { to: '/feature-flags', label: 'Feature Flags', icon: <FaToggleOn className="inline mr-2" /> },
+  { to: '/platform-settings', label: 'Platform Settings', icon: <FaCog className="inline mr-2" /> },
   { to: '/settings', label: 'Website Settings', icon: <FaCog className="inline mr-2" /> },
 ];
 
@@ -70,15 +87,21 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
       {/* Navigation Links */}
       <nav className="flex-1">
         {navLinks.map((link) => (
-          <Link
-            key={link.to}
-            to={link.to}
-            className={linkClass(link.to)}
-            onClick={() => setMobileOpen(false)}
-          >
-            {link.icon}
-            {link.label}
-          </Link>
+          link.divider ? (
+            <div key={link.label} className="mt-4 mb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              {link.label}
+            </div>
+          ) : (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={linkClass(link.to)}
+              onClick={() => setMobileOpen(false)}
+            >
+              {link.icon}
+              {link.label}
+            </Link>
+          )
         ))}
       </nav>
 

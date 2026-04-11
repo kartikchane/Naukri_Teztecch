@@ -17,6 +17,21 @@ import JobDetails from './pages/JobDetails';
 import Applications from './pages/Applications';
 import Companies from './pages/Companies';
 import Settings from './pages/Settings';
+// Advanced Admin Features
+import ContentModeration from './pages/ContentModeration';
+import CompanyVerification from './pages/CompanyVerification';
+import UserControl from './pages/UserControl';
+import Analytics from './pages/Analytics';
+import JobApprovalWorkflow from './pages/JobApprovalWorkflow';
+import NotificationSystem from './pages/NotificationSystem';
+import ReportExport from './pages/ReportExport';
+import AuditLogs from './pages/AuditLogs';
+import ApplicationBatchActions from './pages/ApplicationBatchActions';
+import SupportTickets from './pages/SupportTickets';
+import ReviewModeration from './pages/ReviewModeration';
+import PerformanceMonitoring from './pages/PerformanceMonitoring';
+import FeatureFlagsManagement from './pages/FeatureFlagsManagement';
+import SystemSettings from './pages/SystemSettings';
 
 function App() {
   // Token validation only - Don't clear on every load
@@ -57,6 +72,21 @@ function App() {
             <Route path="applications" element={<Applications />} />
             <Route path="companies" element={<Companies />} />
             <Route path="settings" element={<Settings />} />
+            {/* Advanced Admin Features */}
+            <Route path="content-moderation" element={<ContentModeration />} />
+            <Route path="company-verification" element={<CompanyVerification />} />
+            <Route path="user-control" element={<UserControl />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="job-approval" element={<JobApprovalWorkflow />} />
+            <Route path="notifications" element={<NotificationSystem />} />
+            <Route path="reports" element={<ReportExport />} />
+            <Route path="audit-logs" element={<AuditLogs />} />
+            <Route path="batch-actions" element={<ApplicationBatchActions />} />
+            <Route path="support-tickets" element={<SupportTickets />} />
+            <Route path="review-moderation" element={<ReviewModeration />} />
+            <Route path="performance" element={<PerformanceMonitoring />} />
+            <Route path="feature-flags" element={<FeatureFlagsManagement />} />
+            <Route path="platform-settings" element={<SystemSettings />} />
             <Route index element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Routes>

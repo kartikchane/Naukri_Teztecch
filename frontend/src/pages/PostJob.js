@@ -20,6 +20,7 @@ const PostJob = () => {
   const [loading, setLoading] = useState(false);
   const [checkingCompany, setCheckingCompany] = useState(true);
   const [userCompany, setUserCompany] = useState(null);
+  const [customCategory, setCustomCategory] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     company: '',
@@ -138,6 +139,11 @@ const PostJob = () => {
         setLoading(false);
         return;
       }
+      if (formData.category === 'Other' && !customCategory.trim()) {
+        toast.error('Please specify your category');
+        setLoading(false);
+        return;
+      }
       if (!formData.location.city.trim()) {
         toast.error('Location city is required');
         setLoading(false);
@@ -180,7 +186,7 @@ const PostJob = () => {
       const jobData = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        category: formData.category,
+        category: formData.category === 'Other' ? customCategory : formData.category,
         employmentType: formData.employmentType,
         workMode: formData.workMode,
         location: {
@@ -333,6 +339,22 @@ const PostJob = () => {
                   </div>
                 </div>
               </div>
+
+              {formData.category === 'Other' && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Specify Your Category *
+                  </label>
+                  <input
+                    type="text"
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    placeholder="e.g., Hospitality, Agriculture, etc."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                  />
+                </div>
+              )}
             </div>
           </div>
 

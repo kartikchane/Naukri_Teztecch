@@ -47,7 +47,59 @@ const companySchema = new mongoose.Schema({
   socialLinks: {
     linkedin: String,
     twitter: String,
-    facebook: String
+    facebook: String,
+    instagram: String,
+    youtube: String
+  },
+  coverImage: {
+    type: String,
+    default: null
+  },
+  companyPhotos: [
+    {
+      type: String
+    }
+  ],
+  specialties: [
+    {
+      type: String
+    }
+  ],
+  headquarters: {
+    address: String,
+    city: String,
+    state: String,
+    country: String
+  },
+  benefits: [
+    {
+      type: String
+    }
+  ],
+  cultureTags: [
+    {
+      type: String
+    }
+  ],
+  followers: {
+    type: Number,
+    default: 0
+  },
+  followersList: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
+  totalReviews: {
+    type: Number,
+    default: 0
+  },
+  averageRating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
   },
   createdAt: {
     type: Date,

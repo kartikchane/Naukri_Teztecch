@@ -8,6 +8,7 @@ const CreateCompany = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [checkingCompany, setCheckingCompany] = useState(true);
+  const [customIndustry, setCustomIndustry] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -20,7 +21,7 @@ const CreateCompany = () => {
     website: '',
     size: '',
     foundedYear: '',
-    logo: '',
+    logo: null,
     specialties: ''
   });
 
@@ -43,9 +44,11 @@ const CreateCompany = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    
-    if (name.includes('.')) {
+    const { name, value, type, files } = e.target;
+
+    if (type === 'file') {
+      setFormData(prev => ({ ...prev, [name]: files[0] }));
+    } else if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setFormData(prev => ({
         ...prev,
@@ -74,6 +77,10 @@ const CreateCompany = () => {
       toast.error('Industry is required');
       return;
     }
+    if (formData.industry === 'Other' && !customIndustry.trim()) {
+      toast.error('Please specify your industry');
+      return;
+    }
     if (!formData.location.city.trim()) {
       toast.error('City is required');
       return;
@@ -83,17 +90,32 @@ const CreateCompany = () => {
 
     try {
       // Convert specialties to array
-      const specialtiesArray = formData.specialties 
+      const specialtiesArray = formData.specialties
         ? formData.specialties.split(',').map(s => s.trim()).filter(s => s)
         : [];
 
-      const companyData = {
-        ...formData,
-        specialties: specialtiesArray,
-        foundedYear: formData.foundedYear ? parseInt(formData.foundedYear) : undefined
-      };
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('industry', formData.industry === 'Other' ? customIndustry : formData.industry);
+      formDataToSend.append('location[city]', formData.location.city);
+      formDataToSend.append('location[state]', formData.location.state);
+      formDataToSend.append('location[country]', formData.location.country);
+      formDataToSend.append('website', formData.website);
+      formDataToSend.append('size', formData.size);
+      formDataToSend.append('foundedYear', formData.foundedYear ? parseInt(formData.foundedYear) : '');
 
-      const { data } = await API.post('/companies', companyData);
+      // Append logo file if selected
+      if (formData.logo && formData.logo instanceof File) {
+        formDataToSend.append('logo', formData.logo);
+      }
+
+      formDataToSend.append('specialties', JSON.stringify(specialtiesArray));
+
+      const { data } = await API.post('/companies', formDataToSend, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       
       toast.success('Company profile created successfully!');
       navigate('/post-job');
@@ -168,6 +190,24 @@ const CreateCompany = () => {
                 <option value="Other">Other</option>
               </select>
             </div>
+
+            {/* Custom Industry Input */}
+            {formData.industry === 'Other' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <FaIndustry className="inline mr-2" />
+                  Specify Your Industry *
+                </label>
+                <input
+                  type="text"
+                  value={customIndustry}
+                  onChange={(e) => setCustomIndustry(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Agriculture, Automotive, etc."
+                  required
+                />
+              </div>
+            )}
 
             {/* Description */}
             <div>
@@ -287,20 +327,22 @@ const CreateCompany = () => {
               />
             </div>
 
-            {/* Logo URL */}
+            {/* Logo Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Company Logo URL
+                Company Logo
               </label>
               <input
-                type="url"
+                type="file"
                 name="logo"
-                value={formData.logo}
                 onChange={handleChange}
+                accept="image/*"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="https://example.com/logo.png"
               />
-              <p className="text-sm text-gray-500 mt-1">Provide a URL to your company logo image</p>
+              <p className="text-sm text-gray-500 mt-1">Upload your company logo (image file)</p>
+              {formData.logo && formData.logo instanceof File && (
+                <p className="text-sm text-green-600 mt-1">✓ {formData.logo.name}</p>
+              )}
             </div>
 
             {/* Specialties */}
