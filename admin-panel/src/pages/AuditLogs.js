@@ -29,7 +29,7 @@ const AuditLogs = () => {
           admin: { name: 'Admin User', email: 'admin@naukri.com' },
           action: 'Job Approved',
           resource: { type: 'job', id: 'job123', name: 'Software Developer' },
-          changes: { approved: false → true, status: "pending" → "active" },
+          changes: { approved: 'false -> true', status: 'pending -> active' },
           ipAddress: '192.168.1.1',
           status: 'success'
         },
@@ -39,7 +39,7 @@ const AuditLogs = () => {
           admin: { name: 'Admin User', email: 'admin@naukri.com' },
           action: 'Company Verified',
           resource: { type: 'company', id: 'comp456', name: 'TechCorp' },
-          changes: { verified: false → true },
+          changes: { verified: 'false -> true' },
           ipAddress: '192.168.1.1',
           status: 'success'
         },
@@ -49,7 +49,7 @@ const AuditLogs = () => {
           admin: { name: 'Admin User', email: 'admin@naukri.com' },
           action: 'User Suspended',
           resource: { type: 'user', id: 'user789', name: 'John Doe' },
-          changes: { suspended: false → true, reason: 'Spam content' },
+          changes: { suspended: 'false -> true', reason: 'Spam content' },
           ipAddress: '192.168.1.2',
           status: 'success'
         },
