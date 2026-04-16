@@ -535,7 +535,18 @@ const CompanyProfile = () => {
             <div>
               <label className="block text-sm font-semibold mb-2">Company Logo</label>
               <div className="flex gap-4 items-end">
-                {company.logo && (
+                {/* Show preview of newly selected file OR existing logo from database */}
+                {formData.logo instanceof File ? (
+                  <img
+                    src={URL.createObjectURL(formData.logo)}
+                    alt="New logo preview"
+                    className="w-20 h-20 object-cover rounded border-2 border-green-500"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(company.name)}&background=3B82F6&color=fff&size=160&bold=true`;
+                    }}
+                  />
+                ) : company.logo ? (
                   <img
                     src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${company.logo}`}
                     alt="Current logo"
@@ -545,6 +556,10 @@ const CompanyProfile = () => {
                       e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(company.name)}&background=3B82F6&color=fff&size=160&bold=true`;
                     }}
                   />
+                ) : (
+                  <div className="w-20 h-20 bg-gray-200 rounded flex items-center justify-center text-gray-400">
+                    No logo
+                  </div>
                 )}
                 <input
                   type="file"
@@ -554,7 +569,9 @@ const CompanyProfile = () => {
                   className="flex-1 border rounded px-3 py-2"
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-1">Leave empty to keep current logo</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {formData.logo instanceof File ? '✓ New logo selected (will be uploaded on save)' : 'Leave empty to keep current logo'}
+              </p>
             </div>
 
             {/* Company Name */}
