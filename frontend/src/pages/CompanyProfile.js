@@ -149,10 +149,18 @@ const CompanyProfile = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
+      console.log('Document uploaded:', response.data);
+
+      // Update local documents state
       setDocuments(prev => ({
         ...prev,
         [docType]: response.data.filePath
       }));
+
+      // Fetch fresh company data to sync with database
+      const freshCompany = await API.get('/companies/my-company');
+      setCompany(freshCompany.data);
+
       toast.success(`${docType} uploaded successfully`);
     } catch (error) {
       console.error('Document upload failed:', error);
@@ -215,6 +223,7 @@ const CompanyProfile = () => {
           const logoRes = await API.post(`/companies/${company._id}/logo`, logoFormData, {
             headers: { 'Content-Type': 'multipart/form-data' }
           });
+          console.log('Logo uploaded:', logoRes.data);
           toast.success('Logo uploaded successfully');
         } catch (logoError) {
           console.error('Logo upload failed:', logoError);
@@ -224,8 +233,11 @@ const CompanyProfile = () => {
 
       // Update company details
       const updatedCompany = await API.put(`/companies/${company._id}`, updateData);
-      setCompany(updatedCompany.data);
-      populateForm(updatedCompany.data);
+
+      // Fetch fresh company data to ensure we have the latest logo
+      const freshCompany = await API.get('/companies/my-company');
+      setCompany(freshCompany.data);
+      populateForm(freshCompany.data);
       setEditMode(false);
       toast.success('Company profile updated successfully');
     } catch (error) {

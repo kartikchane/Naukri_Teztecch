@@ -160,8 +160,15 @@ router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), async (re
     }
 
     // Convert absolute path to relative: uploads/logo-xxx.png
-    const relativePath = req.file.path.replace(/\\/g, '/').split('/uploads/')[1];
-    const logoPath = `uploads/${relativePath}`;
+    let logoPath;
+    const filePath = req.file.path.replace(/\\/g, '/');
+
+    // Extract just the filename and use uploads prefix
+    const fileName = req.file.filename;
+    logoPath = `uploads/${fileName}`;
+
+    console.log('Logo upload - Original path:', req.file.path);
+    console.log('Logo upload - Extracted path:', logoPath);
 
     company.logo = logoPath;
     await company.save();
@@ -171,7 +178,7 @@ router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), async (re
       logo: logoPath
     });
   } catch (error) {
-    console.error(error);
+    console.error('Logo upload error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
