@@ -185,21 +185,18 @@ router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), async (re
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    // Convert absolute path to relative: uploads/logo-xxx.png
-    let logoPath;
-    const filePath = req.file.path.replace(/\\/g, '/');
-
-    // Extract just the filename and use uploads prefix
+    // Extract just the filename - frontend will add /uploads/ prefix
     const fileName = req.file.filename;
-    logoPath = `uploads/${fileName}`;
+    // Store only the filename, NOT the uploads/ prefix
+    // Frontend URL construction: ${API_URL}/uploads/${filename}
 
     console.log('🔵 Logo upload START');
     console.log('  Original path:', req.file.path);
     console.log('  Filename:', fileName);
-    console.log('  Logo path to save:', logoPath);
+    console.log('  Storing in DB:', fileName);
     console.log('  Company ID:', req.params.id);
 
-    company.logo = logoPath;
+    company.logo = fileName;
     const savedCompany = await company.save();
 
     console.log('🟢 Logo upload SUCCESS');
@@ -207,7 +204,7 @@ router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), async (re
 
     res.json({
       message: 'Logo uploaded successfully',
-      logo: logoPath,
+      logo: fileName,
       savedLogo: savedCompany.logo
     });
   } catch (error) {

@@ -336,7 +336,7 @@ const CompanyProfile = () => {
               <div className="flex gap-6 mb-6">
                 {company.logo && (
                   <img
-                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${company.logo}`}
+                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/uploads/${company.logo}`}
                     alt={company.name}
                     className="w-32 h-32 object-cover rounded-lg"
                     onError={(e) => {
@@ -548,7 +548,7 @@ const CompanyProfile = () => {
                   />
                 ) : company.logo ? (
                   <img
-                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${company.logo}`}
+                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/uploads/${company.logo}`}
                     alt="Current logo"
                     className="w-20 h-20 object-cover rounded"
                     onError={(e) => {
