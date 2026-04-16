@@ -127,6 +127,10 @@ router.put('/:id', [protect, isEmployer], async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
+    console.log('🔵 Company update START');
+    console.log('  Current logo before update:', company.logo);
+    console.log('  Update data:', req.body);
+
     // Clean up empty values to avoid validation errors
     const updateData = { ...req.body };
 
@@ -138,16 +142,26 @@ router.put('/:id', [protect, isEmployer], async (req, res) => {
       delete updateData.founded;
     }
 
+    // IMPORTANT: Don't overwrite logo if not included in update
+    if (!updateData.hasOwnProperty('logo')) {
+      delete updateData.logo;
+    }
+
+    console.log('  Cleaned update data:', updateData);
+
     const updatedCompany = await Company.findByIdAndUpdate(
       req.params.id,
       updateData,
       { new: true, runValidators: true }
     );
 
+    console.log('🟢 Company update SUCCESS');
+    console.log('  New logo after update:', updatedCompany.logo);
+
     res.json(updatedCompany);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('🔴 Company update ERROR:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
@@ -178,19 +192,26 @@ router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), async (re
     const fileName = req.file.filename;
     logoPath = `uploads/${fileName}`;
 
-    console.log('Logo upload - Original path:', req.file.path);
-    console.log('Logo upload - Extracted path:', logoPath);
+    console.log('🔵 Logo upload START');
+    console.log('  Original path:', req.file.path);
+    console.log('  Filename:', fileName);
+    console.log('  Logo path to save:', logoPath);
+    console.log('  Company ID:', req.params.id);
 
     company.logo = logoPath;
-    await company.save();
+    const savedCompany = await company.save();
+
+    console.log('🟢 Logo upload SUCCESS');
+    console.log('  Saved logo in DB:', savedCompany.logo);
 
     res.json({
       message: 'Logo uploaded successfully',
-      logo: logoPath
+      logo: logoPath,
+      savedLogo: savedCompany.logo
     });
   } catch (error) {
-    console.error('Logo upload error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('🔴 Logo upload ERROR:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
