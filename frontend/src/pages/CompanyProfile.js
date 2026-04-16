@@ -313,9 +313,13 @@ const CompanyProfile = () => {
               <div className="flex gap-6 mb-6">
                 {company.logo && (
                   <img
-                    src={company.logo}
+                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${company.logo}`}
                     alt={company.name}
                     className="w-32 h-32 object-cover rounded-lg"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(company.name)}&background=3B82F6&color=fff&size=256&bold=true`;
+                    }}
                   />
                 )}
                 <div className="flex-1">
@@ -509,7 +513,15 @@ const CompanyProfile = () => {
               <label className="block text-sm font-semibold mb-2">Company Logo</label>
               <div className="flex gap-4 items-end">
                 {company.logo && (
-                  <img src={company.logo} alt="Current logo" className="w-20 h-20 object-cover rounded" />
+                  <img
+                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${company.logo}`}
+                    alt="Current logo"
+                    className="w-20 h-20 object-cover rounded"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(company.name)}&background=3B82F6&color=fff&size=160&bold=true`;
+                    }}
+                  />
                 )}
                 <input
                   type="file"
