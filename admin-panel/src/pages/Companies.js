@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FaBuilding, FaTrash, FaEdit, FaSearch, FaBriefcase, FaGlobe, FaPlus, FaIndustry, FaUsers, FaCalendar, FaMapMarkerAlt, FaEye, FaTimes } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaBuilding, FaTrash, FaEdit, FaSearch, FaBriefcase, FaGlobe, FaPlus, FaIndustry, FaUsers, FaCalendar, FaMapMarkerAlt, FaEye, FaTimes, FaImages } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
 
 const Companies = () => {
+  const navigate = useNavigate();
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,8 +17,8 @@ const Companies = () => {
   const [companyJobs, setCompanyJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
-  const [showEditJobModal, setShowEditJobModal] = useState(false);
-  const [newCompany, setNewCompany] = useState({
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedCompanyDetails, setSelectedCompanyDetails] = useState(null);
     name: '',
     description: '',
     industry: '',
@@ -303,10 +305,25 @@ const Companies = () => {
 
               <div className="flex flex-col gap-2">
                 <button
+                  onClick={() => {
+                    setSelectedCompanyDetails(company);
+                    setShowDetailsModal(true);
+                  }}
+                  className="w-full py-3 bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-600 rounded-xl hover:from-indigo-100 hover:to-indigo-200 font-semibold transition-all transform hover:scale-105 shadow-sm"
+                >
+                  📋 View Details & Documents
+                </button>
+                <button
                   onClick={() => handleViewJobs(company)}
                   className="w-full py-3 bg-gradient-to-r from-green-50 to-green-100 text-green-600 rounded-xl hover:from-green-100 hover:to-green-200 font-semibold transition-all transform hover:scale-105 shadow-sm"
                 >
                   <FaEye className="inline mr-2" /> View Jobs ({company.jobsCount || 0})
+                </button>
+                <button
+                  onClick={() => navigate(`/gallery/${company._id}`)}
+                  className="w-full py-3 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-600 rounded-xl hover:from-purple-100 hover:to-purple-200 font-semibold transition-all transform hover:scale-105 shadow-sm"
+                >
+                  <FaImages className="inline mr-2" /> Manage Gallery
                 </button>
                 <div className="flex gap-2">
                   <button
@@ -957,6 +974,237 @@ const Companies = () => {
                   Cancel
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Company Details Modal with Documents */}
+      {showDetailsModal && selectedCompanyDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-4xl w-full shadow-2xl my-8">
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-xl flex justify-between items-start">
+              <div className="flex items-start gap-4 flex-1">
+                {selectedCompanyDetails.logo && selectedCompanyDetails.logo !== 'default-company-logo.png' ? (
+                  <img
+                    src={selectedCompanyDetails.logo}
+                    alt={selectedCompanyDetails.name}
+                    className="w-20 h-20 object-contain bg-white/20 p-2 rounded-lg"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedCompanyDetails.name)}&background=3B82F6&color=fff&size=160&bold=true`;
+                    }}
+                  />
+                ) : (
+                  <div className="w-20 h-20 bg-white/20 rounded-lg flex items-center justify-center">
+                    <FaBuilding className="text-3xl" />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold">{selectedCompanyDetails.name}</h2>
+                  <p className="text-sm opacity-90 mt-1">{selectedCompanyDetails.industry}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  setSelectedCompanyDetails(null);
+                }}
+                className="text-white hover:bg-white/20 p-2 rounded-full transition-colors"
+              >
+                <FaTimes size={24} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6 max-h-[calc(100vh-300px)] overflow-y-auto">
+              {/* Verification Status */}
+              {selectedCompanyDetails.documentVerification && (
+                <div className={`p-4 rounded-lg border-l-4 ${
+                  selectedCompanyDetails.documentVerification.status === 'verified'
+                    ? 'bg-green-50 border-green-500'
+                    : selectedCompanyDetails.documentVerification.status === 'rejected'
+                    ? 'bg-red-50 border-red-500'
+                    : 'bg-yellow-50 border-yellow-500'
+                }`}>
+                  <h3 className="font-bold mb-2">Document Verification Status</h3>
+                  <p className={`font-semibold ${
+                    selectedCompanyDetails.documentVerification.status === 'verified'
+                      ? 'text-green-700'
+                      : selectedCompanyDetails.documentVerification.status === 'rejected'
+                      ? 'text-red-700'
+                      : 'text-yellow-700'
+                  }`}>
+                    {selectedCompanyDetails.documentVerification.status?.toUpperCase()}
+                  </p>
+                  {selectedCompanyDetails.documentVerification.rejectionReason && (
+                    <p className="text-sm text-red-700 mt-2">
+                      <strong>Reason:</strong> {selectedCompanyDetails.documentVerification.rejectionReason}
+                    </p>
+                  )}
+                  {selectedCompanyDetails.documentVerification.adminNotes && (
+                    <p className="text-sm text-gray-700 mt-2">
+                      <strong>Admin Notes:</strong> {selectedCompanyDetails.documentVerification.adminNotes}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Company Information */}
+              <div className="border rounded-lg p-4">
+                <h3 className="font-bold text-lg mb-3">Company Information</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Email</p>
+                    <p className="font-semibold">{selectedCompanyDetails.contactInfo?.registeredEmail || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Phone</p>
+                    <p className="font-semibold">{selectedCompanyDetails.contactInfo?.registeredPhone || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Location</p>
+                    <p className="font-semibold">
+                      {[selectedCompanyDetails.location?.city, selectedCompanyDetails.location?.state, selectedCompanyDetails.location?.country]
+                        .filter(Boolean)
+                        .join(', ')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Founded</p>
+                    <p className="font-semibold">{selectedCompanyDetails.founded || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Company Size</p>
+                    <p className="font-semibold">{selectedCompanyDetails.companySize || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Website</p>
+                    <a href={selectedCompanyDetails.website} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-600 hover:underline">
+                      {selectedCompanyDetails.website || 'N/A'}
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              {selectedCompanyDetails.description && (
+                <div className="border rounded-lg p-4">
+                  <h3 className="font-bold text-lg mb-2">Description</h3>
+                  <p className="text-gray-700">{selectedCompanyDetails.description}</p>
+                </div>
+              )}
+
+              {/* Registration Documents */}
+              {selectedCompanyDetails.documents && Object.values(selectedCompanyDetails.documents).some(v => v) && (
+                <div className="border-2 border-blue-300 rounded-lg p-4 bg-blue-50">
+                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    📄 Registration Documents
+                  </h3>
+                  <div className="space-y-3">
+                    {selectedCompanyDetails.documents.aadharCard && (
+                      <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
+                        <span className="font-medium">Aadhar Card</span>
+                        <a
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${selectedCompanyDetails.documents.aadharCard}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                        >
+                          View
+                        </a>
+                      </div>
+                    )}
+                    {selectedCompanyDetails.documents.panCard && (
+                      <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
+                        <span className="font-medium">PAN Card</span>
+                        <a
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${selectedCompanyDetails.documents.panCard}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                        >
+                          View
+                        </a>
+                      </div>
+                    )}
+                    {selectedCompanyDetails.documents.gstCertificate && (
+                      <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
+                        <span className="font-medium">GST Certificate</span>
+                        <a
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${selectedCompanyDetails.documents.gstCertificate}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                        >
+                          View
+                        </a>
+                      </div>
+                    )}
+                    {selectedCompanyDetails.documents.udyamAadhar && (
+                      <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
+                        <span className="font-medium">Udyam Aadhar</span>
+                        <a
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${selectedCompanyDetails.documents.udyamAadhar}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                        >
+                          View
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Specialties and Benefits */}
+              <div className="grid md:grid-cols-2 gap-4">
+                {selectedCompanyDetails.specialties && selectedCompanyDetails.specialties.length > 0 && (
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-bold mb-2">Specialties</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedCompanyDetails.specialties.map((spec, idx) => (
+                        <span key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                          {spec}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {selectedCompanyDetails.benefits && selectedCompanyDetails.benefits.length > 0 && (
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-bold mb-2">Benefits</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedCompanyDetails.benefits.map((benefit, idx) => (
+                        <span key={idx} className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                          {benefit}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="border-t p-4 flex gap-3">
+              <button
+                onClick={() => handleEdit(selectedCompanyDetails)}
+                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-medium"
+              >
+                <FaEdit className="inline mr-2" /> Edit Company
+              </button>
+              <button
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  setSelectedCompanyDetails(null);
+                }}
+                className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 font-medium"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
