@@ -142,9 +142,10 @@ router.put('/:id', [protect, isEmployer], async (req, res) => {
       delete updateData.founded;
     }
 
-    // IMPORTANT: Don't overwrite logo if not included in update
-    if (!updateData.hasOwnProperty('logo')) {
-      delete updateData.logo;
+    // IMPORTANT: Preserve existing logo if not included in update
+    if (!updateData.logo && company.logo) {
+      updateData.logo = company.logo;
+      console.log('  Preserving existing logo:', company.logo);
     }
 
     console.log('  Cleaned update data:', updateData);
