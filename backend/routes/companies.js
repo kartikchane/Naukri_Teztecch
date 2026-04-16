@@ -127,9 +127,20 @@ router.put('/:id', [protect, isEmployer], async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
+    // Clean up empty values to avoid validation errors
+    const updateData = { ...req.body };
+
+    // Remove empty strings for enum fields
+    if (updateData.companySize === '' || updateData.companySize === null) {
+      delete updateData.companySize;
+    }
+    if (!updateData.founded) {
+      delete updateData.founded;
+    }
+
     const updatedCompany = await Company.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
 

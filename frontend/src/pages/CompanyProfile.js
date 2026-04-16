@@ -207,12 +207,18 @@ const CompanyProfile = () => {
         industry: formData.industry,
         location: formData.location,
         website: formData.website,
-        companySize: formData.companySize,
-        founded: formData.founded ? parseInt(formData.founded) : undefined,
         specialties: specialtiesArray,
         benefits: benefitsArray,
         socialLinks: formData.socialLinks
       };
+
+      // Only include optional fields if they have values
+      if (formData.companySize && formData.companySize.trim()) {
+        updateData.companySize = formData.companySize;
+      }
+      if (formData.founded) {
+        updateData.founded = parseInt(formData.founded);
+      }
 
       // Upload logo if new file selected
       if (formData.logo && formData.logo instanceof File) {
