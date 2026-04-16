@@ -66,6 +66,8 @@ const CompanyProfile = () => {
     try {
       setLoading(true);
       const response = await API.get('/companies/my-company');
+      console.log('✅ Fetched company profile:', response.data);
+      console.log('Logo from DB:', response.data.logo);
       setCompany(response.data);
       populateForm(response.data);
     } catch (error) {
@@ -239,9 +241,12 @@ const CompanyProfile = () => {
 
       // Update company details
       const updatedCompany = await API.put(`/companies/${company._id}`, updateData);
+      console.log('Company updated via PUT:', updatedCompany.data);
 
       // Fetch fresh company data to ensure we have the latest logo
       const freshCompany = await API.get('/companies/my-company');
+      console.log('✅ Fresh company data after save:', freshCompany.data);
+      console.log('Logo in fresh data:', freshCompany.data.logo);
       setCompany(freshCompany.data);
       populateForm(freshCompany.data);
       setEditMode(false);
