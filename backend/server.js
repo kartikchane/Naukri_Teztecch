@@ -53,16 +53,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', (req, res, next) => {
   // Normalize path - remove absolute path prefixes if present
   let filePath = req.path;
-  
+
   // Handle absolute Windows paths (D:/demo_project/...)
   if (filePath.includes('demo_project')) {
     const parts = filePath.split('uploads/');
     filePath = parts.length > 1 ? '/' + parts[parts.length - 1] : filePath;
   }
-  
+
   req.url = filePath;
   next();
-}, express.static(path.join(__dirname, '../uploads')));
+}, express.static(path.join(__dirname, './uploads')));
 
 // Serve Admin Panel static files (Production) - only static assets
 if (process.env.NODE_ENV === 'production') {
@@ -94,9 +94,14 @@ app.use('/api/applications', require('./routes/applications'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/companies', require('./routes/companies'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/messages', require('./routes/messages')); // Real-time messaging
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/admin', require('./routes/admin')); // Admin routes
 app.use('/api/settings', require('./routes/settings')); // Settings routes
+app.use('/api/plans', require('./routes/plans')); // Pricing plans
+app.use('/api/subscriptions', require('./routes/subscriptions')); // Subscriptions
+app.use('/api/gallery', require('./routes/gallery')); // Gallery management
+app.use('/api/candidates', require('./routes/candidates')); // Browse candidates for employers
 
 // Health check
 app.get('/api/health', (req, res) => {
