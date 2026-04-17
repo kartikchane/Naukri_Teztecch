@@ -243,7 +243,7 @@ class EmailService {
           <p style="margin: 10px 0;"><strong>📋 Applied For:</strong> ${job.title}</p>
           <p style="margin: 10px 0;"><strong>📅 Applied On:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
         `,
-        `/employer/applicants/${job._id}`,
+        `/employer/jobs`,
         'Review Application'
       );
 
@@ -350,7 +350,7 @@ class EmailService {
             <li>Location: ${job.location?.city}, ${job.location?.state}</li>
           </ul>
         `,
-        `/applications`,
+        `/employer/jobs`,
         'View Application'
       );
 
