@@ -4,9 +4,10 @@ const { body, validationResult } = require('express-validator');
 const Job = require('../models/Job');
 const Company = require('../models/Company');
 const Application = require('../models/Application');
+const User = require('../models/User');
 const { protect, isEmployer, optionalAuth } = require('../middleware/auth');
 const NotificationService = require('../services/notificationService');
-const { notifyJobPosted, notifyNewApplication } = require('../utils/notificationHelper');
+const EmailService = require('../services/emailService');
 
 // @route   GET /api/jobs
 // @desc    Get all jobs with filters
@@ -257,19 +258,29 @@ router.post('/', [protect, isEmployer], [
     // Send notifications to job seekers
     try {
       const notificationCount = await NotificationService.createJobNotification(populatedJob);
-      console.log(`Sent in-app notifications to ${notificationCount} users`);
+      console.log(`Created ${notificationCount} in-app job notifications`);
     } catch (notificationError) {
-      console.error('Error sending job notifications:', notificationError);
-      // Don't fail the job creation if notification fails
+      console.error('Error creating job notifications:', notificationError);
     }
 
-    // Send email notification to employer
+    // Send email to employer confirming job posted
     try {
-      await notifyJobPosted(populatedJob, req.user);
-      console.log(`Email sent to employer for job: ${job._id}`);
+      await EmailService.jobPostedEmail(req.user, populatedJob);
     } catch (emailError) {
-      console.error('Error sending job posted email:', emailError);
-      // Don't fail the job creation if email fails
+      console.error('Error sending job posted email to employer:', emailError);
+    }
+
+    // Send emails to all job seekers about new job
+    try {
+      const jobSeekers = await User.find({ role: 'job_seeker' }).select('_id name email');
+      if (jobSeekers.length > 0) {
+        // Send emails asynchronously (don't wait)
+        setImmediate(() => {
+          EmailService.newJobNotificationEmail(jobSeekers, populatedJob);
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending job notification emails to job seekers:', emailError);
     }
 
     res.status(201).json(populatedJob);

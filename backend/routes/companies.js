@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const Company = require('../models/Company');
+const User = require('../models/User');
 const { protect, isEmployer } = require('../middleware/auth');
 const upload = require('../middleware/upload');
-const { sendEmailNotification } = require('../utils/notificationHelper');
-const Notification = require('../models/Notification');
+const EmailService = require('../services/emailService');
 
 // @route   POST /api/companies
 // @desc    Create company profile
@@ -38,22 +38,9 @@ router.post('/', [protect, isEmployer], [
 
     // Send email notification to employer
     try {
-      const notification = await Notification.create({
-        user: req.user._id,
-        type: 'company_created',
-        title: 'Company Profile Created',
-        message: `Your company "${company.name}" has been created successfully!`,
-        description: `Next step: Upload documents for verification so you can start posting jobs.`,
-        priority: 'high',
-        data: { company: company._id },
-        contactMethods: { email: true, sms: false, inApp: true },
-        actionUrl: `/company-profile`
-      });
-
-      await sendEmailNotification(req.user, notification);
-      console.log(`Company creation email sent to ${req.user.email}`);
+      await EmailService.companyCretedEmail(req.user, company);
     } catch (emailError) {
-      console.error('Error sending company creation email:', emailError);
+      console.error('Error sending company created email:', emailError);
       // Don't fail if email fails
     }
 

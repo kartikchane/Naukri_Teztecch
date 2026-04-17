@@ -3,10 +3,11 @@ const router = express.Router();
 const Application = require('../models/Application');
 const Job = require('../models/Job');
 const User = require('../models/User');
+const Company = require('../models/Company');
 const { protect, isEmployer } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const NotificationService = require('../services/notificationService');
-const { notifyNewApplication, notifyApplicationStatusChange } = require('../utils/notificationHelper');
+const EmailService = require('../services/emailService');
 const fs = require('fs');
 const path = require('path');
 
@@ -91,16 +92,24 @@ router.post('/', protect, upload.single('resume'), async (req, res) => {
       .populate('job')
       .populate('applicant', 'name email phone');
 
-    // Get employer for email notification
+    // Send email to employer about new application
     try {
       const employer = await User.findById(job.postedBy);
       if (employer) {
-        await notifyNewApplication(application, job, req.user, employer);
-        console.log(`Application email sent to employer: ${employer.email}`);
+        await EmailService.applicationReceivedEmail(employer, req.user, job);
       }
     } catch (emailError) {
-      console.error('Error sending application email to employer:', emailError);
-      // Don't fail if email fails
+      console.error('Error sending application received email:', emailError);
+    }
+
+    // Send confirmation email to job seeker
+    try {
+      const company = await Company.findById(job.company);
+      if (company) {
+        await EmailService.applicationSubmittedEmail(req.user, job, company);
+      }
+    } catch (emailError) {
+      console.error('Error sending application submitted email:', emailError);
     }
 
     res.status(201).json(populatedApplication);
@@ -219,26 +228,22 @@ router.put('/:id/status', [protect, isEmployer], async (req, res) => {
 
     await application.save();
 
-    // Create notification for applicant about status update
+    // Create in-app notification
     try {
       await NotificationService.createApplicationStatusNotification(application, status);
-      console.log(`In-app notification created for application: ${application._id}`);
     } catch (notificationError) {
       console.error('Error creating application status notification:', notificationError);
-      // Do not fail the status update if notification fails
     }
 
-    // Send email notification to job seeker
+    // Send email to job seeker about status change
     try {
       const applicant = await User.findById(application.applicant);
-      const job = await Job.findById(application.job);
-      if (applicant && job) {
-        await notifyApplicationStatusChange(application, applicant, job, status);
-        console.log(`Status change email sent to applicant: ${applicant.email}`);
+      const job = await Job.findById(application.job).populate('company');
+      if (applicant && job && job.company) {
+        await EmailService.applicationStatusEmail(applicant, job, job.company, status, notes);
       }
     } catch (emailError) {
       console.error('Error sending application status email:', emailError);
-      // Do not fail the status update if email fails
     }
 
     const updatedApplication = await Application.findById(application._id)

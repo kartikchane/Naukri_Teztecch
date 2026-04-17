@@ -5,6 +5,7 @@ const Job = require('../models/Job');
 const User = require('../models/User');
 const Application = require('../models/Application');
 const Company = require('../models/Company');
+const EmailService = require('../services/emailService');
 
 // All admin routes require authentication
 router.use(protect);
@@ -295,6 +296,16 @@ router.post('/companies/:id/verify', isAdmin, async (req, res) => {
     };
 
     await company.save();
+
+    // Send email to employer about verification status
+    try {
+      const employer = await User.findById(company.owner);
+      if (employer) {
+        await EmailService.verificationStatusEmail(employer, company, status, rejectionReason, adminNotes);
+      }
+    } catch (emailError) {
+      console.error('Error sending verification status email:', emailError);
+    }
 
     res.json({
       message: `Company ${status} successfully`,
