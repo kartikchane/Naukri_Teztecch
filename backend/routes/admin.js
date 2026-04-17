@@ -257,12 +257,12 @@ router.get('/companies', isAdmin, async (req, res) => {
       .sort({ createdAt: -1 })
       .populate('owner', 'name email')
       .lean();
-    
+
     // Add job count for each company
     for (let company of companies) {
       company.jobsCount = await Job.countDocuments({ company: company._id });
     }
-    
+
     res.json({ companies });
   } catch (err) {
     console.error('❌ Error fetching companies:', err);
@@ -270,20 +270,7 @@ router.get('/companies', isAdmin, async (req, res) => {
   }
 });
 
-// PUT /api/admin/companies/:id - Update company
-router.put('/companies/:id', isAdmin, async (req, res) => {
-  try {
-    const company = await Company.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!company) {
-      return res.status(404).json({ message: 'Company not found' });
-    }
-    res.json({ message: 'Company updated successfully', company });
-  } catch (err) {
-    res.status(500).json({ message: 'Error updating company', error: err.message });
-  }
-});
-
-// POST /api/admin/companies/:id/verify - Approve company documents
+// POST /api/admin/companies/:id/verify - Approve company documents (MUST BE BEFORE PUT)
 router.post('/companies/:id/verify', isAdmin, async (req, res) => {
   try {
     const { status, rejectionReason, adminNotes } = req.body;
@@ -320,6 +307,19 @@ router.post('/companies/:id/verify', isAdmin, async (req, res) => {
   } catch (err) {
     console.error('Error verifying company:', err);
     res.status(500).json({ message: 'Error verifying company', error: err.message });
+  }
+});
+
+// PUT /api/admin/companies/:id - Update company
+router.put('/companies/:id', isAdmin, async (req, res) => {
+  try {
+    const company = await Company.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+    res.json({ message: 'Company updated successfully', company });
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating company', error: err.message });
   }
 });
 
