@@ -6,6 +6,7 @@ const Company = require('../models/Company');
 const Application = require('../models/Application');
 const { protect, isEmployer, optionalAuth } = require('../middleware/auth');
 const NotificationService = require('../services/notificationService');
+const { notifyJobPosted, notifyNewApplication } = require('../utils/notificationHelper');
 
 // @route   GET /api/jobs
 // @desc    Get all jobs with filters
@@ -170,13 +171,52 @@ router.post('/', [protect, isEmployer], [
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log('Validation errors:', errors.array());
-      return res.status(400).json({ 
+      return res.status(400).json({
         message: 'Validation failed',
-        errors: errors.array().map(err => ({ 
-          field: err.path || err.param, 
-          message: err.msg 
+        errors: errors.array().map(err => ({
+          field: err.path || err.param,
+          message: err.msg
         }))
       });
+    }
+
+    // Check if user has an active subscription (unless admin)
+    if (req.user.role !== 'admin') {
+      const Subscription = require('../models/Subscription');
+      const activeSubscription = await Subscription.findOne({
+        user: req.user._id,
+        status: 'active',
+        type: 'job-posting',
+        endDate: { $gte: new Date() }
+      });
+
+      if (!activeSubscription) {
+        console.log('No active job-posting subscription for user:', req.user._id);
+        return res.status(403).json({
+          message: 'You need an active subscription to post jobs. Please select a plan first.',
+          requiresSubscription: true,
+          redirect: '/plans'
+        });
+      }
+
+      // Check job posting limit for this plan
+      const Plan = require('../models/Plan');
+      const plan = await Plan.findById(activeSubscription.plan);
+
+      if (plan && plan.features.totalJobPostings > 0) {
+        const jobsPostedCount = await Job.countDocuments({
+          postedBy: req.user._id,
+          createdAt: { $gte: activeSubscription.startDate }
+        });
+
+        if (jobsPostedCount >= plan.features.totalJobPostings) {
+          return res.status(403).json({
+            message: `You have reached your job posting limit of ${plan.features.totalJobPostings} for this plan.`,
+            currentCount: jobsPostedCount,
+            limit: plan.features.totalJobPostings
+          });
+        }
+      }
     }
 
     // Check if user has a company
@@ -184,6 +224,16 @@ router.post('/', [protect, isEmployer], [
     if (!company) {
       console.log('No company found for user:', req.user._id);
       return res.status(400).json({ message: 'Please create a company profile first to post jobs' });
+    }
+
+    // Check if company is verified (unless user is admin)
+    if (req.user.role !== 'admin' && company.documentVerification?.status !== 'verified') {
+      console.log('Company not verified for user:', req.user._id, 'Status:', company.documentVerification?.status);
+      return res.status(403).json({
+        message: 'Your company profile must be verified by admin before you can post jobs. Please upload all required documents.',
+        verificationStatus: company.documentVerification?.status || 'pending',
+        redirect: '/company-profile'
+      });
     }
 
     // Remove company field from request body if it exists (we'll use the user's company)
@@ -207,10 +257,19 @@ router.post('/', [protect, isEmployer], [
     // Send notifications to job seekers
     try {
       const notificationCount = await NotificationService.createJobNotification(populatedJob);
-      console.log(`Sent notifications to ${notificationCount} users`);
+      console.log(`Sent in-app notifications to ${notificationCount} users`);
     } catch (notificationError) {
       console.error('Error sending job notifications:', notificationError);
       // Don't fail the job creation if notification fails
+    }
+
+    // Send email notification to employer
+    try {
+      await notifyJobPosted(populatedJob, req.user);
+      console.log(`Email sent to employer for job: ${job._id}`);
+    } catch (emailError) {
+      console.error('Error sending job posted email:', emailError);
+      // Don't fail the job creation if email fails
     }
 
     res.status(201).json(populatedJob);

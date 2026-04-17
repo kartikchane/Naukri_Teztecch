@@ -6,6 +6,7 @@ const User = require('../models/User');
 const { protect, isEmployer } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const NotificationService = require('../services/notificationService');
+const { notifyNewApplication, notifyApplicationStatusChange } = require('../utils/notificationHelper');
 const fs = require('fs');
 const path = require('path');
 
@@ -89,6 +90,18 @@ router.post('/', protect, upload.single('resume'), async (req, res) => {
     const populatedApplication = await Application.findById(application._id)
       .populate('job')
       .populate('applicant', 'name email phone');
+
+    // Get employer for email notification
+    try {
+      const employer = await User.findById(job.postedBy);
+      if (employer) {
+        await notifyNewApplication(application, job, req.user, employer);
+        console.log(`Application email sent to employer: ${employer.email}`);
+      }
+    } catch (emailError) {
+      console.error('Error sending application email to employer:', emailError);
+      // Don't fail if email fails
+    }
 
     res.status(201).json(populatedApplication);
   } catch (error) {
@@ -209,9 +222,23 @@ router.put('/:id/status', [protect, isEmployer], async (req, res) => {
     // Create notification for applicant about status update
     try {
       await NotificationService.createApplicationStatusNotification(application, status);
+      console.log(`In-app notification created for application: ${application._id}`);
     } catch (notificationError) {
       console.error('Error creating application status notification:', notificationError);
       // Do not fail the status update if notification fails
+    }
+
+    // Send email notification to job seeker
+    try {
+      const applicant = await User.findById(application.applicant);
+      const job = await Job.findById(application.job);
+      if (applicant && job) {
+        await notifyApplicationStatusChange(application, applicant, job, status);
+        console.log(`Status change email sent to applicant: ${applicant.email}`);
+      }
+    } catch (emailError) {
+      console.error('Error sending application status email:', emailError);
+      // Do not fail the status update if email fails
     }
 
     const updatedApplication = await Application.findById(application._id)

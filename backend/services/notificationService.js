@@ -1,5 +1,6 @@
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const { sendEmailNotification } = require('../utils/notificationHelper');
 
 class NotificationService {
   
@@ -7,7 +8,7 @@ class NotificationService {
   static async createJobNotification(job) {
     try {
       // Get all job seekers who might be interested
-      const jobSeekers = await User.find({ 
+      const jobSeekers = await User.find({
         role: 'job_seeker',
         // Add more filters based on user preferences if needed
       }).select('_id name email');
@@ -29,7 +30,26 @@ class NotificationService {
 
       if (notifications.length > 0) {
         await Notification.insertMany(notifications);
-        console.log(`Created ${notifications.length} job notifications for job: ${job.title}`);
+        console.log(`Created ${notifications.length} in-app job notifications for job: ${job.title}`);
+
+        // Send emails to interested job seekers
+        try {
+          for (const notification of notifications) {
+            const user = interestedUsers.find(u => u._id.toString() === notification.user.toString());
+            if (user) {
+              await sendEmailNotification(user, {
+                title: `New ${job.title} Job Posted`,
+                message: `A new ${job.title} position is available at ${job.company?.name || 'a company'} in ${job.location?.city || 'your area'}`,
+                description: `Location: ${job.location?.city}, ${job.location?.state}\nSalary: ${job.salary?.min ? '₹' + job.salary.min.toLocaleString() : 'Not specified'} - ${job.salary?.max ? '₹' + job.salary.max.toLocaleString() : 'Not specified'}\nType: ${job.employmentType}`,
+                actionUrl: `/jobs/${job._id}`
+              });
+            }
+          }
+          console.log(`Sent ${interestedUsers.length} job posted emails`);
+        } catch (emailError) {
+          console.error('Error sending job notification emails:', emailError);
+          // Don't fail if emails fail
+        }
       }
 
       return notifications.length;
