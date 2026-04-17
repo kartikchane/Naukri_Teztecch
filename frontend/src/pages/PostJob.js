@@ -12,7 +12,8 @@ import {
   FaGraduationCap,
   FaFileAlt,
   FaCheckCircle,
-  FaTimes
+  FaTimes,
+  FaRedo
 } from 'react-icons/fa';
 
 const PostJob = () => {
@@ -20,6 +21,7 @@ const PostJob = () => {
   const [loading, setLoading] = useState(false);
   const [checkingCompany, setCheckingCompany] = useState(true);
   const [userCompany, setUserCompany] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [customCategory, setCustomCategory] = useState('');
   const [formData, setFormData] = useState({
     title: '',
@@ -75,26 +77,100 @@ const PostJob = () => {
   const workModes = ['On-site', 'Remote', 'Hybrid'];
 
   useEffect(() => {
-    checkCompanyProfile();
+    checkSubscriptionAndCompany();
   }, []);
 
-  const checkCompanyProfile = async () => {
+  const checkSubscriptionAndCompany = async () => {
     try {
-      const { data } = await API.get('/companies/my-company');
-      setUserCompany(data);
-      // Auto-fill company name from profile
+      // Step 1: Check if user has a company
+      let companyData = null;
+      try {
+        const companyRes = await API.get('/companies/my-company');
+        companyData = companyRes.data;
+      } catch (companyError) {
+        // No company found
+        toast.error('❌ Company Profile Required', {
+          description: 'You need to create a company profile before posting jobs. Redirecting...'
+        });
+        setTimeout(() => {
+          navigate('/create-company');
+        }, 2500);
+        setCheckingCompany(false);
+        return;
+      }
+
+      // Step 2: Check if company is verified by admin
+      if (companyData.documentVerification?.status !== 'verified') {
+        console.log('Company verification status:', companyData.documentVerification?.status);
+        toast.warning('⏳ Verification Pending', {
+          description: 'Your company documents are under admin review. This usually takes 24-48 hours. Redirecting to your profile...'
+        });
+        setTimeout(() => {
+          navigate('/company-profile');
+        }, 3000);
+        setCheckingCompany(false);
+        return;
+      }
+
+      // Step 3: Company is verified, now check subscription
+      try {
+        const subRes = await API.get('/subscriptions/my-subscription');
+        console.log('Active subscription found:', subRes.data);
+        // Has subscription, continue
+      } catch (subError) {
+        // No subscription
+        console.log('No active subscription found');
+        toast.info('💳 Subscription Required', {
+          description: 'Choose a plan to start posting jobs. Redirecting to plans...'
+        });
+        setTimeout(() => {
+          navigate('/plans');
+        }, 2500);
+        setCheckingCompany(false);
+        return;
+      }
+
+      // All checks passed - set company and continue
+      setUserCompany(companyData);
       setFormData(prev => ({
         ...prev,
-        company: data.name
+        company: companyData.name
       }));
+
     } catch (error) {
-      // No company profile found
-      toast.error('You need to create a company profile first');
-      setTimeout(() => {
-        navigate('/create-company');
-      }, 2000);
+      console.error('Error:', error);
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setCheckingCompany(false);
+    }
+  };
+
+  const checkVerificationStatus = async () => {
+    setRefreshing(true);
+    try {
+      const { data } = await API.get('/companies/my-company/verification-status');
+      console.log('Latest verification status:', data);
+
+      if (data.isVerified) {
+        toast.success('✅ Company Verified! You can now post jobs');
+        // Refresh the page or re-check subscription
+        setTimeout(() => {
+          checkSubscriptionAndCompany();
+        }, 1500);
+      } else if (data.status === 'rejected') {
+        toast.error('❌ Company Verification Rejected', {
+          description: data.rejectionReason || 'Please contact support'
+        });
+      } else {
+        toast.info('⏳ Still Under Review', {
+          description: 'Your company documents are being reviewed. Please check back soon.'
+        });
+      }
+    } catch (error) {
+      toast.error('Failed to check status');
+      console.error(error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -235,10 +311,18 @@ const PostJob = () => {
   };
   if (checkingCompany) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking company profile...</p>
+          <p className="text-gray-600 text-lg font-medium">Verifying your company & subscription...</p>
+          <button
+            onClick={checkVerificationStatus}
+            disabled={refreshing}
+            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 mx-auto"
+          >
+            <FaRedo className={refreshing ? 'animate-spin' : ''} />
+            {refreshing ? 'Checking...' : 'Check Status Now'}
+          </button>
         </div>
       </div>
     );

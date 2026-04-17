@@ -19,6 +19,15 @@ const Companies = () => {
   const [editingJob, setEditingJob] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedCompanyDetails, setSelectedCompanyDetails] = useState(null);
+  const [showEditJobModal, setShowEditJobModal] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [verifyingCompany, setVerifyingCompany] = useState(null);
+  const [verificationData, setVerificationData] = useState({
+    status: 'pending',
+    rejectionReason: '',
+    adminNotes: ''
+  });
+  const [formData, setFormData] = useState({
     name: '',
     description: '',
     industry: '',
@@ -92,7 +101,7 @@ const Companies = () => {
 
   const handleAdd = async () => {
     try {
-      if (!newCompany.name || !newCompany.description || !newCompany.industry) {
+      if (!formData.name || !formData.description || !formData.industry) {
         toast.error('Please fill all required fields');
         return;
       }
@@ -101,12 +110,12 @@ const Companies = () => {
       const userResponse = await API.get('/auth/me');
       
       await API.post('/companies', {
-        ...newCompany,
+        ...formData,
         owner: userResponse.data._id
       });
       toast.success('Company added successfully');
       setShowAddModal(false);
-      setNewCompany({
+      setFormData({
         name: '',
         description: '',
         industry: '',
@@ -171,6 +180,24 @@ const Companies = () => {
       fetchCompanies(); // Refresh companies to update job count
     } catch (error) {
       toast.error('Failed to delete job');
+    }
+  };
+
+  const handleVerifyCompany = async () => {
+    if (!verifyingCompany) return;
+    try {
+      await API.post(`/admin/companies/${verifyingCompany._id}/verify`, {
+        status: verificationData.status,
+        rejectionReason: verificationData.rejectionReason,
+        adminNotes: verificationData.adminNotes
+      });
+      toast.success(`Company marked as ${verificationData.status.toUpperCase()}`);
+      setShowVerificationModal(false);
+      setVerifyingCompany(null);
+      setVerificationData({ status: 'pending', rejectionReason: '', adminNotes: '' });
+      fetchCompanies();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to verify company');
     }
   };
 
@@ -312,6 +339,28 @@ const Companies = () => {
                   className="w-full py-3 bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-600 rounded-xl hover:from-indigo-100 hover:to-indigo-200 font-semibold transition-all transform hover:scale-105 shadow-sm"
                 >
                   📋 View Details & Documents
+                </button>
+                <button
+                  onClick={() => {
+                    setVerifyingCompany(company);
+                    setVerificationData({
+                      status: company.documentVerification?.status || 'pending',
+                      rejectionReason: company.documentVerification?.rejectionReason || '',
+                      adminNotes: company.documentVerification?.adminNotes || ''
+                    });
+                    setShowVerificationModal(true);
+                  }}
+                  className={`w-full py-3 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-sm ${
+                    company.documentVerification?.status === 'verified'
+                      ? 'bg-gradient-to-r from-green-50 to-green-100 text-green-600 hover:from-green-100 hover:to-green-200'
+                      : company.documentVerification?.status === 'rejected'
+                      ? 'bg-gradient-to-r from-red-50 to-red-100 text-red-600 hover:from-red-100 hover:to-red-200'
+                      : 'bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-600 hover:from-yellow-100 hover:to-yellow-200'
+                  }`}
+                >
+                  {company.documentVerification?.status === 'verified' ? '✅ Verified' :
+                   company.documentVerification?.status === 'rejected' ? '❌ Rejected' :
+                   '⏳ Verify'}
                 </button>
                 <button
                   onClick={() => handleViewJobs(company)}
@@ -491,8 +540,8 @@ const Companies = () => {
                   </label>
                   <input
                     type="text"
-                    value={newCompany.name}
-                    onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })}
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Tech Innovations Pvt Ltd"
                   />
@@ -503,21 +552,21 @@ const Companies = () => {
                   </label>
                   <input
                     type="text"
-                    value={newCompany.logo}
-                    onChange={(e) => setNewCompany({ ...newCompany, logo: e.target.value })}
+                    value={formData.logo}
+                    onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="https://example.com/logo.png"
                   />
-                  {newCompany.logo && (
+                  {formData.logo && (
                     <div className="mt-3 flex items-center gap-3">
                       <span className="text-sm text-gray-600">Preview:</span>
                       <img 
-                        src={newCompany.logo} 
+                        src={formData.logo} 
                         alt="Logo preview" 
                         className="w-16 h-16 object-contain border rounded-lg p-1"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(newCompany.name || 'Company')}&background=3B82F6&color=fff&size=128&bold=true`;
+                          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || 'Company')}&background=3B82F6&color=fff&size=128&bold=true`;
                         }}
                       />
                     </div>
@@ -538,8 +587,8 @@ const Companies = () => {
                     <FaIndustry className="inline mr-2" />Industry *
                   </label>
                   <select
-                    value={newCompany.industry}
-                    onChange={(e) => setNewCompany({ ...newCompany, industry: e.target.value })}
+                    value={formData.industry}
+                    onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Industry</option>
@@ -560,8 +609,8 @@ const Companies = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
                   <textarea
-                    value={newCompany.description}
-                    onChange={(e) => setNewCompany({ ...newCompany, description: e.target.value })}
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="Describe your company..."
@@ -574,10 +623,10 @@ const Companies = () => {
                     </label>
                     <input
                       type="text"
-                      value={newCompany.location.city}
-                      onChange={(e) => setNewCompany({ 
-                        ...newCompany, 
-                        location: { ...newCompany.location, city: e.target.value }
+                      value={formData.location.city}
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        location: { ...formData.location, city: e.target.value }
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       placeholder="Mumbai"
@@ -587,10 +636,10 @@ const Companies = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
                     <input
                       type="text"
-                      value={newCompany.location.state}
-                      onChange={(e) => setNewCompany({ 
-                        ...newCompany, 
-                        location: { ...newCompany.location, state: e.target.value }
+                      value={formData.location.state}
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        location: { ...formData.location, state: e.target.value }
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       placeholder="Maharashtra"
@@ -600,10 +649,10 @@ const Companies = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                     <input
                       type="text"
-                      value={newCompany.location.country}
-                      onChange={(e) => setNewCompany({ 
-                        ...newCompany, 
-                        location: { ...newCompany.location, country: e.target.value }
+                      value={formData.location.country}
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        location: { ...formData.location, country: e.target.value }
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       placeholder="India"
@@ -616,8 +665,8 @@ const Companies = () => {
                   </label>
                   <input
                     type="url"
-                    value={newCompany.website}
-                    onChange={(e) => setNewCompany({ ...newCompany, website: e.target.value })}
+                    value={formData.website}
+                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="https://www.company.com"
                   />
@@ -628,8 +677,8 @@ const Companies = () => {
                       <FaUsers className="inline mr-2" />Company Size
                     </label>
                     <select
-                      value={newCompany.companySize}
-                      onChange={(e) => setNewCompany({ ...newCompany, companySize: e.target.value })}
+                      value={formData.companySize}
+                      onChange={(e) => setFormData({ ...formData, companySize: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Select Size</option>
@@ -647,8 +696,8 @@ const Companies = () => {
                     </label>
                     <input
                       type="number"
-                      value={newCompany.founded}
-                      onChange={(e) => setNewCompany({ ...newCompany, founded: e.target.value })}
+                      value={formData.founded}
+                      onChange={(e) => setFormData({ ...formData, founded: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       placeholder="2015"
                       min="1800"
@@ -660,8 +709,8 @@ const Companies = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo URL</label>
                   <input
                     type="url"
-                    value={newCompany.logo}
-                    onChange={(e) => setNewCompany({ ...newCompany, logo: e.target.value })}
+                    value={formData.logo}
+                    onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="https://example.com/logo.png"
                   />
@@ -1107,10 +1156,10 @@ const Companies = () => {
                       <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
                         <span className="font-medium">Aadhar Card</span>
                         <a
-                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${selectedCompanyDetails.documents.aadharCard}`}
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${selectedCompanyDetails._id}/documents/aadharCard`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
                         >
                           View
                         </a>
@@ -1120,10 +1169,10 @@ const Companies = () => {
                       <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
                         <span className="font-medium">PAN Card</span>
                         <a
-                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${selectedCompanyDetails.documents.panCard}`}
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${selectedCompanyDetails._id}/documents/panCard`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
                         >
                           View
                         </a>
@@ -1133,10 +1182,10 @@ const Companies = () => {
                       <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
                         <span className="font-medium">GST Certificate</span>
                         <a
-                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${selectedCompanyDetails.documents.gstCertificate}`}
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${selectedCompanyDetails._id}/documents/gstCertificate`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
                         >
                           View
                         </a>
@@ -1146,10 +1195,10 @@ const Companies = () => {
                       <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
                         <span className="font-medium">Udyam Aadhar</span>
                         <a
-                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${selectedCompanyDetails.documents.udyamAadhar}`}
+                          href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${selectedCompanyDetails._id}/documents/udyamAadhar`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
                         >
                           View
                         </a>
@@ -1205,6 +1254,75 @@ const Companies = () => {
               >
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Verification Modal */}
+      {showVerificationModal && verifyingCompany && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-6">Verify Company Documents</h2>
+              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                <p className="font-semibold text-gray-900">{verifyingCompany.name}</p>
+                <p className="text-sm text-gray-600 mt-1">Current Status: <span className="font-semibold capitalize">{verifyingCompany.documentVerification?.status || 'pending'}</span></p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Verification Status *</label>
+                  <select
+                    value={verificationData.status}
+                    onChange={(e) => setVerificationData({ ...verificationData, status: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="pending">⏳ Pending Review</option>
+                    <option value="verified">✅ Verified & Approved</option>
+                    <option value="rejected">❌ Rejected</option>
+                  </select>
+                </div>
+
+                {verificationData.status === 'rejected' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Rejection Reason *</label>
+                    <textarea
+                      value={verificationData.rejectionReason}
+                      onChange={(e) => setVerificationData({ ...verificationData, rejectionReason: e.target.value })}
+                      rows={3}
+                      placeholder="Why are you rejecting this company?"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Admin Notes (Optional)</label>
+                  <textarea
+                    value={verificationData.adminNotes}
+                    onChange={(e) => setVerificationData({ ...verificationData, adminNotes: e.target.value })}
+                    rows={2}
+                    placeholder="Any additional notes..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={handleVerifyCompany}
+                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-medium"
+                >
+                  {verificationData.status === 'verified' ? 'Approve' : verificationData.status === 'rejected' ? 'Reject' : 'Update Status'}
+                </button>
+                <button
+                  onClick={() => setShowVerificationModal(false)}
+                  className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

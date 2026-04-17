@@ -283,6 +283,46 @@ router.put('/companies/:id', isAdmin, async (req, res) => {
   }
 });
 
+// POST /api/admin/companies/:id/verify - Approve company documents
+router.post('/companies/:id/verify', isAdmin, async (req, res) => {
+  try {
+    const { status, rejectionReason, adminNotes } = req.body;
+
+    // Validate status
+    if (!['pending', 'verified', 'rejected'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status. Must be pending, verified, or rejected' });
+    }
+
+    const company = await Company.findById(req.params.id);
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+
+    // Update verification status
+    company.documentVerification = {
+      status: status,
+      verifiedAt: status === 'verified' ? new Date() : undefined,
+      verifiedBy: req.user._id,
+      rejectionReason: status === 'rejected' ? rejectionReason : undefined,
+      adminNotes: adminNotes || ''
+    };
+
+    await company.save();
+
+    res.json({
+      message: `Company ${status} successfully`,
+      company: {
+        _id: company._id,
+        name: company.name,
+        documentVerification: company.documentVerification
+      }
+    });
+  } catch (err) {
+    console.error('Error verifying company:', err);
+    res.status(500).json({ message: 'Error verifying company', error: err.message });
+  }
+});
+
 // DELETE /api/admin/companies/:id - Delete company
 router.delete('/companies/:id', isAdmin, async (req, res) => {
   try {

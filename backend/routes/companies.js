@@ -47,12 +47,37 @@ router.post('/', [protect, isEmployer], [
 router.get('/my-company', [protect, isEmployer], async (req, res) => {
   try {
     const company = await Company.findOne({ owner: req.user._id });
-    
+
     if (!company) {
       return res.status(404).json({ message: 'No company profile found' });
     }
 
     res.json(company);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/companies/my-company/verification-status
+// @desc    Check if company is verified (refresh)
+// @access  Private (Employer only)
+router.get('/my-company/verification-status', [protect, isEmployer], async (req, res) => {
+  try {
+    const company = await Company.findOne({ owner: req.user._id })
+      .select('name documentVerification.status documentVerification.verifiedAt documentVerification.rejectionReason');
+
+    if (!company) {
+      return res.status(404).json({ message: 'No company profile found' });
+    }
+
+    res.json({
+      name: company.name,
+      isVerified: company.documentVerification?.status === 'verified',
+      status: company.documentVerification?.status || 'pending',
+      verifiedAt: company.documentVerification?.verifiedAt,
+      rejectionReason: company.documentVerification?.rejectionReason
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -275,6 +300,69 @@ router.post('/:id/documents', [protect, isEmployer], upload.single('document'), 
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/companies/:id/documents/:docType
+// @desc    Serve company document for viewing in browser
+// @access  Public (viewable by registered users)
+router.get('/:id/documents/:docType', async (req, res) => {
+  try {
+    const { id, docType } = req.params;
+    const validDocTypes = ['aadharCard', 'panCard', 'gstCertificate', 'udyamAadhar'];
+
+    if (!validDocTypes.includes(docType)) {
+      return res.status(400).json({ message: 'Invalid document type' });
+    }
+
+    const company = await Company.findById(id);
+
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+
+    const documentPath = company.documents?.[docType];
+    if (!documentPath) {
+      return res.status(404).json({ message: 'Document not found in database' });
+    }
+
+    // Resolve the file path
+    const path = require('path');
+    const fs = require('fs');
+
+    console.log('🔵 Document view request:');
+    console.log('  Document Type:', docType);
+    console.log('  Stored Path:', documentPath);
+
+    // Handle both relative paths and full paths
+    let filePath;
+    if (documentPath.includes('uploads')) {
+      // If path already includes uploads, use it from backend root
+      filePath = path.join(__dirname, '../', documentPath);
+    } else {
+      // If it's just a filename, prepend uploads
+      filePath = path.join(__dirname, '../uploads', documentPath);
+    }
+
+    console.log('  Resolved Path:', filePath);
+
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      console.log('  ❌ File not found:', filePath);
+      return res.status(404).json({ message: 'File not found on server', path: filePath });
+    }
+
+    console.log('  ✅ File found, sending to browser...');
+
+    // Set headers to display in browser instead of download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="' + path.basename(filePath) + '"');
+
+    // Send the file
+    res.sendFile(filePath);
+  } catch (error) {
+    console.error('🔴 Document view error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
