@@ -61,7 +61,7 @@ const CompanyHeader = ({ company, isFollowing, onFollowChange }) => {
           <div className="relative">
             {company?.logo && !company.logo.includes('default') ? (
               <img
-                src={company.logo}
+                src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${company.logo}`}
                 alt={company.name}
                 className="w-32 h-32 rounded-lg object-cover border-4 border-white bg-white"
               />

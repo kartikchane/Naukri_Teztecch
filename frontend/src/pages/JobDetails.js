@@ -223,8 +223,8 @@ const JobDetails = () => {
                 <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center overflow-hidden p-1 flex-shrink-0">
                   {job.company?.logo ? (
                     <>
-                      <img 
-                        src={job.company.logo} 
+                      <img
+                        src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${job.company.logo}`}
                         alt={job.company.name}
                         className="w-full h-full object-contain"
                         onError={(e) => {

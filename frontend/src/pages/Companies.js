@@ -6,12 +6,13 @@ import { FaBuilding, FaMapMarkerAlt, FaUsers, FaCalendar, FaCheckCircle, FaGlobe
 const Companies = () => {
   const [searchParams] = useSearchParams();
   const [companies, setCompanies] = useState([]);
+  const [allCompanies, setAllCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [filterIndustry, setFilterIndustry] = useState('');
   const [filterSize, setFilterSize] = useState('');
 
-  // Update search term when URL parameters change (e.g., from Navbar search)
+  // Update search term when URL parameters change
   useEffect(() => {
     const urlSearch = searchParams.get('search');
     if (urlSearch) {
@@ -19,27 +20,53 @@ const Companies = () => {
     }
   }, [searchParams]);
 
+  // Fetch all companies once on mount
   useEffect(() => {
-    fetchCompanies();
-  }, [searchTerm, filterIndustry, filterSize]);
+    fetchAllCompanies();
+  }, []);
 
-  const fetchCompanies = async () => {
+  // Filter companies based on search and filters (instant, no API call)
+  useEffect(() => {
+    filterCompanies();
+  }, [searchTerm, filterIndustry, filterSize, allCompanies]);
+
+  const fetchAllCompanies = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
-      
-      if (searchTerm) params.append('search', searchTerm);
-      if (filterIndustry) params.append('industry', filterIndustry);
-      if (filterSize) params.append('companySize', filterSize);
-      
-      const { data } = await API.get(`/companies?${params.toString()}`);
-      console.log('Companies data:', data);
-      setCompanies(data);
-      setLoading(false);
+      const { data } = await API.get('/companies');
+      setAllCompanies(data);
+      filterCompanies();
     } catch (error) {
       console.error('Error fetching companies:', error);
       setLoading(false);
     }
+  };
+
+  const filterCompanies = () => {
+    let filtered = allCompanies;
+
+    // Filter by search term (case insensitive)
+    if (searchTerm.trim()) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(company =>
+        company.name.toLowerCase().includes(search) ||
+        company.description.toLowerCase().includes(search) ||
+        (company.industry && company.industry.toLowerCase().includes(search))
+      );
+    }
+
+    // Filter by industry
+    if (filterIndustry) {
+      filtered = filtered.filter(company => company.industry === filterIndustry);
+    }
+
+    // Filter by size
+    if (filterSize) {
+      filtered = filtered.filter(company => company.companySize === filterSize);
+    }
+
+    setCompanies(filtered);
+    setLoading(false);
   };
 
   // Get unique industries for filter
@@ -143,8 +170,8 @@ const Companies = () => {
                 {/* Company Logo */}
                 <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center relative p-4">
                   {company.logo && company.logo !== 'default-company-logo.png' ? (
-                    <img 
-                      src={company.logo} 
+                    <img
+                      src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${company.logo}`}
                       alt={company.name}
                       className="max-h-32 max-w-[80%] object-contain"
                       onError={(e) => {
@@ -156,7 +183,7 @@ const Companies = () => {
                   <div className={`text-6xl font-bold text-blue-600 ${company.logo && company.logo !== 'default-company-logo.png' ? 'hidden' : 'flex'}`}>
                     {company.name?.charAt(0)}
                   </div>
-                  {company.verified && (
+                  {company.documentVerification?.status === 'verified' && (
                     <div className="absolute top-3 right-3 bg-green-500 text-white px-2 py-1 rounded-full flex items-center text-xs">
                       <FaCheckCircle className="mr-1" />
                       Verified

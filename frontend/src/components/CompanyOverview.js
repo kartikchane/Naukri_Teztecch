@@ -25,7 +25,10 @@ const CompanyOverview = ({ company }) => {
   const [departments, setDepartments] = useState([]);
   const [benefits, setBenefits] = useState([]);
   const [salaries, setSalaries] = useState([]);
+  const [galleryPhotos, setGalleryPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAllBenefits, setShowAllBenefits] = useState(false);
+  const [showAllSalaries, setShowAllSalaries] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -34,21 +37,38 @@ const CompanyOverview = ({ company }) => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [deptRes, benefitsRes, salariesRes] = await Promise.all([
+      const [deptRes, benefitsRes, salariesRes, galleryRes] = await Promise.all([
         API.get(`/companies/${company._id}/departments`),
         API.get(`/companies/${company._id}/benefits`),
         API.get(`/companies/${company._id}/salaries`),
+        API.get(`/gallery/company/${company._id}`),
       ]);
 
       // Ensure departments is always an array
       setDepartments(Array.isArray(deptRes.data) ? deptRes.data : []);
       setBenefits(Array.isArray(benefitsRes.data) ? benefitsRes.data : []);
       setSalaries(Array.isArray(salariesRes.data) ? salariesRes.data : []);
+
+      // Extract gallery image URLs with full backend path
+      if (galleryRes.data?.data && Array.isArray(galleryRes.data.data)) {
+        const photoUrls = galleryRes.data.data.map(img => {
+          // If URL is relative, prepend backend server address
+          if (img.imageUrl.startsWith('/')) {
+            const backendUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5001';
+            return `${backendUrl}${img.imageUrl}`;
+          }
+          return img.imageUrl;
+        });
+        setGalleryPhotos(photoUrls);
+      } else {
+        setGalleryPhotos([]);
+      }
     } catch (error) {
       console.error('Error fetching company data:', error);
       setDepartments([]);
       setBenefits([]);
       setSalaries([]);
+      setGalleryPhotos([]);
     } finally {
       setLoading(false);
     }
@@ -74,7 +94,8 @@ const CompanyOverview = ({ company }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      <div className="space-y-6">
       {/* About Section */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-3">About {company?.name}</h2>
@@ -92,7 +113,7 @@ const CompanyOverview = ({ company }) => {
             View gallery →
           </button>
         </div>
-        <CompanyPhotoGallery photos={company?.companyPhotos} />
+        <CompanyPhotoGallery photos={galleryPhotos.length > 0 ? galleryPhotos : company?.companyPhotos} />
       </div>
 
       {/* Departments Hiring */}
@@ -125,7 +146,9 @@ const CompanyOverview = ({ company }) => {
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-900">Benefits reported by employees</h2>
-          <button className="text-blue-600 font-semibold hover:text-blue-700">
+          <button
+            onClick={() => setShowAllBenefits(true)}
+            className="text-blue-600 font-semibold hover:text-blue-700">
             View all benefits →
           </button>
         </div>
@@ -192,7 +215,9 @@ const CompanyOverview = ({ company }) => {
             No salary data available
           </div>
         )}
-        <button className="mt-4 text-blue-600 font-semibold hover:text-blue-700">
+        <button
+          onClick={() => setShowAllSalaries(true)}
+          className="mt-4 text-blue-600 font-semibold hover:text-blue-700">
           View all salaries →
         </button>
       </div>
@@ -279,7 +304,95 @@ const CompanyOverview = ({ company }) => {
           </div>
         )
       }
-    </div>
+      </div>
+
+      {/* All Benefits Modal */}
+      {showAllBenefits && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-900">All Benefits</h2>
+            <button
+              onClick={() => setShowAllBenefits(false)}
+              className="text-gray-500 hover:text-gray-700 text-2xl"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {benefits && benefits.length > 0 ? (
+              benefits.map((benefit, index) => {
+                const IconComponent = benefitIcons[benefit.name] || FaGift;
+                return (
+                  <div key={index} className="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                    <div className="flex justify-center mb-2">
+                      <IconComponent className="text-3xl text-blue-600" />
+                    </div>
+                    <p className="font-semibold text-gray-900">{benefit.name}</p>
+                    <p className="text-sm text-gray-600 mt-1">{benefit.count} employees</p>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="col-span-3 text-center text-gray-600 py-4">
+                No benefits data available
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* All Salaries Modal */}
+    {showAllSalaries && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-96 overflow-y-auto p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-900">All Employee Salaries</h2>
+            <button
+              onClick={() => setShowAllSalaries(false)}
+              className="text-gray-500 hover:text-gray-700 text-2xl"
+            >
+              ✕
+            </button>
+          </div>
+          {salaries && salaries.length > 0 ? (
+            <div className="space-y-4">
+              {salaries.map((salary, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-semibold text-gray-900">{salary.jobTitle}</h4>
+                      <p className="text-sm text-gray-600">
+                        {salary.experienceLevel} ({salary.count} salaries reported)
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-grow bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full"
+                        style={{
+                          width: `${Math.min(100, (salary.maxSalary / 150000) * 100)}%`,
+                        }}
+                      ></div>
+                    </div>
+                    <span className="font-bold text-gray-900 whitespace-nowrap">
+                      ₹ {(salary.minSalary / 100000).toFixed(1)}L - ₹ {(salary.maxSalary / 100000).toFixed(1)}L
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-600 py-8">
+              No salary data available
+            </div>
+          )}
+        </div>
+      </div>
+      )}
+    </>
   );
 };
 

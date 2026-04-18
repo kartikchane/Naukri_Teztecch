@@ -1,52 +1,115 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaFacebook, FaTwitter, FaLinkedin, FaInstagram, FaYoutube, FaGithub, FaApple, FaGooglePlay } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaFacebook, FaTwitter, FaLinkedin, FaInstagram, FaYoutube, FaGithub, FaApple, FaGooglePlay, FaChevronDown } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
 
 const Footer = () => {
+  const { user } = useAuth();
+  const [openFaqIndex, setOpenFaqIndex] = React.useState(null);
+
+  const jobSeekerFaqs = [
+    {
+      question: "How do I create an account?",
+      answer: "Click on 'Sign Up' and fill in your details like name, email, and password. You can also sign up using your Google or LinkedIn account for quick registration."
+    },
+    {
+      question: "How can I search for jobs?",
+      answer: "Use the search bar on the homepage or go to 'Find Jobs'. You can filter by job title, location, industry, experience level, and salary range."
+    },
+    {
+      question: "How do I apply for a job?",
+      answer: "Click on a job posting and click the 'Apply Now' button. Upload your resume and fill in any additional information requested by the employer."
+    },
+    {
+      question: "Can I track my application status?",
+      answer: "Yes, go to your profile and check the 'My Applications' section to see the status of all jobs you've applied to."
+    },
+    {
+      question: "How do I update my resume?",
+      answer: "Visit your profile settings and upload your latest resume. You can also update your skills, experience, and other details anytime."
+    },
+    {
+      question: "Will I get notifications about new jobs?",
+      answer: "Yes, you'll receive instant notifications for jobs matching your profile. You can enable/disable notifications from your profile settings."
+    }
+  ];
+
+  const employerFaqs = [
+    {
+      question: "What is Teztecch Naukri and how does it help employers?",
+      answer: "Teztecch Naukri is a job portal that helps employers connect with skilled candidates through job postings, targeted hiring, and recruitment support."
+    },
+    {
+      question: "Who can post jobs on Teztecch Naukri?",
+      answer: "Startups, SMEs, corporates, HR professionals, and individual recruiters can all post jobs on the platform."
+    },
+    {
+      question: "Is there a free job posting option available?",
+      answer: "Yes, employers can post jobs for free and start receiving applications without any initial cost."
+    },
+    {
+      question: "What are the limitations of free job postings?",
+      answer: "Free job posts have limited visibility and reach a broader, less targeted audience, which may result in slower hiring."
+    },
+    {
+      question: "Can I target specific locations or industries with free job posts?",
+      answer: "Free postings offer basic reach but do not support advanced targeting like specific locations, industries, or skill-based filtering."
+    },
+    {
+      question: "What benefits do paid job postings offer?",
+      answer: "Paid plans provide: Featured listings, Targeted candidate reach, Higher visibility, and Faster response rates."
+    }
+  ];
+
+  const toggleFaq = (index) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
   return (
     <footer className="bg-gray-900 text-gray-300">
-      {/* Mobile App Section */}
+      {/* FAQ Section - Show different FAQ based on user role */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h2 className="text-3xl font-bold mb-4">Find and apply on the go</h2>
-              <p className="text-lg mb-6 opacity-90">
-                Get instant notifications, chat with recruiters, and apply in one tap.
-              </p>
-              <div className="flex gap-4">
-                <a 
-                  href="https://apps.apple.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg flex items-center gap-3 transition-colors"
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">
+              {user?.role === 'employer' ? 'Employer FAQs' : 'Jobseeker FAQs'}
+            </h2>
+            <p className="text-lg opacity-90">
+              {user?.role === 'employer'
+                ? 'Common questions about posting jobs and hiring on Teztecch Naukri'
+                : 'Find answers to common questions about searching and applying for jobs'}
+            </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto">
+            <div className="space-y-4">
+              {(user?.role === 'employer' ? employerFaqs : jobSeekerFaqs).map((faq, index) => (
+                <div
+                  key={index}
+                  className="border border-white border-opacity-30 rounded-lg overflow-hidden hover:bg-white hover:bg-opacity-10 transition-all"
                 >
-                  <FaApple className="text-2xl" />
-                  <div className="text-left">
-                    <div className="text-xs">Download on the</div>
-                    <div className="font-semibold">App Store</div>
-                  </div>
-                </a>
-                <a 
-                  href="https://play.google.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg flex items-center gap-3 transition-colors"
-                >
-                  <FaGooglePlay className="text-2xl" />
-                  <div className="text-left">
-                    <div className="text-xs">Get it on</div>
-                    <div className="font-semibold">Google Play</div>
-                  </div>
-                </a>
-              </div>
-            </div>
-            <div className="hidden md:block">
-              <img 
-                src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=600&auto=format&fit=crop" 
-                alt="Mobile App Preview" 
-                className="rounded-lg shadow-2xl"
-              />
+                  <button
+                    onClick={() => toggleFaq(index)}
+                    className="w-full px-6 py-4 flex items-center justify-between text-left"
+                  >
+                    <h3 className="text-lg font-semibold text-white pr-4">
+                      {faq.question}
+                    </h3>
+                    <FaChevronDown
+                      className={`flex-shrink-0 text-white transition-transform duration-300 ${
+                        openFaqIndex === index ? 'transform rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {openFaqIndex === index && (
+                    <div className="px-6 py-4 bg-white bg-opacity-10 border-t border-white border-opacity-30">
+                      <p className="text-white opacity-90 leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -58,10 +121,10 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img 
-                src="/teztech-logo.svg" 
-                alt="Teztecch Logo" 
-                className="h-10 w-10 rounded-full object-contain" 
+              <img
+                src="/teztech-logo-full.jpg"
+                alt="Teztech Logo"
+                className="h-10 w-10 object-contain"
               />
               <h3 className="text-xl font-bold text-white">Teztecch</h3>
             </div>
@@ -92,7 +155,7 @@ const Footer = () => {
               <li><Link to="/companies" className="hover:text-white transition-colors">Companies</Link></li>
               <li><Link to="/careers" className="hover:text-white transition-colors">Careers</Link></li>
               <li><Link to="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-              <li><Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
+              <li><Link to="/plans" className="hover:text-white transition-colors">Pricing</Link></li>
               <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
@@ -102,7 +165,7 @@ const Footer = () => {
             <h4 className="text-white font-semibold mb-4">For Employers</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to="/post-job" className="hover:text-white transition-colors">Post a Job</Link></li>
-              <li><Link to="/employer/dashboard" className="hover:text-white transition-colors">Employer Dashboard</Link></li>
+              <li><Link to="/my-jobs" className="hover:text-white transition-colors">Employer Dashboard</Link></li>
               <li><Link to="/hire" className="hover:text-white transition-colors">Browse Candidates</Link></li>
               <li><Link to="/employer-resources" className="hover:text-white transition-colors">Resources</Link></li>
               <li><Link to="/recruitment-solutions" className="hover:text-white transition-colors">Recruitment Solutions</Link></li>

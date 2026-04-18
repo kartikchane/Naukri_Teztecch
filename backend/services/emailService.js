@@ -179,7 +179,7 @@ class EmailService {
           <p style="margin: 10px 0;"><strong>💰 Salary:</strong> ₹${job.salary?.min?.toLocaleString('en-IN')} - ₹${job.salary?.max?.toLocaleString('en-IN')}</p>
           <p style="margin: 10px 0;"><strong>⏰ Applications Close:</strong> ${job.applicationDeadline ? new Date(job.applicationDeadline).toLocaleDateString('en-IN') : 'Open'}</p>
         `,
-        `/employer/jobs/${job._id}`,
+        `/my-jobs`,
         'View Your Job'
       );
 
@@ -243,7 +243,7 @@ class EmailService {
           <p style="margin: 10px 0;"><strong>📋 Applied For:</strong> ${job.title}</p>
           <p style="margin: 10px 0;"><strong>📅 Applied On:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
         `,
-        `/employer/jobs`,
+        `/my-jobs`,
         'Review Application'
       );
 
@@ -350,7 +350,7 @@ class EmailService {
             <li>Location: ${job.location?.city}, ${job.location?.state}</li>
           </ul>
         `,
-        `/employer/jobs`,
+        `/applications`,
         'View Application'
       );
 

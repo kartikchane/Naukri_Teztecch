@@ -217,7 +217,7 @@ const Profile = () => {
               
               <div className="space-y-4 max-w-md mx-auto">
                 <button
-                  onClick={() => user?.company ? navigate(`/companies/${user.company._id || user.company}`) : navigate('/create-company')}
+                  onClick={() => navigate(user?.company ? '/company-profile' : '/create-company')}
                   className="w-full btn-primary py-3"
                 >
                   {user?.company ? 'View Company Profile' : 'Create Company Profile'}

@@ -27,6 +27,9 @@ import Messages from './pages/Messages';
 import Notifications from './pages/Notifications';
 import PostJob from './pages/PostJob';
 import CreateCompany from './pages/CreateCompany';
+import Plans from './pages/Plans';
+import Hire from './pages/Hire';
+import ManageCompany from './pages/ManageCompany';
 
 // Footer Pages
 import AboutUs from './pages/AboutUs';
@@ -41,6 +44,7 @@ import EmployerResources from './pages/EmployerResources';
 import RecruitmentSolutions from './pages/RecruitmentSolutions';
 import Blog from './pages/Blog';
 import EmployerJobs from './pages/EmployerJobs';
+import CompanyProfile from './pages/CompanyProfile';
 
 function App() {
   return (
@@ -73,6 +77,15 @@ function App() {
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/careers" element={<Careers />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/plans" element={<Plans />} />
+              <Route
+                path="/hire"
+                element={
+                  <PrivateRoute requiredRole="employer">
+                    <Hire />
+                  </PrivateRoute>
+                }
+              />
               <Route path="/blog" element={<Blog />} />
               <Route path="/employer-resources" element={<EmployerResources />} />
               <Route path="/recruitment-solutions" element={<RecruitmentSolutions />} />
@@ -126,14 +139,9 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route
-                path="/create-company"
-                element={
-                  <PrivateRoute requiredRole="employer">
-                    <CreateCompany />
-                  </PrivateRoute>
-                }
-              />
+              <Route path="/create-company" element={<PrivateRoute requiredRole="employer"><CreateCompany /></PrivateRoute>} />
+              <Route path="/manage-company" element={<PrivateRoute requiredRole="employer"><ManageCompany /></PrivateRoute>} />
+              <Route path="/company-profile" element={<PrivateRoute requiredRole="employer"><CompanyProfile /></PrivateRoute>} />
 
               <Route
                 path="/my-jobs"

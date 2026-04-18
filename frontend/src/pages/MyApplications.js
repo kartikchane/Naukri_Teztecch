@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../utils/api';
+import { getFileUrl } from '../utils/fileUtils';
 import { FaBriefcase, FaMapMarkerAlt, FaClock, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
@@ -189,7 +190,7 @@ const MyApplications = () => {
                           {application.job?.company?.logo ? (
                             <>
                               <img
-                                src={application.job.company.logo}
+                                src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${application.job.company.logo}`}
                                 alt={application.job?.company?.name}
                                 className="w-16 h-16 rounded-lg object-contain bg-gradient-to-br from-blue-100 to-purple-100 p-2"
                                 onError={(e) => {
@@ -256,11 +257,7 @@ const MyApplications = () => {
                       </Link>
                       {application.resume ? (
                         <a
-                          href={
-                            application.resume.startsWith('http') 
-                              ? application.resume 
-                              : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${application.resume}`
-                          }
+                          href={getFileUrl(application.resume)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="btn-outline text-center bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-600"

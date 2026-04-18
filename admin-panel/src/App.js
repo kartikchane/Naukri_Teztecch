@@ -19,7 +19,6 @@ import Companies from './pages/Companies';
 import Settings from './pages/Settings';
 // Advanced Admin Features
 import ContentModeration from './pages/ContentModeration';
-import CompanyVerification from './pages/CompanyVerification';
 import UserControl from './pages/UserControl';
 import Analytics from './pages/Analytics';
 import JobApprovalWorkflow from './pages/JobApprovalWorkflow';
@@ -32,6 +31,7 @@ import ReviewModeration from './pages/ReviewModeration';
 import PerformanceMonitoring from './pages/PerformanceMonitoring';
 import FeatureFlagsManagement from './pages/FeatureFlagsManagement';
 import SystemSettings from './pages/SystemSettings';
+import GalleryManagement from './pages/GalleryManagement';
 
 function App() {
   // Token validation only - Don't clear on every load
@@ -71,10 +71,10 @@ function App() {
             <Route path="jobs/:id" element={<JobDetails />} />
             <Route path="applications" element={<Applications />} />
             <Route path="companies" element={<Companies />} />
+            <Route path="gallery/:companyId" element={<GalleryManagement />} />
             <Route path="settings" element={<Settings />} />
             {/* Advanced Admin Features */}
             <Route path="content-moderation" element={<ContentModeration />} />
-            <Route path="company-verification" element={<CompanyVerification />} />
             <Route path="user-control" element={<UserControl />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="job-approval" element={<JobApprovalWorkflow />} />

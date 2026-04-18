@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaExclamationTriangle, FaWifi, FaDatabase, FaCpu, FaServer } from 'react-icons/fa';
+import { FaExclamationTriangle, FaWifi, FaDatabase, FaMicrochip, FaServer } from 'react-icons/fa';
 
 const PerformanceMonitoring = () => {
   const [metrics] = useState({
@@ -31,7 +31,7 @@ const PerformanceMonitoring = () => {
         <div className="grid md:grid-cols-4 gap-4 mb-8">
           <MetricCard label="Uptime" value={metrics.uptime} unit="%" color="green" icon={FaServer} />
           <MetricCard label="Avg Response" value={metrics.avgResponseTime} unit="ms" color="blue" icon={FaWifi} />
-          <MetricCard label="CPU Usage" value={metrics.cpuUsage} unit="%" color="purple" icon={FaCpu} />
+          <MetricCard label="CPU Usage" value={metrics.cpuUsage} unit="%" color="purple" icon={FaMicrochip} />
           <MetricCard label="Memory" value={metrics.memoryUsage} unit="%" color="orange" icon={FaDatabase} />
         </div>
 

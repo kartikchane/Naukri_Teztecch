@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../utils/api';
-import { FaUser, FaLock, FaUnlock, FaTrash, FaSearch, FaShieldAlt, FaWarning } from 'react-icons/fa';
+import { FaUser, FaLock, FaUnlock, FaTrash, FaSearch, FaShieldAlt, FaExclamationTriangle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const UserControl = () => {
@@ -215,7 +215,7 @@ const UserControl = () => {
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
               <div className="p-6 border-b border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <FaWarning className="text-red-600" />
+                  <FaExclamationTriangle className="text-red-600" />
                   Suspend User
                 </h2>
               </div>

@@ -5,7 +5,7 @@ import AdminSidebar from './Sidebar';
 import { FaBars } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
-const AdminLayout = () => {
+const Layout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user } = useAuth();
 
@@ -30,10 +30,7 @@ const AdminLayout = () => {
             
             {/* Logo/Brand for mobile */}
             <div className="flex items-center md:hidden">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-2">
-                <span className="text-white font-bold text-sm">A</span>
-              </div>
-              <span className="text-base font-bold text-gray-800">Admin</span>
+              <img src="/teztech-logo-full.jpg" alt="Teztech" className="w-10 h-10" />
             </div>
             
             {/* Page Title for desktop */}
@@ -71,4 +68,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default Layout;

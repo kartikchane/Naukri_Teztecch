@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../utils/api';
-import { FaCheckDouble, FaTrash, FaFilter, FaSearch, FaMail } from 'react-icons/fa';
+import { FaCheckDouble, FaTrash, FaFilter, FaSearch, FaEnvelope } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const ApplicationBatchActions = () => {
@@ -125,7 +125,7 @@ const ApplicationBatchActions = () => {
                 onClick={handleSendBulkEmail}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm flex items-center gap-2"
               >
-                <FaMail /> Send Email ({selected.size})
+                <FaEnvelope /> Send Email ({selected.size})
               </button>
               <button
                 onClick={handleBulkDelete}

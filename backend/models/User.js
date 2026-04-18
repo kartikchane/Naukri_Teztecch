@@ -76,7 +76,13 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company'
   },
-  
+
+  // Subscription info
+  subscription: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Subscription'
+  },
+
   isVerified: {
     type: Boolean,
     default: false

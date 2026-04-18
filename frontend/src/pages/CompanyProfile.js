@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
-import { FaBuilding, FaIndustry, FaMapMarkerAlt, FaGlobe, FaUsers, FaCalendar, FaEdit, FaSave, FaTimes, FaCheckCircle, FaClock, FaLinkedin, FaTwitter, FaFacebook, FaInstagram } from 'react-icons/fa';
+import { FaBuilding, FaIndustry, FaMapMarkerAlt, FaGlobe, FaUsers, FaCalendar, FaEdit, FaSave, FaTimes, FaCheckCircle, FaClock, FaLinkedin, FaTwitter, FaFacebook, FaInstagram, FaSync } from 'react-icons/fa';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [company, setCompany] = useState(null);
   const [formData, setFormData] = useState({
@@ -60,7 +61,16 @@ const CompanyProfile = () => {
 
   useEffect(() => {
     fetchCompanyProfile();
-  }, []);
+
+    // Auto-refresh verification status every 10 seconds
+    const pollInterval = setInterval(() => {
+      if (!editMode && !saving) {
+        fetchCompanyProfile();
+      }
+    }, 10000);
+
+    return () => clearInterval(pollInterval);
+  }, [editMode, saving]);
 
   const fetchCompanyProfile = async () => {
     try {
@@ -68,6 +78,7 @@ const CompanyProfile = () => {
       const response = await API.get('/companies/my-company');
       console.log('✅ Fetched company profile:', response.data);
       console.log('Logo from DB:', response.data.logo);
+      console.log('Verification Status:', response.data.documentVerification?.status);
       setCompany(response.data);
       populateForm(response.data);
     } catch (error) {
@@ -80,7 +91,14 @@ const CompanyProfile = () => {
       }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchCompanyProfile();
+    toast.success('Profile refreshed!');
   };
 
   const populateForm = (companyData) => {
@@ -305,14 +323,24 @@ const CompanyProfile = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Company Profile</h1>
-          {!editMode && (
+          <div className="flex gap-3">
             <button
-              onClick={() => setEditMode(true)}
-              className="flex items-center gap-2 btn-primary"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50"
+              title="Refresh verification status"
             >
-              <FaEdit /> Edit Profile
+              <FaSync className={refreshing ? 'animate-spin' : ''} /> Refresh
             </button>
-          )}
+            {!editMode && (
+              <button
+                onClick={() => setEditMode(true)}
+                className="flex items-center gap-2 btn-primary"
+              >
+                <FaEdit /> Edit Profile
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Verification Status Badge */}
@@ -336,7 +364,7 @@ const CompanyProfile = () => {
               <div className="flex gap-6 mb-6">
                 {company.logo && (
                   <img
-                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/uploads/${company.logo}`}
+                    src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${company.logo}`}
                     alt={company.name}
                     className="w-32 h-32 object-cover rounded-lg"
                     onError={(e) => {
@@ -460,7 +488,7 @@ const CompanyProfile = () => {
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                       <span className="font-medium text-gray-700">Aadhar Card</span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${company.documents.aadharCard}`}
+                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/aadharCard`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -473,7 +501,7 @@ const CompanyProfile = () => {
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                       <span className="font-medium text-gray-700">PAN Card</span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${company.documents.panCard}`}
+                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/panCard`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -486,7 +514,7 @@ const CompanyProfile = () => {
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                       <span className="font-medium text-gray-700">GST Certificate</span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${company.documents.gstCertificate}`}
+                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/gstCertificate`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -499,7 +527,7 @@ const CompanyProfile = () => {
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                       <span className="font-medium text-gray-700">Udyam Aadhar Registration</span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${company.documents.udyamAadhar}`}
+                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/udyamAadhar`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -548,7 +576,7 @@ const CompanyProfile = () => {
                   />
                 ) : company.logo ? (
                   <img
-                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/uploads/${company.logo}`}
+                    src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${company.logo}`}
                     alt="Current logo"
                     className="w-20 h-20 object-cover rounded"
                     onError={(e) => {
@@ -737,7 +765,7 @@ const CompanyProfile = () => {
                         ✓ {documents.aadharCard.split('/').pop()}
                       </span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${documents.aadharCard}`}
+                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/aadharCard`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
@@ -769,7 +797,7 @@ const CompanyProfile = () => {
                         ✓ {documents.panCard.split('/').pop()}
                       </span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${documents.panCard}`}
+                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/panCard`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
@@ -801,7 +829,7 @@ const CompanyProfile = () => {
                         ✓ {documents.gstCertificate.split('/').pop()}
                       </span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${documents.gstCertificate}`}
+                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/gstCertificate`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
@@ -833,7 +861,7 @@ const CompanyProfile = () => {
                         ✓ {documents.udyamAadhar.split('/').pop()}
                       </span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${documents.udyamAadhar}`}
+                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/udyamAadhar`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"

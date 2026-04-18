@@ -124,7 +124,7 @@ const CompanyVerification = () => {
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                         {company.logo ? (
-                          <img src={company.logo} alt={company.name} className="w-full h-full rounded object-cover" />
+                          <img src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${company.logo}`} alt={company.name} className="w-full h-full rounded object-cover" />
                         ) : (
                           <FaBuilding className="text-gray-500" />
                         )}

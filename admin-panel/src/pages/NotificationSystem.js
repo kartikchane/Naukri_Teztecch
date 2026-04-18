@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../utils/api';
-import { FaEnvelope, FaBell, FaToggleOn, FaToggleOff, FaEdit, FaSave, FaX } from 'react-icons/fa';
+import { FaEnvelope, FaBell, FaToggleOn, FaToggleOff, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const NotificationSystem = () => {
@@ -182,7 +182,7 @@ const NotificationSystem = () => {
                   onClick={() => setEditingTemplate(null)}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  <FaX />
+                  <FaTimes />
                 </button>
               </div>
 

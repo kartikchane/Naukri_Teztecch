@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaFileAlt, FaTrash, FaSearch, FaDownload, FaEye, FaBuilding, FaMapMarkerAlt, FaGlobe } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
+import { getFileUrl } from '../utils/fileUtils';
 
 const Applications = () => {
   const [applications, setApplications] = useState([]);
@@ -173,7 +174,7 @@ const Applications = () => {
                         </button>
                         {app.resume && (
                           <a
-                            href={app.resume.startsWith('http') ? app.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${app.resume}`}
+                            href={getFileUrl(app.resume)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-green-600 hover:text-green-900"
@@ -360,7 +361,7 @@ const Applications = () => {
                         </div>
                       </div>
                       <a
-                        href={viewingApp.resume.startsWith('http') ? viewingApp.resume : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${viewingApp.resume}`}
+                        href={getFileUrl(viewingApp.resume)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"

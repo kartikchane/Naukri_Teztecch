@@ -78,10 +78,10 @@ const JobCard = ({ job, onSave, isSaved: initialSaved, isFeatured = false }) => 
       <div className={`flex items-start ${isFeatured ? 'space-x-3 mb-3' : 'space-x-3 md:space-x-5 mb-4 md:mb-5'}`}>
         <div className={`${isFeatured ? 'w-12 h-12' : 'w-14 h-14 md:w-20 md:h-20'} bg-gradient-to-br from-indigo-50 to-blue-50 ${isFeatured ? 'rounded-xl' : 'rounded-xl md:rounded-2xl'} flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm border border-gray-200`}>
           {job.company?.logo ? (
-            <img 
-              src={job.company.logo} 
-              alt={job.company.name} 
-              className="w-full h-full object-contain p-2" 
+            <img
+              src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${job.company.logo}`}
+              alt={job.company.name}
+              className="w-full h-full object-contain p-2"
               onError={(e) => {
                 e.target.style.display = 'none';
                 e.target.nextSibling.style.display = 'flex';

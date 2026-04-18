@@ -231,6 +231,63 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Employer CTA Section */}
+      {(!isAuthenticated || user?.role === 'employer') && (
+        <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h2 className="text-4xl font-bold mb-4">Post Jobs & Hire Top Talent</h2>
+                  <p className="text-lg opacity-90 mb-6">
+                    {isAuthenticated && user?.role === 'employer'
+                      ? 'Subscribe to our plans to unlock unlimited job posting abilities and reach thousands of qualified candidates.'
+                      : 'Register as an employer to post jobs and find the best talent for your organization.'}
+                  </p>
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-center">
+                      <span className="text-2xl mr-3">✓</span>
+                      <span>Simple and transparent pricing</span>
+                    </li>
+                    <li className="flex items-center">
+                      <span className="text-2xl mr-3">✓</span>
+                      <span>Unlimited job listings</span>
+                    </li>
+                    <li className="flex items-center">
+                      <span className="text-2xl mr-3">✓</span>
+                      <span>Advanced candidate screening</span>
+                    </li>
+                  </ul>
+                  <Link
+                    to="/plans"
+                    className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors"
+                  >
+                    💳 View Plans & Pricing
+                  </Link>
+                </div>
+                <div className="text-center">
+                  <div className="bg-white bg-opacity-10 rounded-2xl p-8 backdrop-blur-sm">
+                    <div className="text-6xl mb-4">📊</div>
+                    <h3 className="text-2xl font-bold mb-3">Ready to Hire?</h3>
+                    <p className="text-lg opacity-90 mb-6">
+                      Choose a plan that fits your needs and start posting jobs today!
+                    </p>
+                    {!isAuthenticated && (
+                      <Link
+                        to="/register"
+                        className="inline-block bg-orange-500 hover:bg-orange-600 px-6 py-2 rounded-lg font-bold transition-colors"
+                      >
+                        Sign Up Now
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Featured Jobs */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
-import { FaBuilding, FaIndustry, FaMapMarkerAlt, FaGlobe, FaUsers, FaCalendar } from 'react-icons/fa';
+import { FaBuilding, FaIndustry, FaMapMarkerAlt, FaGlobe, FaUsers, FaCalendar, FaFileAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
 
 const CreateCompany = () => {
   const navigate = useNavigate();
@@ -22,7 +22,14 @@ const CreateCompany = () => {
     size: '',
     foundedYear: '',
     logo: null,
-    specialties: ''
+    specialties: '',
+    // Company Documents
+    aadharCard: null,
+    panCard: null,
+    gstCertificate: null,
+    udyamAadhar: null,
+    registeredEmail: '',
+    registeredPhone: ''
   });
 
   useEffect(() => {
@@ -64,7 +71,7 @@ const CreateCompany = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
       toast.error('Company name is required');
       return;
@@ -83,6 +90,32 @@ const CreateCompany = () => {
     }
     if (!formData.location.city.trim()) {
       toast.error('City is required');
+      return;
+    }
+
+    // Validate required documents
+    if (!formData.aadharCard) {
+      toast.error('Aadhar card of owner is required');
+      return;
+    }
+    if (!formData.panCard) {
+      toast.error('PAN card of company is required');
+      return;
+    }
+    if (!formData.gstCertificate) {
+      toast.error('GST certificate is required');
+      return;
+    }
+    if (!formData.udyamAadhar) {
+      toast.error('Registration certificate (Udyam Aadhar) is required');
+      return;
+    }
+    if (!formData.registeredEmail.trim()) {
+      toast.error('Registered email of company is required');
+      return;
+    }
+    if (!formData.registeredPhone.trim()) {
+      toast.error('Registered contact number of company is required');
       return;
     }
 
@@ -113,12 +146,34 @@ const CreateCompany = () => {
 
       formDataToSend.append('specialties', JSON.stringify(specialtiesArray));
 
+      // Append company documents
+      if (formData.aadharCard instanceof File) {
+        formDataToSend.append('aadharCard', formData.aadharCard);
+      }
+      if (formData.panCard instanceof File) {
+        formDataToSend.append('panCard', formData.panCard);
+      }
+      if (formData.gstCertificate instanceof File) {
+        formDataToSend.append('gstCertificate', formData.gstCertificate);
+      }
+      if (formData.udyamAadhar instanceof File) {
+        formDataToSend.append('udyamAadhar', formData.udyamAadhar);
+      }
+      formDataToSend.append('registeredEmail', formData.registeredEmail);
+      formDataToSend.append('registeredPhone', formData.registeredPhone);
+
       const { data } = await API.post('/companies', formDataToSend, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      
-      toast.success('Company profile created successfully!');
-      navigate('/post-job');
+
+      toast.success('Company profile created! Now let\'s set up your subscription to post jobs.');
+      // Store company data in sessionStorage for immediate use
+      if (data.company) {
+        sessionStorage.setItem('newCompanyData', JSON.stringify(data.company));
+      }
+      setTimeout(() => {
+        navigate('/plans', { state: { companyCreated: true, companyData: data.company } });
+      }, 2000);
     } catch (error) {
       console.error('Error creating company:', error);
       toast.error(error.response?.data?.message || 'Failed to create company profile');
@@ -142,6 +197,15 @@ const CreateCompany = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Company Profile</h1>
             <p className="text-gray-600">Set up your company profile to start posting jobs</p>
+          </div>
+
+          {/* Info Box - Document Requirements */}
+          <div className="mb-8 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+            <h3 className="font-semibold text-blue-900 mb-2">📋 Required Documents</h3>
+            <p className="text-sm text-blue-800">
+              Your company documents will be verified by our admin team before you can start posting jobs.
+              Please ensure all documents are valid and clearly readable.
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -359,6 +423,127 @@ const CreateCompany = () => {
                 placeholder="e.g., Web Development, Mobile Apps, Cloud Solutions"
               />
               <p className="text-sm text-gray-500 mt-1">Separate multiple specialties with commas</p>
+            </div>
+
+            {/* Required Documents Section */}
+            <div className="border-t pt-6 mt-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <FaFileAlt className="inline mr-2 text-blue-600" />
+                Required Company Documents
+              </h2>
+
+              {/* Aadhar Card Upload */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Aadhar Card of Owner *
+                </label>
+                <input
+                  type="file"
+                  name="aadharCard"
+                  onChange={handleChange}
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-sm text-gray-500 mt-1">Upload Aadhar card document (PDF, JPG, PNG)</p>
+                {formData.aadharCard && formData.aadharCard instanceof File && (
+                  <p className="text-sm text-green-600 mt-1">✓ {formData.aadharCard.name}</p>
+                )}
+              </div>
+
+              {/* PAN Card Upload */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  PAN Card of Company *
+                </label>
+                <input
+                  type="file"
+                  name="panCard"
+                  onChange={handleChange}
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-sm text-gray-500 mt-1">Upload PAN card document (PDF, JPG, PNG)</p>
+                {formData.panCard && formData.panCard instanceof File && (
+                  <p className="text-sm text-green-600 mt-1">✓ {formData.panCard.name}</p>
+                )}
+              </div>
+
+              {/* GST Certificate Upload */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  GST Certificate *
+                </label>
+                <input
+                  type="file"
+                  name="gstCertificate"
+                  onChange={handleChange}
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-sm text-gray-500 mt-1">Upload GST certificate (PDF, JPG, PNG)</p>
+                {formData.gstCertificate && formData.gstCertificate instanceof File && (
+                  <p className="text-sm text-green-600 mt-1">✓ {formData.gstCertificate.name}</p>
+                )}
+              </div>
+
+              {/* Udyam Aadhar Upload */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Registration Certificate (Udyam Aadhar) *
+                </label>
+                <input
+                  type="file"
+                  name="udyamAadhar"
+                  onChange={handleChange}
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-sm text-gray-500 mt-1">Upload Udyam Aadhar registration certificate (PDF, JPG, PNG)</p>
+                {formData.udyamAadhar && formData.udyamAadhar instanceof File && (
+                  <p className="text-sm text-green-600 mt-1">✓ {formData.udyamAadhar.name}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Company Contact Information */}
+            <div className="border-t pt-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Company Contact Information</h2>
+
+              {/* Registered Email */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaEnvelope className="inline mr-2" />
+                    Registered Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="registeredEmail"
+                    value={formData.registeredEmail}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g., info@company.com"
+                    required
+                  />
+                </div>
+
+                {/* Registered Phone */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FaPhone className="inline mr-2" />
+                    Registered Contact Number *
+                  </label>
+                  <input
+                    type="tel"
+                    name="registeredPhone"
+                    value={formData.registeredPhone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g., +91 1234567890"
+                    required
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Submit Button */}

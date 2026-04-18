@@ -94,13 +94,191 @@ router.get('/my-company/verification-status', [protect, isEmployer], async (req,
   }
 });
 
+// SPECIFIC ROUTES - MUST COME BEFORE /:id ROUTE
+
+// @route   GET /api/companies/:id/rating-summary
+// @desc    Get company rating summary
+// @access  Public
+router.get('/:id/rating-summary', async (req, res) => {
+  try {
+    const Review = require('../models/Review');
+    const { id } = req.params;
+
+    // Get company to verify it exists
+    const company = await Company.findById(id);
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+
+    // Get all approved reviews for this company
+    const reviews = await Review.find({
+      company: id,
+      status: 'approved'
+    }).populate('reviewedBy', 'name');
+
+    if (reviews.length === 0) {
+      return res.json({
+        overallRating: 0,
+        totalReviews: 0,
+        categoryRatings: {
+          salary: 0,
+          culture: 0,
+          growth: 0,
+          security: 0,
+          satisfaction: 0,
+          worklife: 0,
+          benefits: 0
+        },
+        reviewsByJobProfile: {}
+      });
+    }
+
+    // Calculate overall rating
+    const overallRating = (reviews.reduce((sum, r) => sum + r.overallRating, 0) / reviews.length).toFixed(1);
+
+    // Calculate category averages
+    const categoryRatings = {
+      salary: (reviews.reduce((sum, r) => sum + (r.categoryRatings?.salary || 0), 0) / reviews.length).toFixed(1),
+      culture: (reviews.reduce((sum, r) => sum + (r.categoryRatings?.culture || 0), 0) / reviews.length).toFixed(1),
+      growth: (reviews.reduce((sum, r) => sum + (r.categoryRatings?.growth || 0), 0) / reviews.length).toFixed(1),
+      security: (reviews.reduce((sum, r) => sum + (r.categoryRatings?.security || 0), 0) / reviews.length).toFixed(1),
+      satisfaction: (reviews.reduce((sum, r) => sum + (r.categoryRatings?.satisfaction || 0), 0) / reviews.length).toFixed(1),
+      worklife: (reviews.reduce((sum, r) => sum + (r.categoryRatings?.worklife || 0), 0) / reviews.length).toFixed(1),
+      benefits: (reviews.reduce((sum, r) => sum + (r.categoryRatings?.benefits || 0), 0) / reviews.length).toFixed(1)
+    };
+
+    // Group reviews by job title
+    const reviewsByJobProfile = {};
+    reviews.forEach(review => {
+      if (!reviewsByJobProfile[review.jobTitle]) {
+        reviewsByJobProfile[review.jobTitle] = [];
+      }
+      reviewsByJobProfile[review.jobTitle].push(review);
+    });
+
+    res.json({
+      overallRating,
+      totalReviews: reviews.length,
+      categoryRatings,
+      reviewsByJobProfile: Object.entries(reviewsByJobProfile).reduce((acc, [job, jobReviews]) => {
+        acc[job] = {
+          averageRating: (jobReviews.reduce((sum, r) => sum + r.overallRating, 0) / jobReviews.length).toFixed(1),
+          totalReviews: jobReviews.length
+        };
+        return acc;
+      }, {})
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/companies/:id/reviews
+// @desc    Get all company reviews
+// @access  Public
+router.get('/:id/reviews', async (req, res) => {
+  try {
+    const Review = require('../models/Review');
+    const { id } = req.params;
+    const { page = 1, limit = 10, sortBy = 'recent' } = req.query;
+
+    const skip = (page - 1) * limit;
+
+    const sortOptions = {
+      recent: { createdAt: -1 },
+      helpful: { helpful: -1 },
+      highest: { overallRating: -1 },
+      lowest: { overallRating: 1 }
+    };
+
+    const reviews = await Review.find({
+      company: id,
+      status: 'approved'
+    })
+      .populate('reviewedBy', 'name')
+      .sort(sortOptions[sortBy] || sortOptions.recent)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Review.countDocuments({
+      company: id,
+      status: 'approved'
+    });
+
+    res.json({
+      reviews,
+      pagination: {
+        current: parseInt(page),
+        total: Math.ceil(total / limit),
+        totalItems: total
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/companies/:id/reviews
+// @desc    Add a review for a company
+// @access  Private (authenticated users)
+router.post('/:id/reviews', protect, [
+  body('jobTitle').notEmpty().withMessage('Job title is required'),
+  body('overallRating').isInt({ min: 1, max: 5 }).withMessage('Overall rating must be between 1-5'),
+  body('reviewText').isLength({ min: 10, max: 1000 }).withMessage('Review must be between 10-1000 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const Review = require('../models/Review');
+    const { id } = req.params;
+
+    // Check if company exists
+    const company = await Company.findById(id);
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+
+    // Check if user already reviewed this company
+    const existingReview = await Review.findOne({
+      company: id,
+      reviewedBy: req.user._id
+    });
+
+    if (existingReview) {
+      return res.status(400).json({ message: 'You have already reviewed this company' });
+    }
+
+    const review = new Review({
+      company: id,
+      reviewedBy: req.user._id,
+      ...req.body,
+      status: 'pending' // Reviews need admin approval
+    });
+
+    await review.save();
+
+    res.status(201).json({
+      message: 'Review submitted successfully. It will be published after approval.',
+      review
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // @route   GET /api/companies/:id
 // @desc    Get company by ID
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
     const company = await Company.findById(req.params.id).populate('owner', 'name email');
-    
+
     if (!company) {
       return res.status(404).json({ message: 'Company not found' });
     }

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaBars, FaTimes, FaTachometerAlt, FaBriefcase, FaUser, FaClipboardList, FaSignOutAlt, FaBuilding, FaCog, FaExclamationTriangle, FaShieldAlt, FaCheckCircle, FaChartBar, FaEnvelope, FaFileAlt, FaHistory, FaHeadset, FaStar, FaGaugeHigh, FaToggleOn } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaBriefcase, FaUser, FaClipboardList, FaSignOutAlt, FaBuilding, FaCog, FaExclamationTriangle, FaShieldAlt, FaCheckCircle, FaChartBar, FaEnvelope, FaFileAlt, FaHistory, FaHeadset, FaStar, FaClock, FaToggleOn, FaImages } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
@@ -12,7 +12,6 @@ const navLinks = [
   { to: '/companies', label: 'Companies', icon: <FaBuilding className="inline mr-2" /> },
   { divider: true, label: 'Management' },
   { to: '/content-moderation', label: 'Content Moderation', icon: <FaExclamationTriangle className="inline mr-2" /> },
-  { to: '/company-verification', label: 'Company Verification', icon: <FaShieldAlt className="inline mr-2" /> },
   { to: '/user-control', label: 'User Control', icon: <FaCheckCircle className="inline mr-2" /> },
   { to: '/job-approval', label: 'Job Approval Workflow', icon: <FaCheckCircle className="inline mr-2" /> },
   { to: '/review-moderation', label: 'Review Moderation', icon: <FaStar className="inline mr-2" /> },
@@ -22,7 +21,7 @@ const navLinks = [
   { to: '/analytics', label: 'Analytics', icon: <FaChartBar className="inline mr-2" /> },
   { to: '/reports', label: 'Reports & Export', icon: <FaFileAlt className="inline mr-2" /> },
   { to: '/audit-logs', label: 'Audit Logs', icon: <FaHistory className="inline mr-2" /> },
-  { to: '/performance', label: 'Performance Monitor', icon: <FaGaugeHigh className="inline mr-2" /> },
+  { to: '/performance', label: 'Performance Monitor', icon: <FaClock className="inline mr-2" /> },
   { divider: true, label: 'Configuration' },
   { to: '/notifications', label: 'Notifications', icon: <FaEnvelope className="inline mr-2" /> },
   { to: '/feature-flags', label: 'Feature Flags', icon: <FaToggleOn className="inline mr-2" /> },
@@ -52,11 +51,8 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
     <div className="h-full flex flex-col">
       {/* Header with Logo */}
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-        <div className="flex items-center space-x-2">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">A</span>
-          </div>
-          <h2 className="text-xl font-bold text-gray-800">Admin Panel</h2>
+        <div className="flex flex-col items-center space-y-1">
+          <img src="/teztech-logo-full.jpg" alt="Teztech" className="w-16 h-16" />
         </div>
         {/* Close button for mobile */}
         <button

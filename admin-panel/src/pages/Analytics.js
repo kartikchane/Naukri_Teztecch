@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../utils/api';
 import {
-  FaTrendingUp,
+  FaArrowUp,
   FaUsers,
   FaBriefcase,
   FaFileAlt,
@@ -130,7 +130,7 @@ const Analytics = () => {
             <div className="grid md:grid-cols-2 gap-4 mb-8">
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <FaTrendingUp className="text-green-600" />
+                  <FaArrowUp className="text-green-600" />
                   Job Seeker Metrics
                 </h2>
                 <div className="space-y-3">
@@ -154,7 +154,7 @@ const Analytics = () => {
 
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <FaTrendingUp className="text-purple-600" />
+                  <FaArrowUp className="text-purple-600" />
                   Employer Engagement
                 </h2>
                 <div className="space-y-3">

@@ -14,28 +14,29 @@ const path = require('path');
 // Helper function to normalize resume path and check if file exists
 const normalizeResumePath = (resumePath) => {
   if (!resumePath) return null;
-  
+
   // If it's already a URL, return as-is
   if (resumePath.startsWith('http')) return resumePath;
-  
+
   // Remove absolute path prefix if exists
   let normalizedPath = resumePath.replace(/^[A-Z]:\\.*?\\uploads\\/i, 'uploads/');
   normalizedPath = normalizedPath.replace(/\\/g, '/');
-  
-  // Check if file exists
-  const fullPath = path.join(__dirname, '../..', normalizedPath);
+
+  // Check if file exists - uploads are in backend/uploads folder
+  const fullPath = path.join(__dirname, '../uploads', normalizedPath.replace('uploads/', ''));
   console.log(`[DEBUG] Original: ${resumePath}`);
   console.log(`[DEBUG] Normalized: ${normalizedPath}`);
   console.log(`[DEBUG] Full path: ${fullPath}`);
   console.log(`[DEBUG] File exists: ${fs.existsSync(fullPath)}`);
-  
+
   if (fs.existsSync(fullPath)) {
     return normalizedPath;
   }
-  
-  // File doesn't exist, return null
-  console.log(`[DEBUG] File not found, returning null`);
-  return null;
+
+  // File doesn't exist, return the path anyway (file might be on CDN or different server)
+  // Don't return null - let frontend handle missing files gracefully
+  console.log(`[DEBUG] File not found but returning path anyway: ${normalizedPath}`);
+  return normalizedPath;
 };
 
 // @route   POST /api/applications
@@ -187,7 +188,7 @@ router.get('/job/:jobId', [protect, isEmployer], async (req, res) => {
     }
 
     const applications = await Application.find({ job: req.params.jobId })
-      .populate('applicant', 'name email phone skills experience education')
+      .populate('applicant')
       .sort({ appliedAt: -1 });
 
     // Normalize resume paths and check file existence

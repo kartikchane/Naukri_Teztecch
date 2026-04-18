@@ -275,9 +275,9 @@ const Companies = () => {
                 <div className="flex items-center gap-3">
                   {company.logo && company.logo !== 'default-company-logo.png' ? (
                     <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-gray-200 shadow-md bg-white">
-                      <img 
-                        src={company.logo} 
-                        alt={company.name} 
+                      <img
+                        src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${company.logo}`}
+                        alt={company.name}
                         className="w-full h-full object-contain p-1"
                         onError={(e) => {
                           e.target.onerror = null;

@@ -101,10 +101,108 @@ const companySchema = new mongoose.Schema({
     min: 0,
     max: 5
   },
+  // Company Registration Documents
+  documents: {
+    aadharCard: {
+      type: String,
+      required: [true, 'Aadhar card is required']
+    },
+    panCard: {
+      type: String,
+      required: [true, 'PAN card is required']
+    },
+    gstCertificate: {
+      type: String,
+      required: [true, 'GST certificate is required']
+    },
+    udyamAadhar: {
+      type: String,
+      required: [true, 'Udyam Aadhar registration is required']
+    }
+  },
+  // Company Contact Information
+  contactInfo: {
+    registeredEmail: {
+      type: String,
+      required: [true, 'Registered email is required'],
+      lowercase: true
+    },
+    registeredPhone: {
+      type: String,
+      required: [true, 'Registered phone number is required']
+    }
+  },
+  // Document verification status
+  documentVerification: {
+    status: {
+      type: String,
+      enum: ['pending', 'verified', 'rejected'],
+      default: 'pending'
+    },
+    verifiedAt: Date,
+    verifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    rejectionReason: String,
+    adminNotes: String
+  },
+
+  // Individual document verification
+  documentDetails: {
+    businessRegistration: {
+      fileUrl: String,
+      uploadedAt: Date,
+      verified: { type: Boolean, default: false },
+      adminNotes: String
+    },
+    gstCertificate: {
+      fileUrl: String,
+      uploadedAt: Date,
+      verified: { type: Boolean, default: false },
+      adminNotes: String
+    },
+    panCard: {
+      fileUrl: String,
+      uploadedAt: Date,
+      verified: { type: Boolean, default: false },
+      adminNotes: String
+    },
+    addressProof: {
+      fileUrl: String,
+      uploadedAt: Date,
+      verified: { type: Boolean, default: false },
+      adminNotes: String
+    },
+    bankDetails: {
+      fileUrl: String,
+      uploadedAt: Date,
+      verified: { type: Boolean, default: false },
+      adminNotes: String
+    },
+    directorId: {
+      fileUrl: String,
+      uploadedAt: Date,
+      verified: { type: Boolean, default: false },
+      adminNotes: String
+    }
+  },
+
   createdAt: {
     type: Date,
     default: Date.now
+  },
+
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
+});
+
+// Pre-save middleware
+companySchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
 });
 
 module.exports = mongoose.model('Company', companySchema);

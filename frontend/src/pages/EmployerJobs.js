@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { FaCog, FaPlus } from 'react-icons/fa';
 import API from '../utils/api';
 import EmployerApplicants from './EmployerApplicants';
 import { useAuth } from '../context/AuthContext';
@@ -36,7 +38,23 @@ const EmployerJobs = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-2xl font-bold mb-6">My Posted Jobs</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">My Posted Jobs</h1>
+        <div className="flex gap-4">
+          <Link
+            to="/manage-company"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition"
+          >
+            <FaCog /> Manage Company
+          </Link>
+          <Link
+            to="/post-job"
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition"
+          >
+            <FaPlus /> Post Job
+          </Link>
+        </div>
+      </div>
       {loading ? (
         <div>Loading...</div>
       ) : jobs.length === 0 ? (

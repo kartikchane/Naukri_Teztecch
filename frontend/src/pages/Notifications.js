@@ -108,9 +108,14 @@ const Notifications = () => {
       case 'job_posted':
         return notification.data?.job ? `/jobs/${notification.data.job._id || notification.data.job}` : '/jobs';
       case 'application_status':
-        return '/my-applications';
+        return '/applications';
       case 'deadline_reminder':
         return notification.data?.job ? `/jobs/${notification.data.job._id || notification.data.job}` : '/jobs';
+      case 'job_application_received':
+        return '/my-jobs';
+      case 'application_accepted':
+      case 'application_status_change':
+        return '/applications';
       default:
         return '#';
     }

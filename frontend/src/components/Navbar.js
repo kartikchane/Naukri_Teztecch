@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FaBell, FaEnvelope, FaBriefcase, FaUser, FaSignOutAlt, FaChevronDown, FaBookmark, FaSearch, FaBars, FaTimes } from 'react-icons/fa';
+import { FaBell, FaEnvelope, FaBriefcase, FaUser, FaSignOutAlt, FaChevronDown, FaBookmark, FaSearch, FaBars, FaTimes, FaCog } from 'react-icons/fa';
 import API from '../utils/api';
 
 const Navbar = () => {
@@ -90,17 +90,17 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 flex-shrink-0">
-            <img 
-              src="/teztech-logo.svg" 
-              alt="Naukri Platform Logo" 
-              className="h-12 w-12 rounded-full object-contain"
+          <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
+            <img
+              src="/teztech-logo-full.jpg"
+              alt="Teztech Logo"
+              className="h-16 w-17 object-contain"
             />
             <div className="hidden sm:flex flex-col">
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Teztecch
+              <span className="text-lg font-bold text-teal-600">
+                Naukri Platform
               </span>
-              <span className="text-xs text-gray-600 -mt-1">Naukri Platform</span>
+              <span className="text-xs text-gray-500">Find your dream job</span>
             </div>
           </Link>
 
@@ -130,9 +130,14 @@ const Navbar = () => {
               Find Jobs
             </Link>
             {user?.role === 'employer' && (
-              <Link to="/post-job" className="text-gray-700 hover:text-primary transition-colors font-medium">
-                Post Job
-              </Link>
+              <>
+                <Link to="/plans" className="text-gray-700 hover:text-primary transition-colors font-medium flex items-center gap-1">
+                  💳 Plans
+                </Link>
+                <Link to="/post-job" className="text-gray-700 hover:text-primary transition-colors font-medium">
+                  Post Job
+                </Link>
+              </>
             )}
             <Link to="/companies" className="text-gray-700 hover:text-primary transition-colors font-medium">
               Companies
@@ -218,14 +223,39 @@ const Navbar = () => {
                     )}
                     
                     {user?.role === 'employer' && (
-                      <Link
-                        to="/my-jobs"
-                        onClick={closeDropdown}
-                        className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
-                      >
-                        <FaBriefcase className="mr-3 text-gray-400" /> 
-                        <span className="font-medium">My Jobs</span>
-                      </Link>
+                      <>
+                        <Link
+                          to="/plans"
+                          onClick={closeDropdown}
+                          className="flex items-center px-4 py-3 text-blue-600 hover:bg-blue-50 hover:text-primary transition-colors font-semibold"
+                        >
+                          💳 Plans & Pricing
+                        </Link>
+                        <Link
+                          to="/company-profile"
+                          onClick={closeDropdown}
+                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
+                        >
+                          <FaCog className="mr-3 text-gray-400" />
+                          <span className="font-medium">Company Profile</span>
+                        </Link>
+                        <Link
+                          to="/manage-company"
+                          onClick={closeDropdown}
+                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
+                        >
+                          <FaCog className="mr-3 text-gray-400" />
+                          <span className="font-medium">Manage Company</span>
+                        </Link>
+                        <Link
+                          to="/my-jobs"
+                          onClick={closeDropdown}
+                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
+                        >
+                          <FaBriefcase className="mr-3 text-gray-400" />
+                          <span className="font-medium">My Jobs</span>
+                        </Link>
+                      </>
                     )}
 
                     <div className="border-t border-gray-100 mt-2"></div>
@@ -298,13 +328,22 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 {user?.role === 'employer' && (
-                  <Link
-                    to="/post-job"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-primary transition-colors"
-                  >
-                    Post Job
-                  </Link>
+                  <>
+                    <Link
+                      to="/plans"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block px-4 py-2 text-blue-600 hover:bg-blue-50 hover:text-primary transition-colors font-semibold"
+                    >
+                      💳 Plans & Pricing
+                    </Link>
+                    <Link
+                      to="/post-job"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-primary transition-colors"
+                    >
+                      Post Job
+                    </Link>
+                  </>
                 )}
                 <Link
                   to="/messages"

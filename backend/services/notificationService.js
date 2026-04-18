@@ -22,10 +22,12 @@ class NotificationService {
         type: 'job_posted',
         title: 'New Job Posted',
         message: `A new ${job.title} position is available at ${job.company?.name || 'a company'} in ${job.location?.city || 'your area'}`,
+        description: `Location: ${job.location?.city}, ${job.location?.state}\nSalary: ${job.salary?.min ? '₹' + job.salary.min.toLocaleString() : 'Not specified'} - ${job.salary?.max ? '₹' + job.salary.max.toLocaleString() : 'Not specified'}\nType: ${job.employmentType}`,
         data: {
           job: job._id,
           company: job.company
-        }
+        },
+        actionUrl: `/jobs/${job._id}`
       }));
 
       if (notifications.length > 0) {
@@ -111,7 +113,8 @@ class NotificationService {
         data: {
           job: job._id,
           company: job.company
-        }
+        },
+        actionUrl: `/jobs/${job._id}`
       }));
 
       if (notifications.length > 0) {
