@@ -2,9 +2,23 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const connectDB = require('./config/db');
 const { startJobExpirationChecker } = require('./utils/jobExpiration');
 
+// Create uploads directory if it doesn't exist (important for Render/production)
+const uploadsDir = path.join(__dirname, './uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('✅ Created uploads directory');
+}
+
+// Create gallery uploads directory if it doesn't exist
+const galleryDir = path.join(__dirname, './uploads/gallery');
+if (!fs.existsSync(galleryDir)) {
+  fs.mkdirSync(galleryDir, { recursive: true });
+  console.log('✅ Created gallery uploads directory');
+}
 
 // Connect to MongoDB
 connectDB();
