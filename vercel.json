@@ -1,15 +1,4 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "backend/server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "backend/server.js"
-    }
-  ]
+  "buildCommand": "CI=false npm run build",
+  "outputDirectory": "frontend/build"
 }
