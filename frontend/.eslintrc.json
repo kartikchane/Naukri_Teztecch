@@ -1,0 +1,11 @@
+{
+  "extends": "react-app",
+  "rules": {
+    "no-unused-vars": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "jsx-a11y/img-redundant-alt": "warn",
+    "jsx-a11y/anchor-is-valid": "warn",
+    "no-mixed-operators": "warn",
+    "no-use-before-define": "warn"
+  }
+}
