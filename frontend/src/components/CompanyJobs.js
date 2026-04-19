@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaMapMarkerAlt, FaBriefcase, FaGraduationCap, FaDollarSign } from 'react-icons/fa';
 import API from '../utils/api';
@@ -14,12 +14,7 @@ const CompanyJobs = ({ companyId }) => {
     experience: '',
   });
 
-  useEffect(() => {
-    fetchJobs();
-    fetchDepartments();
-  }, [companyId]);
-
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await API.get('/jobs', {
@@ -32,9 +27,9 @@ const CompanyJobs = ({ companyId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [companyId]);
 
-  const fetchDepartments = async () => {
+  const fetchDepartments = useCallback(async () => {
     try {
       const { data } = await API.get(`/companies/${companyId}/departments`);
       setDepartments(Array.isArray(data) ? data : []);
@@ -42,7 +37,12 @@ const CompanyJobs = ({ companyId }) => {
       console.error('Error fetching departments:', error);
       setDepartments([]);
     }
-  };
+  }, [companyId]);
+
+  useEffect(() => {
+    fetchJobs();
+    fetchDepartments();
+  }, [fetchJobs, fetchDepartments]);
 
   const filteredJobs = jobs.filter((job) => {
     if (filters.department && job.category !== filters.department) return false;

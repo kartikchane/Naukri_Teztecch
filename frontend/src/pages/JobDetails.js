@@ -9,7 +9,6 @@ import {
   FaBriefcase,
   FaRupeeSign,
   FaClock,
-  FaBuilding,
   FaBookmark,
   FaRegBookmark,
   FaShareAlt,

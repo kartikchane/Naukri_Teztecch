@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
@@ -76,11 +76,7 @@ const PostJob = () => {
   const employmentTypes = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance'];
   const workModes = ['On-site', 'Remote', 'Hybrid'];
 
-  useEffect(() => {
-    checkSubscriptionAndCompany();
-  }, []);
-
-  const checkSubscriptionAndCompany = async () => {
+  const checkSubscriptionAndCompany = useCallback(async () => {
     try {
       // Step 1: Check if user has a company
       let companyData = null;
@@ -143,7 +139,11 @@ const PostJob = () => {
     } finally {
       setCheckingCompany(false);
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    checkSubscriptionAndCompany();
+  }, [checkSubscriptionAndCompany]);
 
   const checkVerificationStatus = async () => {
     setRefreshing(true);
@@ -230,7 +230,7 @@ const PostJob = () => {
         setLoading(false);
         return;
       }
-      if (!formData.experience.min && formData.experience.min !== 0 || !formData.experience.max) {
+      if ((!formData.experience.min && formData.experience.min !== 0) || !formData.experience.max) {
         toast.error('Experience range is required');
         setLoading(false);
         return;

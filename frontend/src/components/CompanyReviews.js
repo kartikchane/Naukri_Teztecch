@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { FaStar, FaCheckCircle } from 'react-icons/fa';
+import React, { useEffect, useState, useCallback } from 'react';
+import { FaStar } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 
 const CompanyReviews = ({ companyId }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [ratings, setRatings] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [page, setPage] = useState(1);
 
   const [formData, setFormData] = useState({
     jobTitle: '',
@@ -29,15 +28,11 @@ const CompanyReviews = ({ companyId }) => {
     cons: ''
   });
 
-  useEffect(() => {
-    fetchRatingsAndReviews();
-  }, [companyId, page]);
-
-  const fetchRatingsAndReviews = async () => {
+  const fetchRatingsAndReviews = useCallback(async () => {
     setLoading(true);
     try {
       const ratingsRes = await API.get(`/companies/${companyId}/rating-summary`);
-      const reviewsRes = await API.get(`/companies/${companyId}/reviews?page=${page}&limit=5`);
+      const reviewsRes = await API.get(`/companies/${companyId}/reviews?page=1&limit=5`);
 
       setRatings(ratingsRes.data);
       setReviews(reviewsRes.data.reviews || []);
@@ -48,7 +43,11 @@ const CompanyReviews = ({ companyId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [companyId]);
+
+  useEffect(() => {
+    fetchRatingsAndReviews();
+  }, [fetchRatingsAndReviews]);
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();

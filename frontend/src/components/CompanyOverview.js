@@ -1,11 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
-  FaBriefcase,
-  FaUsers,
-  FaDollarSign,
-  FaCalendar,
-  FaMapMarkerAlt,
-  FaGlobeAmericas,
   FaLinkedin,
   FaTwitter,
   FaFacebook,
@@ -15,7 +9,6 @@ import {
   FaHeartPulse,
   FaChalkboardUser,
   FaShieldHalved,
-  FaBalanceScale,
   FaGift,
 } from 'react-icons/fa6';
 import API from '../utils/api';
@@ -30,11 +23,7 @@ const CompanyOverview = ({ company }) => {
   const [showAllBenefits, setShowAllBenefits] = useState(false);
   const [showAllSalaries, setShowAllSalaries] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, [company?._id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [deptRes, benefitsRes, salariesRes, galleryRes] = await Promise.all([
@@ -72,7 +61,13 @@ const CompanyOverview = ({ company }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [company?._id]);
+
+  useEffect(() => {
+    if (company?._id) {
+      fetchData();
+    }
+  }, [fetchData, company?._id]);
 
   const benefitIcons = {
     'Free meal': FaUtensils,

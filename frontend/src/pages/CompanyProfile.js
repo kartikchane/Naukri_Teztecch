@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
-import { FaBuilding, FaIndustry, FaMapMarkerAlt, FaGlobe, FaUsers, FaCalendar, FaEdit, FaSave, FaTimes, FaCheckCircle, FaClock, FaLinkedin, FaTwitter, FaFacebook, FaInstagram, FaSync } from 'react-icons/fa';
+import { FaIndustry, FaMapMarkerAlt, FaGlobe, FaUsers, FaCalendar, FaEdit, FaSave, FaTimes, FaCheckCircle, FaClock, FaLinkedin, FaTwitter, FaFacebook, FaInstagram, FaSync } from 'react-icons/fa';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();

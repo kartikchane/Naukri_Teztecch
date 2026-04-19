@@ -1,24 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../utils/api';
 import JobCard from '../components/JobCard';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { useCountUp } from '../hooks/useCountUp';
-import { 
-  FaMapMarkerAlt, 
-  FaBriefcase, 
-  FaRocket, 
-  FaSearch, 
-  FaUsers,
-  FaCode,
-  FaChartLine,
-  FaPaintBrush,
-  FaBullhorn,
-  FaMoneyBillWave,
-  FaHospital,
-  FaGraduationCap,
-  FaHeadset
+import {
+  FaBriefcase,
+  FaRocket,
+  FaSearch,
+  FaUsers
 } from 'react-icons/fa';
 
 const Home = () => {
