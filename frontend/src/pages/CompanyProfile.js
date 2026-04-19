@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { getFileUrl } from '../utils/fileUtils';
 import API from '../utils/api';
 import { FaIndustry, FaMapMarkerAlt, FaGlobe, FaUsers, FaCalendar, FaEdit, FaSave, FaTimes, FaCheckCircle, FaClock, FaLinkedin, FaTwitter, FaFacebook, FaInstagram, FaSync } from 'react-icons/fa';
 
@@ -364,7 +365,7 @@ const CompanyProfile = () => {
               <div className="flex gap-6 mb-6">
                 {company.logo && (
                   <img
-                    src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${company.logo}`}
+                    src={getFileUrl(`uploads/${company.logo}`)}
                     alt={company.name}
                     className="w-32 h-32 object-cover rounded-lg"
                     onError={(e) => {
@@ -576,7 +577,7 @@ const CompanyProfile = () => {
                   />
                 ) : company.logo ? (
                   <img
-                    src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${company.logo}`}
+                    src={getFileUrl(`uploads/${company.logo}`)}
                     alt="Current logo"
                     className="w-20 h-20 object-cover rounded"
                     onError={(e) => {

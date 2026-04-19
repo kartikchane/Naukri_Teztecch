@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../utils/api';
+import { getFileUrl } from '../utils/fileUtils';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FaBuilding, FaMapMarkerAlt, FaUsers, FaCalendar, FaCheckCircle, FaGlobe, FaLinkedin, FaTwitter, FaFacebook, FaSearch } from 'react-icons/fa';
 
@@ -171,7 +172,7 @@ const Companies = () => {
                 <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center relative p-4">
                   {company.logo && company.logo !== 'default-company-logo.png' ? (
                     <img
-                      src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${company.logo}`}
+                      src={getFileUrl(`uploads/${company.logo}`)}
                       alt={company.name}
                       className="max-h-32 max-w-[80%] object-contain"
                       onError={(e) => {

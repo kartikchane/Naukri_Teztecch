@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getFileUrl } from '../utils/fileUtils';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
 import ApplyModal from '../components/ApplyModal';
@@ -223,7 +224,7 @@ const JobDetails = () => {
                   {job.company?.logo ? (
                     <>
                       <img
-                        src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${job.company.logo}`}
+                        src={getFileUrl(`uploads/${job.company.logo}`)}
                         alt={job.company.name}
                         className="w-full h-full object-contain"
                         onError={(e) => {

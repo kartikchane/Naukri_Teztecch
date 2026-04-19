@@ -190,7 +190,7 @@ const MyApplications = () => {
                           {application.job?.company?.logo ? (
                             <>
                               <img
-                                src={`${(process.env.REACT_APP_API_URL || 'http://localhost:5000').replace('/api', '')}/uploads/${application.job.company.logo}`}
+                                src={getFileUrl(`uploads/${application.job.company.logo}`)}
                                 alt={application.job?.company?.name}
                                 className="w-16 h-16 rounded-lg object-contain bg-gradient-to-br from-blue-100 to-purple-100 p-2"
                                 onError={(e) => {

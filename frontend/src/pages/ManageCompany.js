@@ -5,6 +5,7 @@ import {
   FaGlobe, FaMapMarkerAlt, FaPhone, FaEnvelope, FaLinkedin,
   FaTwitter, FaFacebook, FaInstagram, FaYoutube, FaCheckCircle
 } from 'react-icons/fa';
+import { getFileUrl } from '../utils/fileUtils';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
 

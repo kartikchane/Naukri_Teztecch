@@ -11,6 +11,7 @@ import {
   FaShieldHalved,
   FaGift,
 } from 'react-icons/fa6';
+import { getFileUrl } from '../utils/fileUtils';
 import API from '../utils/api';
 import CompanyPhotoGallery from './CompanyPhotoGallery';
 
