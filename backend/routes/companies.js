@@ -492,7 +492,7 @@ router.post('/:id/documents', [protect, isEmployer], upload.single('document'), 
 });
 
 // @route   GET /api/companies/:id/documents/:docType
-// @desc    Serve company document for viewing in browser
+// @desc    Get document download URL (redirects to static file serving)
 // @access  Public (viewable by registered users)
 router.get('/:id/documents/:docType', async (req, res) => {
   try {
@@ -514,42 +514,23 @@ router.get('/:id/documents/:docType', async (req, res) => {
       return res.status(404).json({ message: 'Document not found in database' });
     }
 
-    // Resolve the file path
-    const path = require('path');
-    const fs = require('fs');
-
-    console.log('🔵 Document view request:');
+    console.log('🔵 Document URL request:');
     console.log('  Document Type:', docType);
     console.log('  Stored Path:', documentPath);
 
-    // Handle both relative paths and full paths
-    let filePath;
-    if (documentPath.includes('uploads')) {
-      // If path already includes uploads, use it from backend root
-      filePath = path.join(__dirname, '../', documentPath);
-    } else {
-      // If it's just a filename, prepend uploads
-      filePath = path.join(__dirname, '../uploads', documentPath);
-    }
+    // Ensure the path starts with /uploads/
+    const normalizedPath = documentPath.startsWith('/')
+      ? documentPath
+      : `/${documentPath}`;
 
-    console.log('  Resolved Path:', filePath);
+    console.log('  Normalized Path:', normalizedPath);
+    console.log('  ✅ Redirecting to static file endpoint...');
 
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      console.log('  ❌ File not found:', filePath);
-      return res.status(404).json({ message: 'File not found on server', path: filePath });
-    }
-
-    console.log('  ✅ File found, sending to browser...');
-
-    // Set headers to display in browser instead of download
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline; filename="' + path.basename(filePath) + '"');
-
-    // Send the file
-    res.sendFile(filePath);
+    // Redirect to the static file serving middleware
+    // This allows Render's proxy and CDN to handle file serving properly
+    res.redirect(normalizedPath);
   } catch (error) {
-    console.error('🔴 Document view error:', error);
+    console.error('🔴 Document URL error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
