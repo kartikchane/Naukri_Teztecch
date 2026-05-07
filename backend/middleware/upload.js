@@ -1,6 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+<<<<<<< HEAD
 const cloudinary = require('cloudinary').v2;
 
 // Cloudinary Configuration
@@ -9,6 +10,12 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
+=======
+
+// LOCAL STORAGE - No AWS S3
+console.log('✅ Local Storage Configured');
+console.log('📁 Uploads directory: ./uploads');
+>>>>>>> 1aa1ccdc91fc045a820e221f83960a43a23dcd20
 
 console.log('✅ Cloudinary Configured');
 console.log(`☁️ Cloud: ${process.env.CLOUDINARY_CLOUD_NAME}`);
@@ -34,6 +41,38 @@ function getFolderName(fieldname, req) {
     if (docType === 'panCard') return 'documents/pan';
     if (docType === 'gstCertificate') return 'documents/gst';
     if (docType === 'udyamAadhar') return 'documents/udyam';
+<<<<<<< HEAD
+=======
+  }
+  
+  if (fieldname === 'aadharCard') return 'documents/aadhar';
+  if (fieldname === 'panCard') return 'documents/pan';
+  if (fieldname === 'gstCertificate') return 'documents/gst';
+  if (fieldname === 'udyamAadhar') return 'documents/udyam';
+  if (fieldname === 'logo') return 'logos';
+  if (fieldname === 'resume' || fieldname === 'cv') return 'resumes';
+  if (fieldname === 'avatar') return 'avatars';
+  if (fieldname === 'coverImage') return 'cover-images';
+  if (fieldname === 'image' || fieldname === 'galleryImages') return 'gallery';
+  
+  return 'misc';
+}
+
+// Local disk storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const folder = getFolderName(file.fieldname, req);
+    const uploadPath = path.join(__dirname, '../uploads', folder);
+    
+    // Create directory if it doesn't exist
+    fs.mkdirSync(uploadPath, { recursive: true });
+    
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const filename = `${Date.now()}_${Math.random().toString(36).substring(7)}${path.extname(file.originalname)}`;
+    cb(null, filename);
+>>>>>>> 1aa1ccdc91fc045a820e221f83960a43a23dcd20
   }
   
   if (fieldname === 'aadharCard') return 'documents/aadhar';
@@ -56,12 +95,24 @@ const upload = multer({
   fileFilter: (req, file, cb) => checkFileType(file, cb)
 });
 
+<<<<<<< HEAD
 // Upload to Cloudinary
+=======
+// Upload with local storage
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => checkFileType(file, cb)
+});
+
+// Upload to local storage
+>>>>>>> 1aa1ccdc91fc045a820e221f83960a43a23dcd20
 const uploadToS3 = async (req, res, next) => {
   try {
     // Single file
     if (req.file) {
       const folder = getFolderName(req.file.fieldname, req);
+<<<<<<< HEAD
       
       console.log(`☁️ Uploading to Cloudinary [${folder}]: ${req.file.originalname}`);
       
@@ -85,6 +136,14 @@ const uploadToS3 = async (req, res, next) => {
       req.file.cloudinaryId = result.public_id;
       
       console.log(`✅ File uploaded to Cloudinary: ${result.secure_url}`);
+=======
+      const fileUrl = `/uploads/${folder}/${req.file.filename}`;
+      
+      console.log(`📁 File saved locally: ${fileUrl}`);
+      
+      req.file.location = fileUrl;
+      req.file.url = fileUrl;
+>>>>>>> 1aa1ccdc91fc045a820e221f83960a43a23dcd20
     }
     
     // Multiple files
@@ -92,6 +151,7 @@ const uploadToS3 = async (req, res, next) => {
       for (const fieldName of Object.keys(req.files)) {
         const filesArray = Array.isArray(req.files[fieldName]) ? req.files[fieldName] : [req.files[fieldName]];
         
+<<<<<<< HEAD
         for (const file of filesArray) {
           if (file.buffer) {
             const folder = getFolderName(fieldName, req);
@@ -120,12 +180,27 @@ const uploadToS3 = async (req, res, next) => {
             console.log(`✅ File [${fieldName}] uploaded to Cloudinary: ${result.secure_url}`);
           }
         }
+=======
+        filesArray.forEach((file) => {
+          const folder = getFolderName(fieldName, req);
+          const fileUrl = `/uploads/${folder}/${file.filename}`;
+          
+          file.location = fileUrl;
+          file.url = fileUrl;
+          
+          console.log(`✅ File [${fieldName}] saved locally: ${fileUrl}`);
+        });
+>>>>>>> 1aa1ccdc91fc045a820e221f83960a43a23dcd20
       }
     }
     
     next();
   } catch (error) {
+<<<<<<< HEAD
     console.error('❌ Cloudinary Upload Error:', error.message);
+=======
+    console.error('❌ Local Upload Error:', error.message);
+>>>>>>> 1aa1ccdc91fc045a820e221f83960a43a23dcd20
     return res.status(500).json({ 
       message: 'File upload failed', 
       error: error.message 
