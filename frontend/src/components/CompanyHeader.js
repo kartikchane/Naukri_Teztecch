@@ -62,9 +62,13 @@ const CompanyHeader = ({ company, isFollowing, onFollowChange }) => {
           <div className="relative">
             {company?.logo && !company.logo.includes('default') ? (
               <img
-                src={getFileUrl(`uploads/${company.logo}`)}
+                src={getFileUrl(company.logo.startsWith('uploads/') ? company.logo : `uploads/${company.logo}`)}
                 alt={company.name}
                 className="w-32 h-32 rounded-lg object-cover border-4 border-white bg-white"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(company?.name || '')}&background=3B82F6&color=fff&size=256&bold=true`;
+                }}
               />
             ) : (
               <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center border-4 border-white text-white text-3xl font-bold">

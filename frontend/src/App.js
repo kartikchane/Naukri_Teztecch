@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { ToastContainer } from 'react-toastify';
@@ -48,9 +49,10 @@ import CompanyProfile from './pages/CompanyProfile';
 
 function App() {
   return (
-    <SettingsProvider>
-      <AuthProvider>
-        <Router>
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+      <SettingsProvider>
+        <AuthProvider>
+          <Router>
           <ScrollToTop />
           <Routes>
           {/* Regular Routes - With Navbar/Footer */}
@@ -183,6 +185,7 @@ function App() {
       </Router>
     </AuthProvider>
     </SettingsProvider>
+    </GoogleOAuthProvider>
   );
 }
 

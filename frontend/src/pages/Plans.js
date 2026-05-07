@@ -67,11 +67,13 @@ const Plans = () => {
         paymentMethod: 'razorpay'
       });
 
-      const { razorpayOrderId, amount } = orderRes.data;
+      const { razorpayOrder } = orderRes.data;
+      const razorpayOrderId = razorpayOrder.orderId;
+      const amount = razorpayOrder.amount;
 
       const options = {
         key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-        amount: amount * 100,
+        amount: amount, // Already in paise from backend
         currency: 'INR',
         order_id: razorpayOrderId,
         name: 'Teztecch Naukri',
@@ -107,8 +109,7 @@ const Plans = () => {
       await API.post('/subscriptions/verify-payment', {
         razorpayOrderId: paymentResponse.razorpay_order_id,
         razorpayPaymentId: paymentResponse.razorpay_payment_id,
-        razorpaySignature: paymentResponse.razorpay_signature,
-        planId: selectedPlan._id
+        razorpaySignature: paymentResponse.razorpay_signature
       });
 
       toast.success('✅ Subscription activated! Redirecting to Post Job...');
@@ -522,6 +523,102 @@ const Plans = () => {
 
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {showPaymentModal && selectedPlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in">
+            <div className="text-center mb-6">
+              <div className="inline-block p-3 bg-teal-100 rounded-full mb-4">
+                <FaCreditCard className="text-3xl text-teal-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Confirm Your Plan</h2>
+              <p className="text-gray-600 text-sm">Review and confirm before proceeding to payment</p>
+            </div>
+
+            {/* Plan Summary */}
+            <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-6 mb-6 border border-teal-200">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">{selectedPlan.displayName}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{selectedPlan.description}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-teal-200 pt-4 mt-4">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-gray-700 font-medium">Billing Cycle:</span>
+                  <span className="text-gray-900 font-bold">
+                    {selectedPlan.billingCycle === 'monthly' ? 'Monthly' : 'Yearly'}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center text-lg font-bold text-teal-600">
+                  <span>Total Amount:</span>
+                  <span>
+                    {selectedPlan.price === 0 ? '₹0 (FREE)' : `₹${selectedPlan.price}`}
+                  </span>
+                </div>
+              </div>
+
+              {selectedPlan.subscriptionFeatures?.durationMonths && (
+                <div className="mt-3 text-sm text-gray-600">
+                  <p>✓ Valid for {selectedPlan.subscriptionFeatures.durationMonths} month(s)</p>
+                </div>
+              )}
+            </div>
+
+            {/* Features Highlight */}
+            <div className="mb-6 space-y-2">
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <FaCheckCircle className="text-emerald-500" />
+                <span>{selectedPlan.features.totalJobPostings ? `${selectedPlan.features.totalJobPostings}/month` : 'Unlimited'} job postings</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <FaCheckCircle className="text-emerald-500" />
+                <span>{selectedPlan.features.jobValidityDays} days visibility</span>
+              </div>
+              {selectedPlan.features.viewApplicants && (
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <FaCheckCircle className="text-emerald-500" />
+                  <span>View all applicants</span>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="flex-1 py-3 px-4 rounded-lg border border-gray-300 text-gray-900 font-semibold hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePayment}
+                disabled={processing}
+                className="flex-1 py-3 px-4 rounded-lg bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-bold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              >
+                {processing ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <FaCreditCard />
+                    Proceed to Payment
+                  </>
+                )}
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-500 text-center mt-4">
+              💳 Secure payment powered by Razorpay
+            </p>
+          </div>
+        </div>
+      )}
 
       <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     </>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 import { toast } from 'react-toastify';
 
 const Login = () => {
@@ -9,7 +10,7 @@ const Login = () => {
     password: '',
   });
   const [loading, setLoading] = useState(false);
-  const { login, user } = useAuth();
+  const { login, loginWithGoogle, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -44,6 +45,18 @@ const Login = () => {
     }
 
     setLoading(false);
+  };
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    const result = await loginWithGoogle(credentialResponse.credential);
+
+    if (result.success) {
+      toast.success('Login successful!');
+      const from = location.state?.from || '/';
+      navigate(from);
+    } else {
+      toast.error(result.message || 'Google login failed');
+    }
   };
 
   return (
@@ -100,6 +113,19 @@ const Login = () => {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
+
+          <div className="mt-6 flex items-center">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="flex-shrink mx-4 text-gray-500 text-sm">or</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+
+          <div className="mt-6 flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => toast.error('Google login failed')}
+            />
+          </div>
 
           <div className="mt-6 text-center text-sm">
             <span className="text-gray-600">Don't have an account? </span>

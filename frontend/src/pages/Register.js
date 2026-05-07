@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 import { toast } from 'react-toastify';
 
 const Register = () => {
@@ -13,7 +14,7 @@ const Register = () => {
     phone: '',
   });
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -49,6 +50,17 @@ const Register = () => {
     }
 
     setLoading(false);
+  };
+
+  const handleGoogleSignup = async (credentialResponse) => {
+    const result = await loginWithGoogle(credentialResponse.credential, formData.role);
+
+    if (result.success) {
+      toast.success('Registration successful!');
+      navigate('/');
+    } else {
+      toast.error(result.message || 'Google signup failed');
+    }
   };
 
   return (
@@ -147,6 +159,19 @@ const Register = () => {
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
+
+          <div className="mt-6 flex items-center">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="flex-shrink mx-4 text-gray-500 text-sm">or</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+
+          <div className="mt-6 flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSignup}
+              onError={() => toast.error('Google signup failed')}
+            />
+          </div>
 
           <div className="mt-6 text-center text-sm">
             <span className="text-gray-600">Already have an account? </span>

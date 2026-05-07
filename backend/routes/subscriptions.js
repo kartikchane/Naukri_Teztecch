@@ -54,7 +54,7 @@ router.get('/history', protect, async (req, res) => {
 // @access  Private
 router.post('/create', protect, [
   body('planId').notEmpty().withMessage('Plan ID is required'),
-  body('paymentMethod').isIn(['credit-card', 'debit-card', 'upi', 'net-banking', 'wallet']).withMessage('Invalid payment method')
+  body('paymentMethod').isIn(['razorpay', 'credit-card', 'debit-card', 'upi', 'net-banking', 'wallet', 'manual']).withMessage('Invalid payment method')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -180,7 +180,6 @@ router.post('/create', protect, [
 // @desc    Verify payment and activate subscription
 // @access  Private
 router.post('/verify-payment', protect, [
-  body('subscriptionId').notEmpty().withMessage('Subscription ID is required'),
   body('razorpayPaymentId').notEmpty().withMessage('Payment ID is required'),
   body('razorpayOrderId').notEmpty().withMessage('Order ID is required'),
   body('razorpaySignature').notEmpty().withMessage('Signature is required')
@@ -191,10 +190,14 @@ router.post('/verify-payment', protect, [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { subscriptionId, razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
+    const { razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
 
-    // Get subscription
-    const subscription = await Subscription.findById(subscriptionId).populate('plan');
+    // Get subscription by Razorpay order ID (stored in transactionId)
+    const subscription = await Subscription.findOne({
+      'payment.transactionId': razorpayOrderId,
+      user: req.user._id
+    }).populate('plan');
+    
     if (!subscription) {
       return res.status(404).json({ message: 'Subscription not found' });
     }

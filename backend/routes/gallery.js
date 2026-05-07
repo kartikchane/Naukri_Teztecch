@@ -1,38 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 const Gallery = require('../models/Gallery');
 const Company = require('../models/Company');
 const { protect } = require('../middleware/auth');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../../uploads/gallery');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'gallery-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (allowedMimes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'), false);
-    }
-  }
-});
+const upload = require('../middleware/upload');
+const { normalizeFileLocation, uploadToS3 } = require('../middleware/upload');
 
 // Get all gallery images for a company
 router.get('/company/:companyId', async (req, res) => {
@@ -68,7 +42,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Upload gallery image
-router.post('/upload/:companyId', protect, upload.single('image'), async (req, res) => {
+router.post('/upload/:companyId', protect, upload.single('image'), uploadToS3, normalizeFileLocation, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
@@ -79,8 +53,6 @@ router.post('/upload/:companyId', protect, upload.single('image'), async (req, r
     // Verify company exists
     const company = await Company.findById(req.params.companyId);
     if (!company) {
-      // Delete uploaded file if company doesn't exist
-      fs.unlinkSync(req.file.path);
       return res.status(404).json({ message: 'Company not found' });
     }
 
@@ -94,7 +66,7 @@ router.post('/upload/:companyId', protect, upload.single('image'), async (req, r
       company: req.params.companyId,
       title: title || 'Untitled',
       description: description || '',
-      imageUrl: `/uploads/gallery/${req.file.filename}`,
+      imageUrl: req.file.location, // S3 URL
       category: category || 'other',
       displayOrder: displayOrder,
       uploadedBy: req.user._id
@@ -106,10 +78,6 @@ router.post('/upload/:companyId', protect, upload.single('image'), async (req, r
       data: galleryImage
     });
   } catch (error) {
-    // Delete uploaded file on error
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
     console.error('Error uploading image:', error);
     res.status(500).json({ message: 'Error uploading image' });
   }
@@ -152,9 +120,23 @@ router.delete('/:id', protect, async (req, res) => {
     }
 
     // Delete the file from disk
-    const filePath = image.imageUrl.replace(/^\//, '');
+    // imageUrl is stored as "uploads/gallery/filename.jpg"
+    const backendDir = path.join(__dirname, '..');
+    const filePath = path.join(backendDir, image.imageUrl.replace(/^\//, ''));
+    
+    console.log(`🗑️  Attempting to delete file: ${filePath}`);
+    console.log(`📁 File exists: ${fs.existsSync(filePath)}`);
+    
     if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+      try {
+        fs.unlinkSync(filePath);
+        console.log(`✅ File deleted successfully: ${filePath}`);
+      } catch (fileError) {
+        console.error(`❌ Error deleting file: ${fileError.message}`);
+        // Continue with DB deletion even if file deletion fails
+      }
+    } else {
+      console.log(`⚠️  File not found on disk: ${filePath}`);
     }
 
     await Gallery.findByIdAndDelete(req.params.id);
@@ -165,7 +147,7 @@ router.delete('/:id', protect, async (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting gallery image:', error);
-    res.status(500).json({ message: 'Error deleting gallery image' });
+    res.status(500).json({ message: 'Error deleting gallery image', error: error.message });
   }
 });
 

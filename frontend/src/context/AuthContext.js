@@ -78,6 +78,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (token, role = 'jobseeker') => {
+    try {
+      const { data } = await API.post('/auth/google', { token, role });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data));
+      setUser(data);
+      return { success: true, data };
+    } catch (error) {
+      // Clear any corrupted data on failed Google login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Google login failed',
+      };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -88,6 +107,7 @@ export const AuthProvider = ({ children }) => {
     user,
     login,
     register,
+    loginWithGoogle,
     logout,
     loading,
     isAuthenticated: !!user,

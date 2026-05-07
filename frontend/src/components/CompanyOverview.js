@@ -27,34 +27,95 @@ const CompanyOverview = ({ company }) => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [deptRes, benefitsRes, salariesRes, galleryRes] = await Promise.all([
-        API.get(`/companies/${company._id}/departments`),
-        API.get(`/companies/${company._id}/benefits`),
-        API.get(`/companies/${company._id}/salaries`),
-        API.get(`/gallery/company/${company._id}`),
-      ]);
+      console.log('🔄 Starting fetchData for company:', company._id);
+      
+      // Fetch gallery separately to prevent failures from blocking other data
+      let galleryData = [];
+      try {
+        const galleryRes = await API.get(`/gallery/company/${company._id}`);
+        console.log('✅ Gallery fetched:', { count: galleryRes.data?.count, dataLength: galleryRes.data?.data?.length });
+        galleryData = galleryRes.data?.data || [];
+      } catch (galleryError) {
+        console.warn('⚠️ Gallery fetch failed:', galleryError.message);
+      }
 
-      // Ensure departments is always an array
-      setDepartments(Array.isArray(deptRes.data) ? deptRes.data : []);
-      setBenefits(Array.isArray(benefitsRes.data) ? benefitsRes.data : []);
-      setSalaries(Array.isArray(salariesRes.data) ? salariesRes.data : []);
+      // Fetch other data
+      let deptData = [];
+      let benefitsData = [];
+      let salariesData = [];
+      
+      try {
+        const [deptRes, benefitsRes, salariesRes] = await Promise.all([
+          API.get(`/companies/${company._id}/departments`).catch(err => {
+            console.warn('Departments fetch failed:', err.message);
+            return { data: [] };
+          }),
+          API.get(`/companies/${company._id}/benefits`).catch(err => {
+            console.warn('Benefits fetch failed:', err.message);
+            return { data: [] };
+          }),
+          API.get(`/companies/${company._id}/salaries`).catch(err => {
+            console.warn('Salaries fetch failed:', err.message);
+            return { data: [] };
+          }),
+        ]);
 
-      // Extract gallery image URLs with full backend path
-      if (galleryRes.data?.data && Array.isArray(galleryRes.data.data)) {
-        const photoUrls = galleryRes.data.data.map(img => {
-          // If URL is relative, prepend backend server address
-          if (img.imageUrl.startsWith('/')) {
-            const backendUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5001';
-            return `${backendUrl}${img.imageUrl}`;
-          }
-          return img.imageUrl;
+        deptData = Array.isArray(deptRes.data) ? deptRes.data : deptRes.data.data || [];
+        benefitsData = Array.isArray(benefitsRes.data) ? benefitsRes.data : benefitsRes.data.data || [];
+        salariesData = Array.isArray(salariesRes.data) ? salariesRes.data : salariesRes.data.data || [];
+      } catch (error) {
+        console.warn('Error fetching departments/benefits/salaries:', error);
+      }
+
+      setDepartments(deptData);
+      setBenefits(benefitsData);
+      setSalaries(salariesData);
+
+      // Process gallery images
+      if (galleryData.length > 0) {
+        // Sort by displayOrder
+        const sortedData = [...galleryData].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+        const photoUrls = sortedData
+          .map(img => {
+            let imagePath = img.imageUrl || img.path || img;
+            if (typeof imagePath === 'object') {
+              imagePath = imagePath.imageUrl || imagePath.path || '';
+            }
+            if (!imagePath) return null;
+            
+            // Handle relative paths
+            if (!imagePath.startsWith('http')) {
+              if (!imagePath.startsWith('uploads/')) {
+                imagePath = `uploads/${imagePath}`;
+              }
+              return getFileUrl(imagePath);
+            }
+            return imagePath;
+          })
+          .filter(url => url && url.trim()); // Remove nulls and empty strings
+        
+        console.log('✅ Gallery photos processed:', {
+          totalInDb: galleryData.length,
+          validUrls: photoUrls.length,
+          firstUrl: photoUrls[0]?.substring(0, 80) || 'N/A'
         });
+        
         setGalleryPhotos(photoUrls);
       } else {
-        setGalleryPhotos([]);
+        console.log('ℹ️ No gallery images found, using company photos fallback');
+        // Use company photos as fallback
+        if (company?.companyPhotos && Array.isArray(company.companyPhotos)) {
+          const fallbackUrls = company.companyPhotos
+            .map(photo => {
+              const path = photo.startsWith('uploads/') ? photo : `uploads/${photo}`;
+              return getFileUrl(path);
+            })
+            .filter(url => url);
+          setGalleryPhotos(fallbackUrls);
+        }
       }
     } catch (error) {
-      console.error('Error fetching company data:', error);
+      console.error('❌ Error fetching company data:', error);
       setDepartments([]);
       setBenefits([]);
       setSalaries([]);
@@ -62,7 +123,7 @@ const CompanyOverview = ({ company }) => {
     } finally {
       setLoading(false);
     }
-  }, [company?._id]);
+  }, [company?._id, company?.companyPhotos]);
 
   useEffect(() => {
     if (company?._id) {
@@ -109,7 +170,20 @@ const CompanyOverview = ({ company }) => {
             View gallery →
           </button>
         </div>
-        <CompanyPhotoGallery photos={galleryPhotos.length > 0 ? galleryPhotos : company?.companyPhotos} />
+        {loading && galleryPhotos.length === 0 && (
+          <div className="bg-gray-100 h-96 flex items-center justify-center rounded-lg">
+            <p className="text-gray-500">Loading gallery...</p>
+          </div>
+        )}
+        {!loading && galleryPhotos.length > 0 && (
+          <CompanyPhotoGallery key={`gallery-${galleryPhotos.length}`} photos={galleryPhotos} />
+        )}
+        {!loading && galleryPhotos.length === 0 && company?.companyPhotos && company.companyPhotos.length > 0 && (
+          <CompanyPhotoGallery key="fallback" photos={company.companyPhotos} />
+        )}
+        {!loading && galleryPhotos.length === 0 && (!company?.companyPhotos || company.companyPhotos.length === 0) && (
+          <CompanyPhotoGallery key="default" photos={[]} />
+        )}
       </div>
 
       {/* Departments Hiring */}
