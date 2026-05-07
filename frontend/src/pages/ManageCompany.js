@@ -12,7 +12,9 @@ import { toast } from 'react-toastify';
 const ManageCompany = () => {
   const navigate = useNavigate();
   const [company, setCompany] = useState(null);
+  const [galleryImages, setGalleryImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [galleryLoading, setGalleryLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
   const [editing, setEditing] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
@@ -41,6 +43,12 @@ const ManageCompany = () => {
     try {
       const { data } = await API.get('/companies/my-company');
       setCompany(data);
+      
+      // Fetch gallery images for this company
+      if (data._id) {
+        fetchGalleryImages(data._id);
+      }
+      
       setFormData({
         name: data.name || '',
         description: data.description || '',
@@ -59,6 +67,29 @@ const ManageCompany = () => {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchGalleryImages = async (companyId) => {
+    try {
+      setGalleryLoading(true);
+      const { data } = await API.get(`/gallery/company/${companyId}`);
+      if (data.data && Array.isArray(data.data)) {
+        // Convert relative URLs to full URLs
+        const images = data.data
+          .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+          .map(img => ({
+            ...img,
+            imageUrl: img.imageUrl.startsWith('http') 
+              ? img.imageUrl 
+              : getFileUrl(img.imageUrl.startsWith('uploads/') ? img.imageUrl : `uploads/${img.imageUrl}`)
+          }));
+        setGalleryImages(images);
+      }
+    } catch (error) {
+      console.error('Failed to fetch gallery images:', error);
+    } finally {
+      setGalleryLoading(false);
     }
   };
 
@@ -120,22 +151,24 @@ const ManageCompany = () => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
+    if (!company || !company._id) {
+      toast.error('Company not found. Please create a company first.');
+      return;
+    }
+
     setUploadingPhotos(true);
     try {
       for (const file of files) {
         const formDataFile = new FormData();
-        formDataFile.append('photo', file);
+        formDataFile.append('image', file); // Changed from 'photo' to 'image'
 
-        const { data } = await API.post(`/gallery/company/${company._id}`, formDataFile, {
+        await API.post(`/gallery/upload/${company._id}`, formDataFile, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-
-        setCompany(prev => ({
-          ...prev,
-          companyPhotos: [...(prev.companyPhotos || []), data.photo]
-        }));
       }
       toast.success('Photos uploaded successfully');
+      // Refresh gallery images after upload
+      await fetchGalleryImages(company._id);
     } catch (error) {
       toast.error('Failed to upload photos');
       console.error(error);
@@ -144,16 +177,16 @@ const ManageCompany = () => {
     }
   };
 
-  const handleDeletePhoto = async (photo) => {
+  const handleDeletePhoto = async (photoId) => {
     try {
-      await API.delete(`/gallery/photo/${encodeURIComponent(photo)}`);
-      setCompany(prev => ({
-        ...prev,
-        companyPhotos: prev.companyPhotos.filter(p => p !== photo)
-      }));
-      toast.success('Photo deleted');
+      const response = await API.delete(`/gallery/${photoId}`);
+      setGalleryImages(prev => prev.filter(img => img._id !== photoId));
+      toast.success('Photo deleted successfully');
+      console.log('✅ Photo deleted:', photoId);
     } catch (error) {
-      toast.error('Failed to delete photo');
+      console.error('❌ Delete error:', error);
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || 'Failed to delete photo';
+      toast.error(errorMsg);
     }
   };
 
@@ -366,23 +399,36 @@ const ManageCompany = () => {
                 )}
 
                 <div className="grid md:grid-cols-3 gap-6">
-                  {company.companyPhotos && company.companyPhotos.map((photo, idx) => (
-                    <div key={idx} className="relative group">
-                      <img
-                        src={`http://localhost:5000/${photo}`}
-                        alt="Company"
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                      {editing && (
-                        <button
-                          onClick={() => handleDeletePhoto(photo)}
-                          className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition"
-                        >
-                          <FaTrash />
-                        </button>
-                      )}
+                  {galleryLoading ? (
+                    <div className="col-span-full text-center py-8 text-gray-500">
+                      Loading gallery...
                     </div>
-                  ))}
+                  ) : galleryImages && galleryImages.length > 0 ? (
+                    galleryImages.map((image) => (
+                      <div key={image._id} className="relative group">
+                        <img
+                          src={image.imageUrl}
+                          alt={image.title || 'Company Photo'}
+                          className="w-full h-48 object-cover rounded-lg"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
+                          }}
+                        />
+                        {editing && (
+                          <button
+                            onClick={() => handleDeletePhoto(image._id)}
+                            className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition"
+                          >
+                            <FaTrash />
+                          </button>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-8 text-gray-500">
+                      No photos uploaded yet
+                    </div>
+                  )}
                 </div>
               </div>
             )}

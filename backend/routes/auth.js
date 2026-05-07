@@ -2,8 +2,12 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
+
+// Initialize Google OAuth2 Client
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -95,6 +99,96 @@ router.post('/login', [
     });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/auth/google
+// @desc    Google OAuth login/register
+// @access  Public
+router.post('/google', [
+  body('token').notEmpty().withMessage('Google token is required'),
+  body('role').optional().isIn(['jobseeker', 'employer']).withMessage('Invalid role')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array()[0].msg });
+    }
+
+    const { token, role = 'jobseeker' } = req.body;
+
+    // Verify Google token
+    let ticket;
+    try {
+      ticket = await googleClient.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID
+      });
+    } catch (error) {
+      console.error('Google token verification failed:', error);
+      return res.status(401).json({ message: 'Invalid Google token' });
+    }
+
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    // Check if user exists by googleId
+    let user = await User.findOne({ googleId });
+
+    if (user) {
+      // Existing Google user - just log in
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id)
+      });
+    } else {
+      // Check if user exists by email (might have registered with email/password first)
+      user = await User.findOne({ email });
+
+      if (user) {
+        // User exists with email - link Google ID if not already linked
+        if (!user.googleId) {
+          user.googleId = googleId;
+          user.provider = 'google';
+          if (picture && !user.avatar) {
+            user.avatar = picture;
+          }
+          await user.save();
+        }
+        res.json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          token: generateToken(user._id)
+        });
+      } else {
+        // New user - create account
+        user = await User.create({
+          name,
+          email,
+          googleId,
+          avatar: picture || 'default-avatar.png',
+          role,
+          provider: 'google'
+          // No password for Google OAuth users
+        });
+
+        res.status(201).json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          token: generateToken(user._id)
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Google auth error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

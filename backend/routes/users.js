@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
 const upload = require('../middleware/upload');
+const { normalizeFileLocation, uploadToS3 } = require('../middleware/upload');
 
 // @route   GET /api/users/profile
 // @desc    Get user profile
@@ -62,25 +63,24 @@ router.put('/profile', protect, async (req, res) => {
 // @route   POST /api/users/resume
 // @desc    Upload resume
 // @access  Private
-router.post('/resume', protect, upload.single('resume'), async (req, res) => {
+router.post('/resume', protect, upload.single('resume'), uploadToS3, normalizeFileLocation, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'Please upload a file' });
     }
 
-    // Use just the filename - multer already saves to correct folder
-    const relativePath = `uploads/${req.file.filename}`;
+    // file.location is set by both multer-s3 and our custom local storage
+    const filePath = req.file.location;
 
-    console.log('📄 File uploaded to:', req.file.path);
-    console.log('📄 Saving as:', relativePath);
+    console.log('📄 Resume uploaded:', filePath);
 
     const user = await User.findById(req.user._id);
-    user.resume = relativePath;
+    user.resume = filePath;
     await user.save();
 
     res.json({
       message: 'Resume uploaded successfully',
-      resume: relativePath,
+      resume: filePath,
       fileName: req.file.originalname
     });
   } catch (error) {
@@ -92,15 +92,14 @@ router.post('/resume', protect, upload.single('resume'), async (req, res) => {
 // @route   POST /api/users/avatar
 // @desc    Upload avatar
 // @access  Private
-router.post('/avatar', protect, upload.single('avatar'), async (req, res) => {
+router.post('/avatar', protect, upload.single('avatar'), uploadToS3, normalizeFileLocation, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'Please upload a file' });
     }
 
-    // Convert absolute path to relative: uploads/avatar-xxx.png
-    const relativePath = req.file.path.replace(/\\/g, '/').split('/uploads/')[1];
-    const avatarPath = `uploads/${relativePath}`;
+    // file.location is set by both multer-s3 and our custom local storage
+    const avatarPath = req.file.location;
 
     const user = await User.findById(req.user._id);
     user.avatar = avatarPath;

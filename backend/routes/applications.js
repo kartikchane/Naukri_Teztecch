@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Company = require('../models/Company');
 const { protect, isEmployer } = require('../middleware/auth');
 const upload = require('../middleware/upload');
+const { normalizeFileLocation } = require('../middleware/upload');
 const NotificationService = require('../services/notificationService');
 const EmailService = require('../services/emailService');
 const fs = require('fs');
@@ -42,7 +43,7 @@ const normalizeResumePath = (resumePath) => {
 // @route   POST /api/applications
 // @desc    Apply for a job
 // @access  Private (Job Seeker only)
-router.post('/', protect, upload.single('resume'), async (req, res) => {
+router.post('/', protect, upload.single('resume'), normalizeFileLocation, async (req, res) => {
   try {
     const { jobId, coverLetter } = req.body;
 
@@ -67,12 +68,11 @@ router.post('/', protect, upload.single('resume'), async (req, res) => {
     }
 
 
-    // Get resume path (optional) - convert to relative path for serving
+    // Get resume path - now S3 URL
     let resumePath = null;
     if (req.file) {
-      // Convert absolute path to relative: uploads/resume-xxx.pdf
-      resumePath = req.file.path.replace(/\\/g, '/').split('/uploads/')[1];
-      resumePath = `uploads/${resumePath}`;
+      // S3 file URL: https://bucket.s3.region.amazonaws.com/documents/timestamp.pdf
+      resumePath = req.file.location;
     } else if (req.user.resume) {
       resumePath = req.user.resume;
     }

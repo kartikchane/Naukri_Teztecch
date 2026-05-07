@@ -25,7 +25,7 @@ const subscriptionSchema = new mongoose.Schema({
   // Subscription status
   status: {
     type: String,
-    enum: ['active', 'inactive', 'suspended', 'expired', 'cancelled'],
+    enum: ['pending', 'active', 'inactive', 'suspended', 'expired', 'cancelled'],
     default: 'active'
   },
 
@@ -46,8 +46,8 @@ const subscriptionSchema = new mongoose.Schema({
     transactionId: String,
     paymentMethod: {
       type: String,
-      enum: ['credit-card', 'debit-card', 'upi', 'net-banking', 'wallet', 'manual'],
-      default: 'credit-card'
+      enum: ['razorpay', 'credit-card', 'debit-card', 'upi', 'net-banking', 'wallet', 'manual'],
+      default: 'razorpay'
     },
     paymentDate: Date,
     paymentStatus: {

@@ -5,20 +5,74 @@ const Company = require('../models/Company');
 const User = require('../models/User');
 const { protect, isEmployer } = require('../middleware/auth');
 const upload = require('../middleware/upload');
+const { normalizeFileLocation, uploadToS3 } = require('../middleware/upload');
 const EmailService = require('../services/emailService');
+
+// Helper function to normalize file paths in company data
+function normalizeCompanyPaths(company) {
+  try {
+    if (!company) return company;
+    
+    const companyObj = company.toObject ? company.toObject() : { ...company };
+    
+    // Normalize logo
+    if (companyObj.logo && typeof companyObj.logo === 'string') {
+      // Only process if it contains absolute path markers
+      if (companyObj.logo.includes('backend') || companyObj.logo.includes('\\')) {
+        const uploadsIdx = companyObj.logo.indexOf('uploads');
+        if (uploadsIdx !== -1) {
+          companyObj.logo = companyObj.logo.substring(uploadsIdx).replace(/\\/g, '/');
+        }
+      }
+    }
+    
+    // Normalize documents
+    if (companyObj.documents && typeof companyObj.documents === 'object') {
+      Object.keys(companyObj.documents).forEach(key => {
+        try {
+          if (companyObj.documents[key] && typeof companyObj.documents[key] === 'string') {
+            // Only process if it contains absolute path markers
+            if (companyObj.documents[key].includes('backend') || companyObj.documents[key].includes('\\')) {
+              const uploadsIdx = companyObj.documents[key].indexOf('uploads');
+              if (uploadsIdx !== -1) {
+                companyObj.documents[key] = companyObj.documents[key].substring(uploadsIdx).replace(/\\/g, '/');
+              }
+            }
+          }
+        } catch (err) {
+          console.warn(`⚠️  Error normalizing document ${key}:`, err.message);
+        }
+      });
+    }
+    
+    return companyObj;
+  } catch (error) {
+    console.error('❌ Error in normalizeCompanyPaths:', error);
+    // Return original if normalization fails
+    return company;
+  }
+}
 
 // @route   POST /api/companies
 // @desc    Create company profile
 // @access  Private (Employer only)
-router.post('/', [protect, isEmployer], [
-  body('name').notEmpty().withMessage('Company name is required'),
-  body('description').notEmpty().withMessage('Description is required'),
-  body('industry').notEmpty().withMessage('Industry is required')
-], async (req, res) => {
+router.post('/', protect, isEmployer, upload.fields([
+  { name: 'logo', maxCount: 1 },
+  { name: 'aadharCard', maxCount: 1 },
+  { name: 'panCard', maxCount: 1 },
+  { name: 'gstCertificate', maxCount: 1 },
+  { name: 'udyamAadhar', maxCount: 1 }
+]), uploadToS3, normalizeFileLocation, async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+    // Manual validation for multipart form data
+    if (!req.body.name || !req.body.name.trim()) {
+      return res.status(400).json({ message: 'Company name is required' });
+    }
+    if (!req.body.description || !req.body.description.trim()) {
+      return res.status(400).json({ message: 'Description is required' });
+    }
+    if (!req.body.industry) {
+      return res.status(400).json({ message: 'Industry is required' });
     }
 
     // Check if user already has a company
@@ -27,9 +81,74 @@ router.post('/', [protect, isEmployer], [
       return res.status(400).json({ message: 'You already have a company profile' });
     }
 
-    const company = await Company.create({
-      ...req.body,
+    // Build company data
+    const companyData = {
+      name: req.body.name,
+      description: req.body.description,
+      industry: req.body.industry,
       owner: req.user._id
+    };
+
+    // Add optional fields
+    if (req.body.location) {
+      companyData.location = req.body.location;
+    }
+    if (req.body.website) {
+      companyData.website = req.body.website;
+    }
+    if (req.body.size) {
+      companyData.companySize = req.body.size;
+    }
+    if (req.body.foundedYear) {
+      companyData.founded = parseInt(req.body.foundedYear);
+    }
+    if (req.body.specialties) {
+      try {
+        companyData.specialties = JSON.parse(req.body.specialties);
+      } catch (e) {
+        companyData.specialties = [];
+      }
+    }
+
+    // Handle contact info (nested structure)
+    companyData.contactInfo = {
+      registeredEmail: req.body.registeredEmail || '',
+      registeredPhone: req.body.registeredPhone || ''
+    };
+
+    // Handle documents - store only URL strings
+    if (req.files) {
+      companyData.documents = {};
+      
+      // All file uploads now set file.location (S3 URL or local path)
+      if (req.files.aadharCard && req.files.aadharCard[0]) {
+        companyData.documents.aadharCard = req.files.aadharCard[0].location;
+      }
+      if (req.files.panCard && req.files.panCard[0]) {
+        companyData.documents.panCard = req.files.panCard[0].location;
+      }
+      if (req.files.gstCertificate && req.files.gstCertificate[0]) {
+        companyData.documents.gstCertificate = req.files.gstCertificate[0].location;
+      }
+      if (req.files.udyamAadhar && req.files.udyamAadhar[0]) {
+        companyData.documents.udyamAadhar = req.files.udyamAadhar[0].location;
+      }
+
+      // Handle logo
+      if (req.files.logo && req.files.logo[0]) {
+        companyData.logo = req.files.logo[0].location;
+      }
+    }
+
+    const company = await Company.create(companyData);
+
+    // Log saved document paths
+    console.log('✅ Company created with documents:', {
+      aadharCard: company.documents?.aadharCard,
+      panCard: company.documents?.panCard,
+      gstCertificate: company.documents?.gstCertificate,
+      udyamAadhar: company.documents?.udyamAadhar,
+      logo: company.logo
     });
 
     // Update user's company reference
@@ -44,10 +163,13 @@ router.post('/', [protect, isEmployer], [
       // Don't fail if email fails
     }
 
-    res.status(201).json(company);
+    res.status(201).json({ 
+      message: 'Company profile created successfully',
+      company 
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error creating company:', error);
+    res.status(500).json({ message: error.message || 'Failed to create company profile' });
   }
 });
 
@@ -382,7 +504,7 @@ router.put('/:id', [protect, isEmployer], async (req, res) => {
 // @route   POST /api/companies/:id/logo
 // @desc    Upload company logo
 // @access  Private (Owner only)
-router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), async (req, res) => {
+router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), normalizeFileLocation, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'Please upload a file' });
@@ -398,18 +520,14 @@ router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), async (re
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    // Extract just the filename - frontend will add /uploads/ prefix
-    const fileName = req.file.filename;
-    // Store only the filename, NOT the uploads/ prefix
-    // Frontend URL construction: ${API_URL}/uploads/${filename}
+    // S3 file URL
+    const logoUrl = req.file.location;
 
     console.log('🔵 Logo upload START');
-    console.log('  Original path:', req.file.path);
-    console.log('  Filename:', fileName);
-    console.log('  Storing in DB:', fileName);
+    console.log('  S3 URL:', logoUrl);
     console.log('  Company ID:', req.params.id);
 
-    company.logo = fileName;
+    company.logo = logoUrl;
     const savedCompany = await company.save();
 
     console.log('🟢 Logo upload SUCCESS');
@@ -417,7 +535,7 @@ router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), async (re
 
     res.json({
       message: 'Logo uploaded successfully',
-      logo: fileName,
+      logo: logoUrl,
       savedLogo: savedCompany.logo
     });
   } catch (error) {
@@ -429,7 +547,7 @@ router.post('/:id/logo', [protect, isEmployer], upload.single('logo'), async (re
 // @route   POST /api/companies/:id/documents
 // @desc    Upload company documents (Aadhar, PAN, GST, Udyam)
 // @access  Private (Owner only)
-router.post('/:id/documents', [protect, isEmployer], upload.single('document'), async (req, res) => {
+router.post('/:id/documents', [protect, isEmployer], upload.single('document'), uploadToS3, normalizeFileLocation, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'Please upload a file' });
@@ -442,6 +560,11 @@ router.post('/:id/documents', [protect, isEmployer], upload.single('document'), 
       return res.status(400).json({ message: 'Invalid document type' });
     }
 
+    console.log('🔵 Document upload START');
+    console.log('  Type:', documentType);
+    console.log('  File:', req.file.filename);
+    console.log('  Location:', req.file.location);
+
     const company = await Company.findById(req.params.id);
 
     if (!company) {
@@ -452,9 +575,10 @@ router.post('/:id/documents', [protect, isEmployer], upload.single('document'), 
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    // Convert absolute path to relative
-    const relativePath = req.file.path.replace(/\\/g, '/').split('/uploads/')[1];
-    const documentPath = `uploads/${relativePath}`;
+    // File URL (already normalized by middleware)
+    const documentPath = req.file.location;
+
+    console.log('  Document path to save:', documentPath);
 
     // Update documents
     if (!company.documents) {
@@ -478,16 +602,25 @@ router.post('/:id/documents', [protect, isEmployer], upload.single('document'), 
       adminNotes: ''
     };
 
-    await company.save();
+    const savedCompany = await company.save();
+    
+    console.log('🟢 Document upload SUCCESS');
+    console.log('  Saved in DB:', savedCompany.documents[documentType]);
 
     res.json({
       message: 'Document uploaded successfully',
       documentType: documentType,
-      filePath: documentPath
+      filePath: documentPath,
+      data: {
+        documentType,
+        fileUrl: documentPath,
+        uploadedAt: new Date()
+      }
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('🔴 Document upload ERROR:', error.message);
+    console.error('  Full error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
@@ -514,20 +647,15 @@ router.get('/:id/documents/:docType', async (req, res) => {
       return res.status(404).json({ message: 'Document not found in database' });
     }
 
-    console.log('🔵 Document URL request:');
-    console.log('  Document Type:', docType);
-    console.log('  Stored Path:', documentPath);
+    // If it's already an S3 URL, redirect directly
+    if (documentPath.startsWith('http')) {
+      return res.redirect(documentPath);
+    }
 
-    // Ensure the path starts with /uploads/
+    // Otherwise, redirect to local uploads (backward compatibility)
     const normalizedPath = documentPath.startsWith('/')
       ? documentPath
       : `/${documentPath}`;
-
-    console.log('  Normalized Path:', normalizedPath);
-    console.log('  ✅ Redirecting to static file endpoint...');
-
-    // Redirect to the static file serving middleware
-    // This allows Render's proxy and CDN to handle file serving properly
     res.redirect(normalizedPath);
   } catch (error) {
     console.error('🔴 Document URL error:', error);

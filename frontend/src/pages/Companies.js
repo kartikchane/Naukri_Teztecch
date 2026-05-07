@@ -172,7 +172,7 @@ const Companies = () => {
                 <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center relative p-4">
                   {company.logo && company.logo !== 'default-company-logo.png' ? (
                     <img
-                      src={getFileUrl(`uploads/${company.logo}`)}
+                      src={getFileUrl(company.logo.startsWith('uploads/') ? company.logo : `uploads/${company.logo}`)}
                       alt={company.name}
                       className="max-h-32 max-w-[80%] object-contain"
                       onError={(e) => {

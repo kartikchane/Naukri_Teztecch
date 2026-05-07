@@ -365,7 +365,7 @@ const CompanyProfile = () => {
               <div className="flex gap-6 mb-6">
                 {company.logo && (
                   <img
-                    src={getFileUrl(`uploads/${company.logo}`)}
+                    src={getFileUrl(company.logo.startsWith('uploads/') ? company.logo : `uploads/${company.logo}`)}
                     alt={company.name}
                     className="w-32 h-32 object-cover rounded-lg"
                     onError={(e) => {
@@ -489,7 +489,10 @@ const CompanyProfile = () => {
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                       <span className="font-medium text-gray-700">Aadhar Card</span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/aadharCard`}
+                        href={company.documents.aadharCard.startsWith('http') 
+                          ? company.documents.aadharCard
+                          : `${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace('/api', '')}/${company.documents.aadharCard}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -502,7 +505,10 @@ const CompanyProfile = () => {
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                       <span className="font-medium text-gray-700">PAN Card</span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/panCard`}
+                        href={company.documents.panCard.startsWith('http')
+                          ? company.documents.panCard
+                          : `${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace('/api', '')}/${company.documents.panCard}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -515,7 +521,10 @@ const CompanyProfile = () => {
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                       <span className="font-medium text-gray-700">GST Certificate</span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/gstCertificate`}
+                        href={company.documents.gstCertificate.startsWith('http')
+                          ? company.documents.gstCertificate
+                          : `${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace('/api', '')}/${company.documents.gstCertificate}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -528,7 +537,10 @@ const CompanyProfile = () => {
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                       <span className="font-medium text-gray-700">Udyam Aadhar Registration</span>
                       <a
-                        href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/companies/${company._id}/documents/udyamAadhar`}
+                        href={company.documents.udyamAadhar.startsWith('http')
+                          ? company.documents.udyamAadhar
+                          : `${(process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace('/api', '')}/${company.documents.udyamAadhar}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -577,7 +589,7 @@ const CompanyProfile = () => {
                   />
                 ) : company.logo ? (
                   <img
-                    src={getFileUrl(`uploads/${company.logo}`)}
+                    src={getFileUrl(company.logo.startsWith('uploads/') ? company.logo : `uploads/${company.logo}`)}
                     alt="Current logo"
                     className="w-20 h-20 object-cover rounded"
                     onError={(e) => {

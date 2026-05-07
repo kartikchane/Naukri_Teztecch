@@ -2,34 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { isAdmin, protect, optionalAuth } = require('../middleware/auth');
 const Settings = require('../models/Settings');
-const multer = require('multer');
-const path = require('path');
-
-// Configure multer for logo/image uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'logo-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: function (req, file, cb) {
-    const allowedTypes = /jpeg|jpg|png|gif|svg/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (mimetype && extname) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'));
-    }
-  }
-});
+const upload = require('../middleware/upload');
+const { normalizeFileLocation } = require('../middleware/upload');
 
 // @route   GET /api/settings
 // @desc    Get site settings (public)
@@ -71,13 +45,13 @@ router.put('/', protect, isAdmin, async (req, res) => {
 // @route   POST /api/settings/upload-logo
 // @desc    Upload site logo
 // @access  Admin only
-router.post('/upload-logo', protect, isAdmin, upload.single('logo'), async (req, res) => {
+router.post('/upload-logo', protect, isAdmin, upload.single('logo'), normalizeFileLocation, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
     
-    const logoUrl = `/uploads/${req.file.filename}`;
+    const logoUrl = req.file.location;
     
     let settings = await Settings.findOne();
     if (!settings) {
@@ -95,13 +69,13 @@ router.post('/upload-logo', protect, isAdmin, upload.single('logo'), async (req,
 // @route   POST /api/settings/upload-favicon
 // @desc    Upload site favicon
 // @access  Admin only
-router.post('/upload-favicon', protect, isAdmin, upload.single('favicon'), async (req, res) => {
+router.post('/upload-favicon', protect, isAdmin, upload.single('favicon'), normalizeFileLocation, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
     
-    const faviconUrl = `/uploads/${req.file.filename}`;
+    const faviconUrl = req.file.location;
     
     let settings = await Settings.findOne();
     if (!settings) {
@@ -119,13 +93,13 @@ router.post('/upload-favicon', protect, isAdmin, upload.single('favicon'), async
 // @route   POST /api/settings/upload-hero-bg
 // @desc    Upload hero background image
 // @access  Admin only
-router.post('/upload-hero-bg', protect, isAdmin, upload.single('heroBg'), async (req, res) => {
+router.post('/upload-hero-bg', protect, isAdmin, upload.single('heroBg'), normalizeFileLocation, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
     
-    const bgUrl = `/uploads/${req.file.filename}`;
+    const bgUrl = req.file.location;
     
     let settings = await Settings.findOne();
     if (!settings) {

@@ -218,10 +218,15 @@ const CompanyVerification = () => {
         {/* Company Details Modal */}
         {selectedCompany && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[85vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-2xl font-bold text-gray-900">{selectedCompany.name}</h2>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">{selectedCompany.name}</h2>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Owner: {selectedCompany.owner?.name || 'N/A'} ({selectedCompany.owner?.email || 'N/A'})
+                    </p>
+                  </div>
                   <button
                     onClick={() => setSelectedCompany(null)}
                     className="text-gray-500 hover:text-gray-700"
@@ -247,6 +252,115 @@ const CompanyVerification = () => {
                       {selectedCompany.website}
                     </a>
                   </div>
+
+                  {/* Uploaded Documents Section */}
+                  {selectedCompany.documents && (
+                    <div>
+                      <p className="text-gray-600 font-semibold mb-3">📄 Uploaded Documents</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {selectedCompany.documents.aadharCard && (
+                          <div className="border rounded p-2 hover:bg-gray-50 cursor-pointer" 
+                               onClick={() => {
+                                 const url = selectedCompany.documents.aadharCard.startsWith('http') 
+                                   ? selectedCompany.documents.aadharCard
+                                   : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${selectedCompany.documents.aadharCard}`;
+                                 window.open(url, '_blank');
+                               }}>
+                            <p className="text-xs font-semibold text-gray-600">Aadhar Card</p>
+                            <p className="text-xs text-blue-600 truncate">View Document</p>
+                          </div>
+                        )}
+                        {selectedCompany.documents.panCard && (
+                          <div className="border rounded p-2 hover:bg-gray-50 cursor-pointer"
+                               onClick={() => {
+                                 const url = selectedCompany.documents.panCard.startsWith('http') 
+                                   ? selectedCompany.documents.panCard
+                                   : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${selectedCompany.documents.panCard}`;
+                                 window.open(url, '_blank');
+                               }}>
+                            <p className="text-xs font-semibold text-gray-600">PAN Card</p>
+                            <p className="text-xs text-blue-600 truncate">View Document</p>
+                          </div>
+                        )}
+                        {selectedCompany.documents.gstCertificate && (
+                          <div className="border rounded p-2 hover:bg-gray-50 cursor-pointer"
+                               onClick={() => {
+                                 const url = selectedCompany.documents.gstCertificate.startsWith('http') 
+                                   ? selectedCompany.documents.gstCertificate
+                                   : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${selectedCompany.documents.gstCertificate}`;
+                                 window.open(url, '_blank');
+                               }}>
+                            <p className="text-xs font-semibold text-gray-600">GST Certificate</p>
+                            <p className="text-xs text-blue-600 truncate">View Document</p>
+                          </div>
+                        )}
+                        {selectedCompany.documents.udyamAadhar && (
+                          <div className="border rounded p-2 hover:bg-gray-50 cursor-pointer"
+                               onClick={() => {
+                                 const url = selectedCompany.documents.udyamAadhar.startsWith('http') 
+                                   ? selectedCompany.documents.udyamAadhar
+                                   : `${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000'}/${selectedCompany.documents.udyamAadhar}`;
+                                 window.open(url, '_blank');
+                               }}>
+                            <p className="text-xs font-semibold text-gray-600">Udyam Aadhar</p>
+                            <p className="text-xs text-blue-600 truncate">View Document</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Contact Info Section */}
+                  {selectedCompany.contactInfo && (
+                    <div>
+                      <p className="text-gray-600 font-semibold mb-2">📞 Contact Information</p>
+                      <p className="text-sm text-gray-900">
+                        <span className="font-medium">Email:</span> {selectedCompany.contactInfo.registeredEmail}
+                      </p>
+                      <p className="text-sm text-gray-900">
+                        <span className="font-medium">Phone:</span> {selectedCompany.contactInfo.registeredPhone}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mt-6 pt-4 border-t flex gap-2 flex-wrap">
+                  {!selectedCompany.verified && !selectedCompany.suspended && (
+                    <>
+                      <button
+                        onClick={() => {
+                          handleVerify(selectedCompany._id);
+                          setSelectedCompany(null);
+                        }}
+                        className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm"
+                      >
+                        <FaCheck /> Verify & Approve
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Are you sure you want to suspend this company?')) {
+                            handleSuspend(selectedCompany._id);
+                            setSelectedCompany(null);
+                          }
+                        }}
+                        className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm"
+                      >
+                        <FaBan /> Reject & Suspend
+                      </button>
+                    </>
+                  )}
+                  {selectedCompany.suspended && (
+                    <button
+                      onClick={() => {
+                        handleReactivate(selectedCompany._id);
+                        setSelectedCompany(null);
+                      }}
+                      className="flex items-center gap-2 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 text-sm"
+                    >
+                      <FaCheck /> Reactivate
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
