@@ -40,7 +40,7 @@ const app = express();
 
 // Middleware - CORS for production
 const allowedOrigins = [
-  'https://teztechnaukri.com',
+  'https://teztecchnaukri.com',
   'https://teztecch-naukri-frontend.vercel.app',
   'https://teztech-naukri-frontend.vercel.app',
   'http://localhost:3000',
