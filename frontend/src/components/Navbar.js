@@ -92,7 +92,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
             <img
-              src="/teztech-logo-full.jpg"
+              src="/teztech-logo-full.jpeg"
               alt="Teztech Logo"
               className="h-16 w-17 object-contain"
             />

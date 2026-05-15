@@ -1,17 +1,8 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const cloudinary = require('cloudinary').v2;
 
-// Cloudinary Configuration
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-console.log('✅ Cloudinary Configured');
-console.log(`☁️ Cloud: ${process.env.CLOUDINARY_CLOUD_NAME}`);
+console.log('✅ Local Storage Configured (Development Mode)');
 
 // Check file type
 function checkFileType(file, cb) {
@@ -49,113 +40,98 @@ function getFolderName(fieldname, req) {
   return 'misc';
 }
 
-// Memory storage for Cloudinary upload
+// Local disk storage - Save documents to temp first
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    try {
+      let folder = 'misc';
+      if (file.fieldname === 'document') {
+        folder = 'temp';
+      } else {
+        folder = getFolderName(file.fieldname, req);
+      }
+      
+      const uploadPath = path.join(__dirname, '../uploads', folder);
+      if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+      }
+      cb(null, uploadPath);
+    } catch (err) {
+      console.error('ERROR in destination:', err.message);
+      cb(err);
+    }
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.pdf';
+    const randomStr = Math.random().toString(36).substr(2, 9);
+    const filename = `${Date.now()}_${randomStr}${ext}`;
+    cb(null, filename);
+  }
+});
+
 const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => checkFileType(file, cb)
 });
 
-// Upload to Cloudinary
+// Move file to correct location based on documentType
 const uploadToS3 = async (req, res, next) => {
   try {
-    // Single file
     if (req.file) {
-      const folder = getFolderName(req.file.fieldname, req);
+      const currentPath = req.file.path;
+      let finalFolder = getFolderName(req.file.fieldname, req);
       
-      console.log(`☁️ Uploading to Cloudinary [${folder}]: ${req.file.originalname}`);
+      // If in temp folder, move to documents folder based on documentType
+      if (currentPath.includes('uploads\\temp\\') || currentPath.includes('uploads/temp/')) {
+        const docType = req.body?.documentType;
+        const correctSubfolder = 
+          docType === 'aadharCard' ? 'aadhar' :
+          docType === 'panCard' ? 'pan' :
+          docType === 'gstCertificate' ? 'gst' :
+          docType === 'udyamAadhar' ? 'udyam' : 'aadhar';
+        
+        finalFolder = `documents/${correctSubfolder}`;
+        const correctPath = path.join(__dirname, '../uploads', finalFolder);
+        
+        if (!fs.existsSync(correctPath)) {
+          fs.mkdirSync(correctPath, { recursive: true });
+        }
+        
+        const newFilePath = path.join(correctPath, req.file.filename);
+        fs.renameSync(currentPath, newFilePath);
+        req.file.path = newFilePath;
+        console.log(`✅ File moved to: ${finalFolder}`);
+      }
       
-      const result = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder: `naukri/${folder}`,
-            resource_type: 'auto',
-            public_id: `${Date.now()}_${Math.random().toString(36).substring(7)}`
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-        uploadStream.end(req.file.buffer);
-      });
+      const fileUrl = `uploads/${finalFolder}/${req.file.filename}`;
+      console.log(`📁 File ready: ${fileUrl}`);
       
-      req.file.location = result.secure_url;
-      req.file.url = result.secure_url;
-      req.file.cloudinaryId = result.public_id;
-      
-      console.log(`✅ File uploaded to Cloudinary: ${result.secure_url}`);
+      req.file.location = fileUrl;
+      req.file.url = fileUrl;
     }
     
-    // Multiple files
     if (req.files && typeof req.files === 'object') {
       for (const fieldName of Object.keys(req.files)) {
         const filesArray = Array.isArray(req.files[fieldName]) ? req.files[fieldName] : [req.files[fieldName]];
-        
-        for (const file of filesArray) {
-          if (file.buffer) {
-            const folder = getFolderName(fieldName, req);
-            
-            console.log(`☁️ Uploading [${fieldName}] to Cloudinary: ${file.originalname}`);
-            
-            const result = await new Promise((resolve, reject) => {
-              const uploadStream = cloudinary.uploader.upload_stream(
-                {
-                  folder: `naukri/${folder}`,
-                  resource_type: 'auto',
-                  public_id: `${Date.now()}_${Math.random().toString(36).substring(7)}`
-                },
-                (error, result) => {
-                  if (error) reject(error);
-                  else resolve(result);
-                }
-              );
-              uploadStream.end(file.buffer);
-            });
-            
-            file.location = result.secure_url;
-            file.url = result.secure_url;
-            file.cloudinaryId = result.public_id;
-            
-            console.log(`✅ File [${fieldName}] uploaded to Cloudinary: ${result.secure_url}`);
-          }
-        }
+        filesArray.forEach((file) => {
+          const folder = getFolderName(fieldName, req);
+          const fileUrl = `uploads/${folder}/${file.filename}`;
+          file.location = fileUrl;
+          file.url = fileUrl;
+        });
       }
     }
     
     next();
   } catch (error) {
-    console.error('❌ Cloudinary Upload Error:', error.message);
-    return res.status(500).json({ 
-      message: 'File upload failed', 
-      error: error.message 
-    });
+    console.error('❌ Upload Error:', error.message);
+    res.status(500).json({ message: 'File upload failed', error: error.message });
   }
 };
 
-// Normalize file location
 const normalizeFileLocation = (req, res, next) => {
-  try {
-    if (req.file && req.file.location) {
-      console.log(`✅ File location: ${req.file.location}`);
-    }
-    
-    if (req.files && typeof req.files === 'object') {
-      Object.keys(req.files).forEach(fieldName => {
-        const filesArray = Array.isArray(req.files[fieldName]) ? req.files[fieldName] : [req.files[fieldName]];
-        filesArray.forEach((file) => {
-          if (file.location) {
-            console.log(`✅ File [${fieldName}] location: ${file.location}`);
-          }
-        });
-      });
-    }
-    
-    next();
-  } catch (error) {
-    console.error('❌ Error in normalizeFileLocation:', error.message);
-    next();
-  }
+  next();
 };
 
 module.exports = upload;
