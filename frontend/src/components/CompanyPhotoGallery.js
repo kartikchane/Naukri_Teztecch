@@ -20,7 +20,7 @@ const CompanyPhotoGallery = ({ photos = [] }) => {
     setValidPhotos(initialPhotos);
     setSelectedIndex(0);
     setFailedImages(new Set());
-  }, [photos]);
+  }, [photos, defaultPhotos]);
 
   // Debug logging
   console.log('CompanyPhotoGallery received photos:', {
@@ -83,7 +83,7 @@ const CompanyPhotoGallery = ({ photos = [] }) => {
               <img
                 key={`main-${selectedIndex}`}
                 src={validPhotos[selectedIndex]}
-                alt={`Company photo ${selectedIndex + 1}`}
+                alt={`Company photo`}
                 className="w-full h-full object-cover cursor-pointer"
                 onClick={() => setShowLightbox(true)}
                 onError={() => {

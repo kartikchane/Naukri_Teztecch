@@ -125,12 +125,11 @@ const EmployerResources = () => {
                     </div>
                     <h3 className="text-xl font-bold mb-2">{guide.title}</h3>
                     <p className="text-gray-600 mb-4">{guide.description}</p>
-                    <a
-                      href="#"
-                      className="text-blue-600 font-semibold hover:underline"
+                    <button
+                      className="text-blue-600 font-semibold hover:underline bg-none border-none cursor-pointer p-0"
                     >
                       Read Guide →
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>

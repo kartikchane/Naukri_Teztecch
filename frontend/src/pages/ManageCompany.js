@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   FaEdit, FaPlus, FaTrash, FaImage, FaSave, FaTimes,
-  FaGlobe, FaMapMarkerAlt, FaPhone, FaEnvelope, FaLinkedin,
-  FaTwitter, FaFacebook, FaInstagram, FaYoutube, FaCheckCircle
+  FaLinkedin, FaTwitter, FaFacebook, FaInstagram, FaYoutube, FaCheckCircle
 } from 'react-icons/fa';
 import { getFileUrl } from '../utils/fileUtils';
 import API from '../utils/api';

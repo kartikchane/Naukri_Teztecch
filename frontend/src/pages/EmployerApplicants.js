@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import API from '../utils/api';
 import { getFileUrl } from '../utils/fileUtils';
 import { toast } from 'react-toastify';
-import { FaPhone, FaMapMarkerAlt, FaBriefcase, FaGraduationCap, FaFileAlt, FaUser } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaBriefcase, FaGraduationCap, FaFileAlt } from 'react-icons/fa';
 
 const EmployerApplicants = ({ jobId, onClose }) => {
   const [applicants, setApplicants] = useState([]);

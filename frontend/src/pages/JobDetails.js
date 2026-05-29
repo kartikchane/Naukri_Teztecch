@@ -47,6 +47,7 @@ const JobDetails = () => {
         setShowApplyModal(true);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, searchParams, isAuthenticated]);
 
   const trackView = async () => {
@@ -158,8 +159,6 @@ const JobDetails = () => {
 
   const handleShare = (platform) => {
     const jobUrl = window.location.href;
-    const jobTitle = encodeURIComponent(job.title);
-    const companyName = encodeURIComponent(job.company?.name || 'Unknown Company');
     const text = encodeURIComponent(`Check out this job: ${job.title} at ${job.company?.name || 'Unknown Company'}`);
     
     let shareUrl = '';

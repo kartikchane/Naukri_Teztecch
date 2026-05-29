@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaMapMarkerAlt, FaBriefcase, FaClock, FaRupeeSign, FaBookmark, FaRegBookmark, FaExclamationCircle } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaBriefcase, FaClock, FaRupeeSign, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import { getFileUrl } from '../utils/fileUtils';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
@@ -20,20 +20,7 @@ const JobCard = ({ job, onSave, isSaved: initialSaved, isFeatured = false }) => 
     return `${min}–${max} yrs`;
   };
 
-  const isNewJob = () => {
-    const jobDate = new Date(job.createdAt || job.postedAt || job.postedDate);
-    const now = new Date();
-    const diffInDays = (now - jobDate) / (1000 * 60 * 60 * 24);
-    return diffInDays <= 7; // Job posted within last 7 days
-  };
 
-  const getDaysLeft = () => {
-    if (!job.applicationDeadline) return null;
-    const deadline = new Date(job.applicationDeadline);
-    const now = new Date();
-    const diffInDays = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
-    return diffInDays;
-  };
 
   const handleSaveJob = async () => {
     if (saving) return;

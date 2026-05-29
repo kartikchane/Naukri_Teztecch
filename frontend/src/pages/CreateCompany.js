@@ -34,6 +34,7 @@ const CreateCompany = () => {
 
   useEffect(() => {
     checkExistingCompany();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkExistingCompany = async () => {

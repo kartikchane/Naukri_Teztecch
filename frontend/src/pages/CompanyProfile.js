@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getFileUrl } from '../utils/fileUtils';
 import API from '../utils/api';
-import { FaIndustry, FaMapMarkerAlt, FaGlobe, FaUsers, FaCalendar, FaEdit, FaSave, FaTimes, FaCheckCircle, FaClock, FaLinkedin, FaTwitter, FaFacebook, FaInstagram, FaSync } from 'react-icons/fa';
+import { FaEdit, FaSave, FaTimes, FaCheckCircle, FaClock, FaLinkedin, FaTwitter, FaFacebook, FaInstagram, FaSync } from 'react-icons/fa';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();
@@ -71,6 +71,7 @@ const CompanyProfile = () => {
     }, 10000);
 
     return () => clearInterval(pollInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editMode, saving]);
 
   const fetchCompanyProfile = async () => {

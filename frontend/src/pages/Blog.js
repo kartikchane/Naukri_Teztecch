@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { FaClock, FaUser, FaTag, FaSearch } from 'react-icons/fa';
 
 const Blog = () => {

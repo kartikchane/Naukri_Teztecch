@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
 import {
-  FaCheckCircle, FaCreditCard, FaRupeeSign, FaArrowRight, FaTrophy,
-  FaFire, FaBolt, FaInfinity, FaUsers, FaSearch, FaStar, FaDatabase,
-  FaChevronRight, FaHeadset, FaShieldAlt, FaGift, FaClock, FaRocket,
-  FaThumbsUp, FaQuoteLeft, FaChartBar, FaSync, FaLock, FaGlobe
+  FaCheckCircle, FaCreditCard, FaArrowRight, FaTrophy,
+  FaChevronRight, FaHeadset, FaLock, FaRocket,
+  FaThumbsUp, FaChartBar, FaSync
 } from 'react-icons/fa';
 
 const Plans = () => {
