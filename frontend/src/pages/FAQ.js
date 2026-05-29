@@ -116,7 +116,11 @@ const FAQ = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+      <section style={{
+        background: 'linear-gradient(to right, #00C2A8, #00A896)',
+        color: 'white',
+        padding: '80px 0'
+      }}>
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl font-bold mb-6">Frequently Asked Questions</h1>
           <p className="text-xl max-w-2xl mx-auto opacity-90">
@@ -183,7 +187,7 @@ const FAQ = () => {
           </p>
           <Link
             to="/contact"
-            className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all"
+            className="inline-block bg-primary hover:bg-secondary text-white px-8 py-3 rounded-lg font-semibold transition-all"
           >
             Contact Support
           </Link>

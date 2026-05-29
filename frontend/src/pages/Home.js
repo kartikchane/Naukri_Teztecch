@@ -90,9 +90,9 @@ const Home = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section 
-        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12 md:py-16 lg:py-20"
+        className="bg-gradient-to-r from-teal-500 to-teal-600 text-white py-12 md:py-16 lg:py-20"
         style={settings.hero?.backgroundImage ? {
-          backgroundImage: `linear-gradient(rgba(37, 99, 235, 0.85), rgba(147, 51, 234, 0.85)), url(${settings.hero.backgroundImage})`,
+          backgroundImage: `linear-gradient(rgba(20, 184, 166, 0.85), rgba(13, 148, 136, 0.85)), url(${settings.hero.backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         } : {}}
@@ -224,7 +224,11 @@ const Home = () => {
 
       {/* Employer CTA Section */}
       {(!isAuthenticated || user?.role === 'employer') && (
-        <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <section style={{
+          background: 'linear-gradient(to right, #00C2A8, #00A896)',
+          color: 'white',
+          padding: '64px 0'
+        }}>
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
