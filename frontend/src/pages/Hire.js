@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaMapMarkerAlt, FaBriefcase, FaGraduationCap } from 'react-icons/fa';
+import { FaSearch, FaMapMarkerAlt, FaBriefcase, FaGraduationCap, FaStar } from 'react-icons/fa';
 import API from '../utils/api';
 
 const Hire = () => {
@@ -14,7 +14,6 @@ const Hire = () => {
 
   useEffect(() => {
     fetchCandidates();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCandidates = async () => {

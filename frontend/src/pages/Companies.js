@@ -24,13 +24,11 @@ const Companies = () => {
   // Fetch all companies once on mount
   useEffect(() => {
     fetchAllCompanies();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filter companies based on search and filters (instant, no API call)
   useEffect(() => {
     filterCompanies();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, filterIndustry, filterSize, allCompanies]);
 
   const fetchAllCompanies = async () => {

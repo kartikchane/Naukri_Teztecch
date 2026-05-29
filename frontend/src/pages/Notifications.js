@@ -6,9 +6,11 @@ import {
   FaBell, 
   FaBriefcase, 
   FaCheckCircle, 
+  FaExclamationCircle, 
   FaInfoCircle,
   FaTrash,
   FaEnvelope,
+  FaCalendar,
   FaClock,
   FaEye,
   FaBuilding
@@ -22,7 +24,6 @@ const Notifications = () => {
 
   useEffect(() => {
     fetchNotifications();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   const fetchNotifications = async () => {

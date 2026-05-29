@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import API from '../utils/api';
 import JobCard from '../components/JobCard';
@@ -6,7 +6,7 @@ import JobFilters from '../components/JobFilters';
 import { FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const Jobs = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -23,6 +23,20 @@ const Jobs = () => {
     limit: 10,
   });
 
+  const categories = [
+    'Software Development',
+    'Data & Analytics',
+    'Design',
+    'Customer Support',
+    'Banking & Finance',
+    'Marketing',
+    'Operations',
+    'HR & Recruitment',
+  ];
+
+  const workModes = ['On-site', 'Remote', 'Hybrid'];
+  const employmentTypes = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance'];
+
   // Update filters when URL parameters change (e.g., from Navbar search)
   useEffect(() => {
     const newFilters = {
@@ -38,7 +52,6 @@ const Jobs = () => {
 
   useEffect(() => {
     fetchJobs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, pagination.currentPage, pagination.limit]);
 
   const fetchJobs = async () => {

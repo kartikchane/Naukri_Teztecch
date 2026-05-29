@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getFileUrl } from '../utils/fileUtils';
 import API from '../utils/api';
 import { 
   FaUser, 
@@ -14,7 +15,7 @@ import {
 import { toast } from 'react-toastify';
 
 const Profile = () => {
-  const { isAuthenticated } = useAuth();
+  const { user: authUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +45,6 @@ const Profile = () => {
       return;
     }
     fetchProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, navigate]);
 
   const fetchProfile = async () => {
