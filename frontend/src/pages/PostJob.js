@@ -20,6 +20,7 @@ const PostJob = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [checkingCompany, setCheckingCompany] = useState(true);
+  const [userCompany, setUserCompany] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [customCategory, setCustomCategory] = useState('');
   const [formData, setFormData] = useState({

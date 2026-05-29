@@ -8,6 +8,7 @@ import {
   FaPhone, 
   FaMapMarkerAlt, 
   FaCheckCircle,
+  FaExclamationCircle,
   FaEdit
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
