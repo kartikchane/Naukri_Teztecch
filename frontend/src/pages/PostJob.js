@@ -139,7 +139,7 @@ const PostJob = () => {
     } finally {
       setCheckingCompany(false);
     }
-  }, [navigate]);
+  }, [navigate, setUserCompany, setCheckingCompany, setFormData]);
 
   useEffect(() => {
     checkSubscriptionAndCompany();
