@@ -15,7 +15,7 @@ export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({
     siteName: 'Naukri Platform',
     siteTagline: 'Find Your Dream Job',
-    siteLogo: '/logo.png',
+    siteLogo: '/Teztech-logo-full.png',
     header: {
       showTopBar: true,
       topBarText: 'Welcome to Naukri Platform - Find Your Dream Job Today!',

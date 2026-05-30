@@ -122,7 +122,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <img
-                src="/teztech-logo-full.jpg"
+                src="/Teztech-logo-full.png"
                 alt="Teztech Logo"
                 className="h-10 w-10 object-contain"
               />
