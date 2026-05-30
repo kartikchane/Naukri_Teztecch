@@ -45,7 +45,7 @@ const CompanyHeader = ({ company, isFollowing, onFollowChange }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
       {/* Cover Image */}
-      <div className="h-40 bg-gradient-to-r from-blue-600 to-purple-600 relative">
+      <div className="h-40 bg-gradient-to-r from-primary to-secondary relative">
         {company?.coverImage && (
           <img
             src={company.coverImage}
@@ -71,7 +71,7 @@ const CompanyHeader = ({ company, isFollowing, onFollowChange }) => {
                 }}
               />
             ) : (
-              <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center border-4 border-white text-white text-3xl font-bold">
+              <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center border-4 border-white text-white text-3xl font-bold">
                 {getInitials(company?.name || '')}
               </div>
             )}

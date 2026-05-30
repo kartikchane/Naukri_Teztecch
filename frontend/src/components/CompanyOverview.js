@@ -441,7 +441,7 @@ const CompanyOverview = ({ company }) => {
                   <div className="flex items-center gap-2">
                     <div className="flex-grow bg-gray-200 rounded-full h-3">
                       <div
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full"
+                        className="bg-gradient-to-r from-primary to-secondary h-3 rounded-full"
                         style={{
                           width: `${Math.min(100, (salary.maxSalary / 150000) * 100)}%`,
                         }}

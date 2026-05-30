@@ -92,7 +92,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
             <img
-              src="/teztech-logo-full.jpeg"
+              src="/teztech-logo-full.png"
               alt="Teztech Logo"
               className="h-16 w-17 object-contain"
             />
@@ -117,7 +117,7 @@ const Navbar = () => {
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <button
                 type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary text-white px-4 py-1 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary text-white px-4 py-1 rounded-md hover:bg-secondary transition-colors text-sm font-medium"
               >
                 Search
               </button>
@@ -164,7 +164,7 @@ const Navbar = () => {
                     onClick={toggleDropdown}
                     className="flex items-center space-x-2 text-gray-700 hover:text-primary transition-colors focus:outline-none"
                   >
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full flex items-center justify-center font-semibold shadow-md">
+                    <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary text-white rounded-full flex items-center justify-center font-semibold shadow-md">
                       {user?.name?.charAt(0).toUpperCase()}
                     </div>
                     <div className="hidden md:flex flex-col items-start">
@@ -195,7 +195,7 @@ const Navbar = () => {
                     <Link
                       to="/profile"
                       onClick={closeDropdown}
-                      className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
+                      className="flex items-center px-4 py-3 text-gray-700 hover:bg-teal-50 hover:text-primary transition-colors"
                     >
                       <FaUser className="mr-3 text-gray-400" /> 
                       <span className="font-medium">Profile</span>
@@ -206,7 +206,7 @@ const Navbar = () => {
                         <Link
                           to="/applications"
                           onClick={closeDropdown}
-                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
+                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-teal-50 hover:text-primary transition-colors"
                         >
                           <FaBriefcase className="mr-3 text-gray-400" /> 
                           <span className="font-medium">My Applications</span>
@@ -214,7 +214,7 @@ const Navbar = () => {
                         <Link
                           to="/saved-jobs"
                           onClick={closeDropdown}
-                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
+                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-teal-50 hover:text-primary transition-colors"
                         >
                           <FaBookmark className="mr-3 text-gray-400" /> 
                           <span className="font-medium">Saved Jobs</span>
@@ -227,14 +227,14 @@ const Navbar = () => {
                         <Link
                           to="/plans"
                           onClick={closeDropdown}
-                          className="flex items-center px-4 py-3 text-blue-600 hover:bg-blue-50 hover:text-primary transition-colors font-semibold"
+                          className="flex items-center px-4 py-3 text-primary hover:bg-teal-50 hover:text-primary transition-colors font-semibold"
                         >
                           💳 Plans & Pricing
                         </Link>
                         <Link
                           to="/company-profile"
                           onClick={closeDropdown}
-                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
+                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-teal-50 hover:text-primary transition-colors"
                         >
                           <FaCog className="mr-3 text-gray-400" />
                           <span className="font-medium">Company Profile</span>
@@ -242,7 +242,7 @@ const Navbar = () => {
                         <Link
                           to="/manage-company"
                           onClick={closeDropdown}
-                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
+                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-teal-50 hover:text-primary transition-colors"
                         >
                           <FaCog className="mr-3 text-gray-400" />
                           <span className="font-medium">Manage Company</span>
@@ -250,7 +250,7 @@ const Navbar = () => {
                         <Link
                           to="/my-jobs"
                           onClick={closeDropdown}
-                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors"
+                          className="flex items-center px-4 py-3 text-gray-700 hover:bg-teal-50 hover:text-primary transition-colors"
                         >
                           <FaBriefcase className="mr-3 text-gray-400" />
                           <span className="font-medium">My Jobs</span>

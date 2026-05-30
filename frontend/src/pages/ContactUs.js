@@ -78,7 +78,7 @@ const ContactUs = () => {
       icon: FaMapMarkerAlt,
       title: "Visit Our Office",
       details: "Plot 1/A/K, Beside Gajanan Primary School,\nAyodhya Nagar, Nagpur – 440 024",
-      color: "bg-gradient-to-br from-blue-500 to-blue-600",
+      color: "bg-gradient-to-br from-primary to-secondary",
       hoverColor: "hover:from-blue-600 hover:to-blue-700",
       action: "Get Directions"
     },
@@ -115,19 +115,19 @@ const ContactUs = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-teal-50 to-emerald-50">
       {/* Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-1000"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-1000"></div>
         <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
       </div>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white py-24 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-primary via-secondary to-emerald-600 text-white py-24 overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-black opacity-20"></div>
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-blue-600/50 to-transparent"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-primary/50 to-transparent"></div>
         </div>
         
         <div className="container mx-auto px-4 text-center relative z-10">
@@ -139,7 +139,7 @@ const ContactUs = () => {
                 : 'transform translate-y-10 opacity-0'
             }`}
           >
-            <h1 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+            <h1 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-teal-100 bg-clip-text text-transparent">
               Let's Connect
             </h1>
             <p className="text-xl md:text-2xl max-w-3xl mx-auto opacity-90 leading-relaxed">
@@ -185,7 +185,7 @@ const ContactUs = () => {
                 className="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition-all hover:shadow-2xl"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="bg-gradient-to-br from-blue-500 to-purple-600 text-white p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-gradient-to-br from-primary to-secondary text-white p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                   <fact.icon className="text-2xl" />
                 </div>
                 <h3 className="font-bold text-lg mb-2 text-gray-800">{fact.title}</h3>
@@ -209,7 +209,7 @@ const ContactUs = () => {
             }`}
           >
             <div className="mb-12">
-              <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Multiple Ways to Reach Us
               </h2>
               <p className="text-gray-600 text-lg leading-relaxed">
@@ -245,7 +245,7 @@ const ContactUs = () => {
               ))}
 
               {/* Business Hours */}
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-2xl border border-blue-100">
+              <div className="bg-gradient-to-br from-teal-50 to-emerald-50 p-8 rounded-2xl border border-teal-100">
                 <div className="flex items-center gap-3 mb-4">
                   <FaClock className="text-blue-600 text-2xl" />
                   <h3 className="font-bold text-xl text-gray-800">Business Hours</h3>
@@ -279,7 +279,7 @@ const ContactUs = () => {
           >
             <div className="bg-white p-10 rounded-3xl shadow-2xl border border-gray-100">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
                   Send Us a Message
                 </h2>
                 <p className="text-gray-600">Fill out the form below and we'll get back to you within 24 hours</p>
@@ -365,7 +365,7 @@ const ContactUs = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-2xl"
+                  className="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold text-lg hover:from-secondary hover:to-emerald-600 transform hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-2xl"
                 >
                   {submitting ? (
                     <>
@@ -386,7 +386,7 @@ const ContactUs = () => {
       </div>
 
       {/* Map Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-teal-50">
         <div className="container mx-auto px-4">
           <div 
             id="animate-map"
@@ -397,7 +397,7 @@ const ContactUs = () => {
             }`}
           >
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Visit Our Office
               </h2>
               <p className="text-gray-600 text-lg">Drop by for a coffee and let's discuss your career goals in person</p>

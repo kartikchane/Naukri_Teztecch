@@ -100,7 +100,7 @@ const ApplyModal = ({ job, isOpen, onClose, onApplySuccess }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center">
+        <div className="sticky top-0 bg-gradient-to-r from-primary to-secondary text-white px-6 py-4 rounded-t-2xl flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold">Apply for Position</h2>
             <p className="text-sm opacity-90 mt-1">{job.title} at {job.company?.name}</p>
